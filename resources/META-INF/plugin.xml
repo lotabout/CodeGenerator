@@ -1,0 +1,49 @@
+<idea-plugin>
+  <id>me.lotabout.codegenerator</id>
+  <name>CodeGenerator</name>
+  <version>1.0</version>
+  <vendor email="lotabout@gmail.com" url="https://lotabout.me">LotAbout</vendor>
+
+  <description><![CDATA[
+      Enter short description for your plugin here.<br>
+      <em>most HTML tags may be used</em>
+    ]]></description>
+
+  <change-notes><![CDATA[
+      Add change notes here.<br>
+      <em>most HTML tags may be used</em>
+    ]]>
+  </change-notes>
+
+  <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
+  <idea-version since-build="145.0"/>
+
+  <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
+       on how to target different products -->
+  <!-- uncomment to enable plugin in all products
+  <depends>com.intellij.modules.lang</depends>
+  -->
+
+  <extensions defaultExtensionNs="com.intellij">
+    <!-- Add your extensions here -->
+    <applicationService serviceInterface="me.lotabout.codegenerator.CodeGeneratorSettings"
+                        serviceImplementation="me.lotabout.codegenerator.CodeGeneratorSettings"/>
+
+    <applicationConfigurable instance="me.lotabout.codegenerator.ui.CodeGeneratorConfigurable"/>
+  </extensions>
+
+  <actions>
+    <!-- Add your actions here -->
+    <group id="me.lotabout.codegenerator.action.CodeGeneratorMenu" class="me.lotabout.codegenerator.action.CodeGeneratorGroup" text="CodeGenerator"
+           description="" popup="true">
+      <add-to-group group-id="GenerateGroup" anchor="after" relative-to-action="JavaGenerateGroup2"/>
+    </group>
+  </actions>
+
+  <application-components>
+    <component>
+      <implementation-class>me.lotabout.codegenerator.CodeGenerator</implementation-class>
+    </component>
+  </application-components>
+
+</idea-plugin>
