@@ -8,8 +8,6 @@ import com.intellij.openapi.application.WriteAction;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.project.DumbAware;
-import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.psi.*;
@@ -17,11 +15,13 @@ import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.psi.util.PsiUtil;
 import me.lotabout.codegenerator.CodeGeneratorSettings;
 import me.lotabout.codegenerator.CodeGeneratorWorker;
-import me.lotabout.codegenerator.CodeTemplate;
+import me.lotabout.codegenerator.config.GeneratorConfig;
 import me.lotabout.codegenerator.GenerationUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.java.generate.template.TemplateResource;
+import org.jetbrains.java.generate.GenerateToStringContext;
+import org.jetbrains.java.generate.GenerateToStringUtils;
+import org.jetbrains.java.generate.config.Config;
 
 import javax.swing.*;
 import java.awt.*;
@@ -59,18 +59,18 @@ public class CodeGeneratorActionHandler implements CodeInsightActionHandler {
     }
 
     private void doExecuteAction(@NotNull final Project project, @NotNull final PsiClass clazz, final Editor editor) {
-        CodeTemplate codeTemplate = settings.getCodeTemplate(templateKey).orElseThrow(IllegalStateException::new);
-
         if (!FileModificationService.getInstance().preparePsiElementsForWrite(clazz)) {
             return;
         }
-        logger.debug("+++ doExecuteAction - START +++");
 
+        GeneratorConfig generatorConfig = settings.getCodeTemplate(templateKey).orElseThrow(IllegalStateException::new);
+
+        logger.debug("+++ doExecuteAction - START +++");
         if (logger.isDebugEnabled()) {
             logger.debug("Current project " + project.getName());
         }
 
-        final PsiElementClassMember[] dialogMembers = buildMembersToShow(clazz);
+        final PsiElementClassMember[] dialogMembers = buildMembersToShow(clazz, generatorConfig);
 
         final MemberChooser<PsiElementClassMember> chooser =
                 new MemberChooser<PsiElementClassMember>(dialogMembers, true, true, project, PsiUtil.isLanguageLevel5OrHigher(clazz), new JPanel(new BorderLayout())) {
@@ -86,16 +86,8 @@ public class CodeGeneratorActionHandler implements CodeInsightActionHandler {
         if (DialogWrapper.OK_EXIT_CODE == chooser.getExitCode()) {
             Collection<PsiMember> selectedMembers = GenerationUtil.convertClassMembersToPsiMembers(chooser.getSelectedElements());
 
-            final CodeGeneratorWorker worker = new CodeGeneratorWorker(clazz, editor);
-            WriteAction.run(() -> {
-                try {
-                    worker.execute(selectedMembers, codeTemplate.template());
-                }
-                catch (Exception e) {
-                    e.printStackTrace();
-                    GenerationUtil.handleException(project, e);
-                }
-            });
+            final CodeGeneratorWorker worker = new CodeGeneratorWorker(clazz, editor, generatorConfig);
+            worker.execute(selectedMembers, generatorConfig.template);
         }
         logger.debug("+++ doExecuteAction - END +++");
     }
@@ -117,12 +109,21 @@ public class CodeGeneratorActionHandler implements CodeInsightActionHandler {
         return clazz;
     }
 
-    public static PsiElementClassMember[] buildMembersToShow(PsiClass clazz) {
-        PsiField[] fields = clazz.getAllFields();
-        if (logger.isDebugEnabled()) logger.debug("Number of fields after filtering: " + fields.length);
+    public static PsiElementClassMember[] buildMembersToShow(PsiClass clazz, GeneratorConfig generatorConfig) {
+        Config config = generatorConfig2Config(generatorConfig);
 
-        PsiMethod[] filteredMethods = PsiMethod.EMPTY_ARRAY;
-        return GenerationUtil.combineToClassMemberList(fields, filteredMethods);
+        PsiField[] filteredFields = GenerateToStringUtils.filterAvailableFields(clazz, true, config.getFilterPattern());
+        if (logger.isDebugEnabled()) logger.debug("Number of fields after filtering: " + filteredFields.length);
+        PsiMethod[] filteredMethods;
+        if (config.enableMethods) {
+            // filter methods as it is enabled from config
+            filteredMethods = GenerateToStringUtils.filterAvailableMethods(clazz, config.getFilterPattern());
+            if (logger.isDebugEnabled()) logger.debug("Number of methods after filtering: " + filteredMethods.length);
+        } else {
+            filteredMethods = PsiMethod.EMPTY_ARRAY;
+        }
+
+        return GenerationUtil.combineToClassMemberList(filteredFields, filteredMethods);
     }
 
     private static PsiElementClassMember[] getPreselection(@NotNull PsiClass clazz, PsiElementClassMember[] dialogMembers) {
@@ -131,5 +132,24 @@ public class CodeGeneratorActionHandler implements CodeInsightActionHandler {
                 .toArray(PsiElementClassMember[]::new);
     }
 
+    private static Config generatorConfig2Config(GeneratorConfig generatorConfig) {
+        Config config = new Config();
+        config.useFullyQualifiedName = generatorConfig.useFullyQualifiedName;
+        config.insertNewMethodOption = generatorConfig.insertNewMethodOption;
+        config.whenDuplicatesOption = generatorConfig.whenDuplicatesOption;
+        config.filterConstantField = generatorConfig.filterConstantField;
+        config.filterEnumField = generatorConfig.filterEnumField;
+        config.filterTransientModifier = generatorConfig.filterTransientModifier;
+        config.filterStaticModifier = generatorConfig.filterStaticModifier;
+        config.filterFieldName = generatorConfig.filterFieldName;
+        config.filterMethodName = generatorConfig.filterMethodName;
+        config.filterMethodType = generatorConfig.filterMethodType;
+        config.filterFieldType = generatorConfig.filterFieldType;
+        config.filterLoggers = generatorConfig.filterLoggers;
+        config.enableMethods = generatorConfig.enableMethods;
+        config.jumpToMethod = generatorConfig.jumpToMethod;
+        config.sortElements = generatorConfig.sortElements;
+        return config;
+    }
 
 }

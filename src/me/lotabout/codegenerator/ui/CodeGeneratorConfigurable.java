@@ -4,7 +4,7 @@ import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.SearchableConfigurable;
 import me.lotabout.codegenerator.CodeGeneratorSettings;
-import me.lotabout.codegenerator.CodeTemplate;
+import me.lotabout.codegenerator.config.GeneratorConfig;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -41,8 +41,8 @@ public class CodeGeneratorConfigurable implements SearchableConfigurable {
             return true;
         }
 
-        for (Map.Entry<String, CodeTemplate> entry : config.getTabTemplates().entrySet()) {
-            Optional<CodeTemplate> codeTemplate = settings.getCodeTemplate(entry.getKey());
+        for (Map.Entry<String, GeneratorConfig> entry : config.getTabTemplates().entrySet()) {
+            Optional<GeneratorConfig> codeTemplate = settings.getCodeTemplate(entry.getKey());
             if (!codeTemplate.isPresent() || !codeTemplate.get().equals(entry.getValue())) {
                 return true;
             }
@@ -52,7 +52,7 @@ public class CodeGeneratorConfigurable implements SearchableConfigurable {
     }
 
     @Override public void apply() throws ConfigurationException {
-        for (Map.Entry<String, CodeTemplate> entry : config.getTabTemplates().entrySet()) {
+        for (Map.Entry<String, GeneratorConfig> entry : config.getTabTemplates().entrySet()) {
             if (!entry.getValue().isValid()) {
                 throw new ConfigurationException(
                         "Not property can be empty and classNumber should be a number");

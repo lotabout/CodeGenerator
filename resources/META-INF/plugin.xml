@@ -1,7 +1,7 @@
 <idea-plugin>
   <id>me.lotabout.codegenerator</id>
   <name>CodeGenerator</name>
-  <version>0.1</version>
+  <version>0.2</version>
   <vendor email="lotabout@gmail.com" url="https://lotabout.me">LotAbout</vendor>
 
   <description><![CDATA[

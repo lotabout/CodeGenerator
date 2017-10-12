@@ -2,7 +2,7 @@ package me.lotabout.codegenerator.ui;
 
 import com.intellij.ui.components.JBTabbedPane;
 import me.lotabout.codegenerator.CodeGeneratorSettings;
-import me.lotabout.codegenerator.CodeTemplate;
+import me.lotabout.codegenerator.config.GeneratorConfig;
 
 import javax.swing.*;
 import java.awt.*;
@@ -53,15 +53,30 @@ public class CodeGeneratorConfig {
         });
     }
 
-    public Map<String, CodeTemplate> getTabTemplates() {
-        Map<String, CodeTemplate> map = new HashMap<>();
+    public Map<String, GeneratorConfig> getTabTemplates() {
+        Map<String, GeneratorConfig> map = new HashMap<>();
         editPaneMap.forEach((key, value) -> {
-            CodeTemplate codeTemplate = new CodeTemplate()
-                    .setName(value.templateName())
-                    .setType(value.templateType())
-                    .setTemplate(value.template())
-                    .setFileEncoding(value.fileEncoding());
-            map.put(codeTemplate.name(), codeTemplate);
+            GeneratorConfig generatorConfig = new GeneratorConfig();
+            generatorConfig.name = value.name();
+            generatorConfig.type = value.type();
+            generatorConfig.fileEncoding = value.fileEncoding();
+            generatorConfig.template = value.template();
+            generatorConfig.useFullyQualifiedName = value.useFullyQualifiedName();
+            generatorConfig.enableMethods = value.enableMethods();
+            generatorConfig.jumpToMethod = value.jumpToMethod();
+            generatorConfig.sortElements = value.sortElements();
+            generatorConfig.filterConstantField = value.excludeConstant();
+            generatorConfig.filterStaticModifier = value.excludeStatic();
+            generatorConfig.filterTransientModifier = value.excludeTransient();
+            generatorConfig.filterEnumField = value.excludeEnum();
+            generatorConfig.filterLoggers = value.excludeLogger();
+            generatorConfig.filterFieldName = value.excludeFieldsByName();
+            generatorConfig.filterFieldType = value.excludeFieldsByType();
+            generatorConfig.filterMethodName = value.excludeMethodsByName();
+            generatorConfig.filterMethodType = value.excludeMethodsByType();
+            generatorConfig.whenDuplicatesOption = value.duplicationPolicy();
+            generatorConfig.insertNewMethodOption = value.insertWhere();
+            map.put(generatorConfig.name, generatorConfig);
         });
         return map;
     }

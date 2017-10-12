@@ -6,6 +6,7 @@ import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.util.xmlb.XmlSerializerUtil;
+import me.lotabout.codegenerator.config.GeneratorConfig;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -19,14 +20,14 @@ import java.util.Optional;
 public class CodeGeneratorSettings implements PersistentStateComponent<CodeGeneratorSettings> {
 
     private static final Logger LOGGER = Logger.getInstance(CodeGeneratorSettings.class);
-    private Map<String, CodeTemplate> codeTemplates;
+    private Map<String, GeneratorConfig> codeTemplates;
 
     public CodeGeneratorSettings() {
 
     }
 
     public CodeGeneratorSettings setCodeTemplates(
-            Map<String, CodeTemplate> codeTemplates) {
+            Map<String, GeneratorConfig> codeTemplates) {
         this.codeTemplates = codeTemplates;
         return this;
     }
@@ -43,14 +44,14 @@ public class CodeGeneratorSettings implements PersistentStateComponent<CodeGener
         XmlSerializerUtil.copyBean(codeGeneratorSettings, this);
     }
 
-    public Map<String, CodeTemplate> getCodeTemplates() {
+    public Map<String, GeneratorConfig> getCodeTemplates() {
         if (codeTemplates == null) {
             codeTemplates = loadDefaultTemplates();
         }
         return codeTemplates;
     }
 
-    public Optional<CodeTemplate> getCodeTemplate(String template) {
+    public Optional<GeneratorConfig> getCodeTemplate(String template) {
         return Optional.ofNullable(codeTemplates.get(template));
     }
 
@@ -59,10 +60,10 @@ public class CodeGeneratorSettings implements PersistentStateComponent<CodeGener
     }
 
 
-    private Map<String, CodeTemplate> loadDefaultTemplates() {
+    private Map<String, GeneratorConfig> loadDefaultTemplates() {
         try {
-            Map<String, CodeTemplate> codeTemplates = new HashMap<>();
-            codeTemplates.put("HUESerialization", createTemplate("HUESerialization", "body", CodeTemplate.DEFAULT_ENCODING));
+            Map<String, GeneratorConfig> codeTemplates = new HashMap<>();
+            codeTemplates.put("HUESerialization", createTemplate("HUESerialization", "body"));
             return codeTemplates;
         } catch (Exception e) {
             LOGGER.error("loadDefaultTemplates failed", e);
@@ -71,12 +72,13 @@ public class CodeGeneratorSettings implements PersistentStateComponent<CodeGener
     }
 
     @NotNull
-    private CodeTemplate createTemplate(String name, String type, String encoding) throws IOException {
+    private GeneratorConfig createTemplate(String name, String type) throws IOException {
         String velocityTemplate = FileUtil.loadTextAndClose(CodeGeneratorSettings.class.getResourceAsStream("/template/" + name + ".vm"));
-        return new CodeTemplate()
-                .setType(type)
-                .setName(name)
-                .setTemplate(velocityTemplate);
+        GeneratorConfig generatorConfig = new GeneratorConfig();
+        generatorConfig.type = type;
+        generatorConfig.name = name;
+        generatorConfig.template = velocityTemplate;
+        return generatorConfig;
     }
 
 }
