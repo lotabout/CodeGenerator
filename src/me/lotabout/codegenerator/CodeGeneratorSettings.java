@@ -51,7 +51,7 @@ public class CodeGeneratorSettings implements PersistentStateComponent<CodeGener
     }
 
     public Optional<CodeTemplate> getCodeTemplate(String template) {
-        return Optional.of(codeTemplates.get(template));
+        return Optional.ofNullable(codeTemplates.get(template));
     }
 
     public void removeCodeTemplate(String template) {
@@ -62,7 +62,7 @@ public class CodeGeneratorSettings implements PersistentStateComponent<CodeGener
     private Map<String, CodeTemplate> loadDefaultTemplates() {
         try {
             Map<String, CodeTemplate> codeTemplates = new HashMap<>();
-            codeTemplates.put("HUESerialization", createTemplate("HUESerialization.vm", "body", CodeTemplate.DEFAULT_ENCODING));
+            codeTemplates.put("HUESerialization", createTemplate("HUESerialization", "body", CodeTemplate.DEFAULT_ENCODING));
             return codeTemplates;
         } catch (Exception e) {
             LOGGER.error("loadDefaultTemplates failed", e);
@@ -71,11 +71,11 @@ public class CodeGeneratorSettings implements PersistentStateComponent<CodeGener
     }
 
     @NotNull
-    private CodeTemplate createTemplate(String sourceFileName, String type, String encoding) throws IOException {
-        String velocityTemplate = FileUtil.loadTextAndClose(CodeGeneratorSettings.class.getResourceAsStream("/template/" + sourceFileName));
+    private CodeTemplate createTemplate(String name, String type, String encoding) throws IOException {
+        String velocityTemplate = FileUtil.loadTextAndClose(CodeGeneratorSettings.class.getResourceAsStream("/template/" + name + ".vm"));
         return new CodeTemplate()
                 .setType(type)
-                .setName(sourceFileName)
+                .setName(name)
                 .setTemplate(velocityTemplate);
     }
 

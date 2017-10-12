@@ -28,6 +28,8 @@ public class TemplateEditPane {
 
         templateNameText.setText(template.name());
         fileEncodingText.setText(StringUtil.notNullize(template.fileEncoding(), CodeTemplate.DEFAULT_ENCODING));
+        templateTypeCombo.setSelectedItem(template.type());
+
         addVmEditor(template.template());
         deleteTemplateButton.addActionListener(e -> {
             int result = Messages.showYesNoDialog("Delete this template?", "Delete", null);
@@ -62,7 +64,7 @@ public class TemplateEditPane {
     }
 
     public String templateType() {
-        return "body";
+        return (String) templateTypeCombo.getSelectedItem();
     }
 
     public JPanel templateEdit() {
