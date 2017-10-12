@@ -3,9 +3,27 @@ package me.lotabout.codegenerator;
 public class CodeTemplate {
     public static final String DEFAULT_ENCODING = "UTF-8";
 
+    public static final String DEFAULT_TEMPLATE = ""
+            + "## The available variables\n"
+            + "## - List<FieldElement>  fields: The selected fields\n"
+            + "## - List<MethodElement> methods: The selected methods (currently not supported)\n"
+            + "## - List<Element>       members: selected (fields + methods)\n"
+            + "## - ClassElement        class: The current class\n"
+            + "## - String              classname: Class Name\n"
+            + "## - String              FQClassname: Full Qualified Class Name\n"
+            + "## - int                 java_version: java version\n"
+            + "## - CodeStyleSettings   settings: settings of code style\n"
+            + "## - Project             project: The project instance, normally used by Psi related utilities\n"
+            + "## - GenerationHelper    helper:\n"
+            + "## - StringUtil          StringUtil: The utility class to deal with string\n"
+            + "## - NameUtil            NameUtil: The utility class to handle names\n"
+            + "## - PsiShortNamesCache  PsiShortNamesCache: utility to search classes\n"
+            + "## - PsiJavaPsiFacade    PsiJavaPsiFacade: Java specific utility to search classes\n"
+            + "## - GlobalSearchScope   GlobalSearchScope: class to create search scopes, used by above utilities\n";
+
     private String name = "";
     private String type = "";
-    private String template = "";
+    private String template = DEFAULT_TEMPLATE;
     private String fileEncoding = DEFAULT_ENCODING;
 
     public CodeTemplate setName(String name) {

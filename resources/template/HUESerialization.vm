@@ -1,16 +1,56 @@
+## The available variables
+## - List<FieldElement>  fields: The selected fields
+## - List<MethodElement> methods: The selected methods (currently not supported)
+## - List<Element>       members: selected (fields + methods)
+## - ClassElement        class: The current class
+## - String              classname: Class Name
+## - String              FQClassname: Full Qualified Class Name
+## - int                 java_version: java version
+## - CodeStyleSettings   settings: settings of code style
+## - Project             project: The project instance, normally used by Psi related utilities
+## - GenerationHelper    helper:
+## - StringUtil          StringUtil: The utility class to deal with string
+## - NameUtil            NameUtil: The utility class to handle names
+## - PsiShortNamesCache  PsiShortNamesCache: utility to search classes
+## - PsiJavaPsiFacade    PsiJavaPsiFacade: Java specific utility to search classes
+## - GlobalSearchScope   GlobalSearchScope: class to create search scopes, used by above utilities
+
+#set($javaPsiFacade = $JavaPsiFacade.getInstance($project))
+#set($global = $GlobalSearchScope.allScope($project))
+
 private static final int CURR_VERSION = 0;
-@Override public void write(OutputSource outputSource) {
+@Override public void write(com.worksap.company.framework.serializer.wrapper.OutputSource outputSource) {
     outputSource.writeInt(CURR_VERSION);
 #foreach( $member in $members )
-    outputSource.write${member.type}($member.name);
+    #set($memberType = $member.type.split("<").get(0))
+    #set($type = $javaPsiFacade.findClass($memberType, $global))
+    #if ($member.primitive)
+        outputSource.write${StringUtil.capitalizeWithJavaBeanConvention($memberType)}($member.name);
+    #elseif($member.isString())
+        outputSource.writeString($member.name);
+    #elseif($type == $null || $type.isInterface() || $type.getModifierList().hasModifierProperty("abstract") || $type.getTypeParameterList().getTextLength() > 0)
+        outputSource.writeGenericObject($member.name);
+    #else
+        outputSource.writeConcreteObject($member.name, ${memberType}.class);
+    #end
 #end
 }
 
-@Override public void read(InputSource inputSource) {
+@Override public void read(com.worksap.company.framework.serializer.wrapper.InputSource inputSource) {
     int version = inputSource.readInt();
     if (version == 0) {
 #foreach( $member in $members )
-    $member.name = inputSource.read${member.type}();
+    #set($memberType = $member.type.split("<").get(0))
+    #set($type = $javaPsiFacade.findClass($memberType, $global))
+    #if ($member.primitive)
+        $member.name = inputSource.read${StringUtil.capitalizeWithJavaBeanConvention($memberType)}();
+    #elseif($member.isString())
+        $member.name = inputSource.readString();
+    #elseif($type == $null || $type.isInterface() || $type.getModifierList().hasModifierProperty("abstract") || $type.getTypeParameterList().getTextLength() > 0)
+        $member.name = ($member.type)inputSource.readGenericObject();
+    #else
+        $member.name = inputSource.readConcreteObject(${memberType}.class);
+    #end
 #end
     }
 }

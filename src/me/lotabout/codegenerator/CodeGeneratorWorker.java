@@ -10,6 +10,7 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.*;
 import com.intellij.psi.codeStyle.CodeStyleManager;
+import com.intellij.psi.codeStyle.JavaCodeStyleManager;
 import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.java.generate.exception.GenerateCodeException;
 
@@ -37,6 +38,13 @@ public class CodeGeneratorWorker {
         // fix weird linebreak problem in IDEA #3296 and later
         body = StringUtil.convertLineSeparators(body);
 
+        PsiFile file = clazz.getContainingFile();
+        if (file instanceof PsiJavaFile) {
+            executeJavaFile(body);
+        }
+    }
+
+    private void executeJavaFile(String body) {
         final PsiClass fakeClass;
         try {
             final PsiFile element = PsiFileFactory.getInstance(clazz.getProject()).createFileFromText("filename", JavaFileType.INSTANCE, "class X {" + body + "}");
@@ -47,9 +55,8 @@ public class CodeGeneratorWorker {
             return;
         }
 
+        // replace all fields (for now) TODO: add policy for asking
 
-        // replace all fields (for now)
-        // TODO: add policy for asking
         List<GenerationInfo> generationInfoList = new ArrayList<>();
         for (PsiField field : fakeClass.getFields()) {
             PsiField existingField = clazz.findFieldByName(field.getName(), false);
@@ -58,6 +65,7 @@ public class CodeGeneratorWorker {
             }
             generationInfoList.add(new PsiGenerationInfo<>(field, false));
         }
+
         for (PsiMethod method: fakeClass.getMethods()) {
             PsiMethod existingMethod = clazz.findMethodBySignature(method, false);
             if (existingMethod != null) {
@@ -65,6 +73,7 @@ public class CodeGeneratorWorker {
             }
             generationInfoList.add(new PsiGenerationInfo<>(method, false));
         }
+
         for (PsiClass clazz: fakeClass.getInnerClasses()) {
             PsiClass existingClass = clazz.findInnerClassByName(clazz.getName(), false);
             if (existingClass != null) {
@@ -75,7 +84,8 @@ public class CodeGeneratorWorker {
 
         int offset = (editor != null) ? editor.getCaretModel().getOffset() : (clazz.getTextRange().getEndOffset() - 1);
         GenerateMembersUtil.insertMembersAtOffset(clazz, offset, generationInfoList);
+
+        // auto import
+        JavaCodeStyleManager.getInstance(clazz.getProject()).shortenClassReferences(clazz.getContainingFile());
     }
-
-
 }

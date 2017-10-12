@@ -93,7 +93,7 @@ public class CodeGeneratorActionHandler implements CodeInsightActionHandler {
                 }
                 catch (Exception e) {
                     e.printStackTrace();
-//                    GenerationUtil.handleException(project, e);
+                    GenerationUtil.handleException(project, e);
                 }
             });
         }

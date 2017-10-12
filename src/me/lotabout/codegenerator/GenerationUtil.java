@@ -6,16 +6,20 @@ import com.intellij.codeInsight.generation.PsiMethodMember;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.*;
 import com.intellij.psi.codeStyle.CodeStyleSettingsManager;
 import com.intellij.psi.codeStyle.NameUtil;
+import com.intellij.psi.search.GlobalSearchScope;
+import com.intellij.psi.search.PsiShortNamesCache;
 import com.intellij.util.containers.ContainerUtil;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.generate.element.*;
 import org.jetbrains.java.generate.exception.GenerateCodeException;
+import org.jetbrains.java.generate.exception.PluginException;
 import org.jetbrains.java.generate.psi.PsiAdapter;
 import org.jetbrains.java.generate.velocity.VelocityFactory;
 
@@ -158,6 +162,10 @@ public class GenerationUtil {
             vc.put("helper", GenerationHelper.class);
             vc.put("StringUtil", StringUtil.class);
             vc.put("NameUtil", NameUtil.class);
+            vc.put("PsiShortNamesCache", PsiShortNamesCache.class);
+            vc.put("JavaPsiFacade", JavaPsiFacade.class);
+            vc.put("GlobalSearchScope", GlobalSearchScope.class);
+
 
             for (String paramName : contextMap.keySet()) {
                 vc.put(paramName, contextMap.get(paramName));
@@ -184,5 +192,34 @@ public class GenerationUtil {
         }
 
         return StringUtil.convertLineSeparators(sw.getBuffer().toString());
+    }
+
+    /**
+     * Handles any exception during the executing on this plugin.
+     *
+     * @param project PSI project
+     * @param e       the caused exception.
+     * @throws RuntimeException is thrown for severe exceptions
+     */
+    public static void handleException(Project project, Exception e) throws RuntimeException {
+        logger.info(e);
+
+        if (e instanceof GenerateCodeException) {
+            // code generation error - display velocity error in error dialog so user can identify problem quicker
+            Messages.showMessageDialog(project,
+                    "Velocity error generating code - see IDEA log for more details (stacktrace should be in idea.log):\n" +
+                            e.getMessage(), "Warning", Messages.getWarningIcon());
+        } else if (e instanceof PluginException) {
+            // plugin related error - could be recoverable.
+            Messages.showMessageDialog(project, "A PluginException was thrown while performing the action - see IDEA log for details (stacktrace should be in idea.log):\n" + e.getMessage(), "Warning", Messages.getWarningIcon());
+        } else if (e instanceof RuntimeException) {
+            // unknown error (such as NPE) - not recoverable
+            Messages.showMessageDialog(project, "An unrecoverable exception was thrown while performing the action - see IDEA log for details (stacktrace should be in idea.log):\n" + e.getMessage(), "Error", Messages.getErrorIcon());
+            throw (RuntimeException) e; // throw to make IDEA alert user
+        } else {
+            // unknown error (such as NPE) - not recoverable
+            Messages.showMessageDialog(project, "An unrecoverable exception was thrown while performing the action - see IDEA log for details (stacktrace should be in idea.log):\n" + e.getMessage(), "Error", Messages.getErrorIcon());
+            throw new RuntimeException(e); // rethrow as runtime to make IDEA alert user
+        }
     }
 }
