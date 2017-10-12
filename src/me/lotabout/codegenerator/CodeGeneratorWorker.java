@@ -3,11 +3,13 @@ package me.lotabout.codegenerator;
 import com.intellij.codeInsight.generation.GenerateMembersUtil;
 import com.intellij.codeInsight.generation.GenerationInfo;
 import com.intellij.codeInsight.generation.PsiGenerationInfo;
+import com.intellij.codeInsight.hint.HintManager;
 import com.intellij.ide.highlighter.JavaFileType;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.*;
+import com.intellij.psi.codeStyle.CodeStyleManager;
 import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.java.generate.exception.GenerateCodeException;
 
@@ -35,22 +37,45 @@ public class CodeGeneratorWorker {
         // fix weird linebreak problem in IDEA #3296 and later
         body = StringUtil.convertLineSeparators(body);
 
-        final PsiFile element = PsiFileFactory.getInstance(clazz.getProject()).createFileFromText("filename", JavaFileType.INSTANCE, "class X {" + body + "}");
-        final PsiClass fakeClass = (PsiClass)element.getLastChild();
+        final PsiClass fakeClass;
+        try {
+            final PsiFile element = PsiFileFactory.getInstance(clazz.getProject()).createFileFromText("filename", JavaFileType.INSTANCE, "class X {" + body + "}");
+            fakeClass = (PsiClass)element.getLastChild();
+            CodeStyleManager.getInstance(clazz.getProject()).reformat(fakeClass);
+        } catch (IncorrectOperationException ignore) {
+            HintManager.getInstance().showErrorHint(editor, "fail to generate code from template" );
+            return;
+        }
 
+
+        // replace all fields (for now)
+        // TODO: add policy for asking
         List<GenerationInfo> generationInfoList = new ArrayList<>();
         for (PsiField field : fakeClass.getFields()) {
+            PsiField existingField = clazz.findFieldByName(field.getName(), false);
+            if (existingField != null) {
+                existingField.delete();
+            }
             generationInfoList.add(new PsiGenerationInfo<>(field, false));
         }
         for (PsiMethod method: fakeClass.getMethods()) {
+            PsiMethod existingMethod = clazz.findMethodBySignature(method, false);
+            if (existingMethod != null) {
+                existingMethod.delete();
+            }
             generationInfoList.add(new PsiGenerationInfo<>(method, false));
         }
         for (PsiClass clazz: fakeClass.getInnerClasses()) {
+            PsiClass existingClass = clazz.findInnerClassByName(clazz.getName(), false);
+            if (existingClass != null) {
+                existingClass.delete();
+            }
             generationInfoList.add(new PsiGenerationInfo<>(clazz, false));
         }
-
 
         int offset = (editor != null) ? editor.getCaretModel().getOffset() : (clazz.getTextRange().getEndOffset() - 1);
         GenerateMembersUtil.insertMembersAtOffset(clazz, offset, generationInfoList);
     }
+
+
 }

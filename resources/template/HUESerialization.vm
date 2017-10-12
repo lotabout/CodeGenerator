@@ -1,0 +1,16 @@
+private static final int CURR_VERSION = 0;
+@Override public void write(OutputSource outputSource) {
+    outputSource.writeInt(CURR_VERSION);
+#foreach( $member in $members )
+    outputSource.write${member.type}($member.name);
+#end
+}
+
+@Override public void read(InputSource inputSource) {
+    int version = inputSource.readInt();
+    if (version == 0) {
+#foreach( $member in $members )
+    $member.name = inputSource.read${member.type}();
+#end
+    }
+}
