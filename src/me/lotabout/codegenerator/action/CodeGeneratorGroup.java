@@ -30,6 +30,7 @@ public class CodeGeneratorGroup extends ActionGroup implements DumbAware {
 
         final List<AnAction> children = settings.getCodeTemplates()
                 .entrySet().stream()
+                .filter(entry -> entry.getValue().enabled)
                 .map(entry -> CodeGeneratorGroup.getOrCreateAction(entry.getKey(), entry.getValue().name))
                 .collect(Collectors.toList());
 

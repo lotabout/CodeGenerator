@@ -98,6 +98,7 @@ public class CodeGeneratorConfig {
             CodeTemplate codeTemplate = new CodeTemplate(value.id());
             codeTemplate.name = value.name();
             codeTemplate.type = value.type();
+            codeTemplate.enabled = value.enabled();
             codeTemplate.fileEncoding = value.fileEncoding();
             codeTemplate.template = value.template();
             codeTemplate.useFullyQualifiedName = value.useFullyQualifiedName();

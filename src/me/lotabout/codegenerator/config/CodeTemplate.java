@@ -1,5 +1,7 @@
 package me.lotabout.codegenerator.config;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.jetbrains.java.generate.config.DuplicationPolicy;
 import org.jetbrains.java.generate.config.InsertWhere;
 
@@ -26,6 +28,7 @@ public class CodeTemplate {
     public boolean enableMethods = false;
     public boolean jumpToMethod = true; // jump cursor to toString method
     public int sortElements = 0; // 0 = none, 1 = asc, 2 = desc
+    public boolean enabled = true;
 
     public String template = DEFAULT_TEMPLATE;
     public String fileEncoding = DEFAULT_ENCODING;
@@ -69,62 +72,65 @@ public class CodeTemplate {
             + "## - PsiJavaPsiFacade    PsiJavaPsiFacade: Java specific utility to search classes\n"
             + "## - GlobalSearchScope   GlobalSearchScope: class to create search scopes, used by above utilities\n";
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+    @Override public boolean equals(Object o) {
+        if (this == o)
+            return true;
 
-        CodeTemplate that = (CodeTemplate) o;
+        if (o == null || getClass() != o.getClass())
+            return false;
 
-        if (useFullyQualifiedName != that.useFullyQualifiedName) return false;
-        if (filterConstantField != that.filterConstantField) return false;
-        if (filterEnumField != that.filterEnumField) return false;
-        if (filterTransientModifier != that.filterTransientModifier) return false;
-        if (filterStaticModifier != that.filterStaticModifier) return false;
-        if (filterLoggers != that.filterLoggers) return false;
-        if (enableMethods != that.enableMethods) return false;
-        if (jumpToMethod != that.jumpToMethod) return false;
-        if (sortElements != that.sortElements) return false;
-        if (name != null ? !name.equals(that.name) : that.name != null) return false;
-        if (fileExtension != null ? !fileExtension.equals(that.fileExtension) : that.fileExtension != null)
-            return false;
-        if (type != null ? !type.equals(that.type) : that.type != null) return false;
-        if (insertNewMethodOption != that.insertNewMethodOption) return false;
-        if (whenDuplicatesOption != that.whenDuplicatesOption) return false;
-        if (filterFieldName != null ? !filterFieldName.equals(that.filterFieldName) : that.filterFieldName != null)
-            return false;
-        if (filterMethodName != null ? !filterMethodName.equals(that.filterMethodName) : that.filterMethodName != null)
-            return false;
-        if (filterMethodType != null ? !filterMethodType.equals(that.filterMethodType) : that.filterMethodType != null)
-            return false;
-        if (filterFieldType != null ? !filterFieldType.equals(that.filterFieldType) : that.filterFieldType != null)
-            return false;
-        if (template != null ? !template.equals(that.template) : that.template != null) return false;
-        return fileEncoding != null ? fileEncoding.equals(that.fileEncoding) : that.fileEncoding == null;
+        CodeTemplate template1 = (CodeTemplate)o;
+
+        return new EqualsBuilder()
+                .append(useFullyQualifiedName, template1.useFullyQualifiedName)
+                .append(filterConstantField, template1.filterConstantField)
+                .append(filterEnumField, template1.filterEnumField)
+                .append(filterTransientModifier, template1.filterTransientModifier)
+                .append(filterStaticModifier, template1.filterStaticModifier)
+                .append(filterLoggers, template1.filterLoggers)
+                .append(enableMethods, template1.enableMethods)
+                .append(jumpToMethod, template1.jumpToMethod)
+                .append(sortElements, template1.sortElements)
+                .append(enabled, template1.enabled)
+                .append(id, template1.id)
+                .append(name, template1.name)
+                .append(fileExtension, template1.fileExtension)
+                .append(type, template1.type)
+                .append(insertNewMethodOption, template1.insertNewMethodOption)
+                .append(whenDuplicatesOption, template1.whenDuplicatesOption)
+                .append(filterFieldName, template1.filterFieldName)
+                .append(filterMethodName, template1.filterMethodName)
+                .append(filterMethodType, template1.filterMethodType)
+                .append(filterFieldType, template1.filterFieldType)
+                .append(template, template1.template)
+                .append(fileEncoding, template1.fileEncoding)
+                .isEquals();
     }
 
-    @Override
-    public int hashCode() {
-        int result = name != null ? name.hashCode() : 0;
-        result = 31 * result + (fileExtension != null ? fileExtension.hashCode() : 0);
-        result = 31 * result + (type != null ? type.hashCode() : 0);
-        result = 31 * result + (useFullyQualifiedName ? 1 : 0);
-        result = 31 * result + (insertNewMethodOption != null ? insertNewMethodOption.hashCode() : 0);
-        result = 31 * result + (whenDuplicatesOption != null ? whenDuplicatesOption.hashCode() : 0);
-        result = 31 * result + (filterConstantField ? 1 : 0);
-        result = 31 * result + (filterEnumField ? 1 : 0);
-        result = 31 * result + (filterTransientModifier ? 1 : 0);
-        result = 31 * result + (filterStaticModifier ? 1 : 0);
-        result = 31 * result + (filterLoggers ? 1 : 0);
-        result = 31 * result + (filterFieldName != null ? filterFieldName.hashCode() : 0);
-        result = 31 * result + (filterMethodName != null ? filterMethodName.hashCode() : 0);
-        result = 31 * result + (filterMethodType != null ? filterMethodType.hashCode() : 0);
-        result = 31 * result + (filterFieldType != null ? filterFieldType.hashCode() : 0);
-        result = 31 * result + (enableMethods ? 1 : 0);
-        result = 31 * result + (jumpToMethod ? 1 : 0);
-        result = 31 * result + sortElements;
-        result = 31 * result + (template != null ? template.hashCode() : 0);
-        result = 31 * result + (fileEncoding != null ? fileEncoding.hashCode() : 0);
-        return result;
+    @Override public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(id)
+                .append(name)
+                .append(fileExtension)
+                .append(type)
+                .append(useFullyQualifiedName)
+                .append(insertNewMethodOption)
+                .append(whenDuplicatesOption)
+                .append(filterConstantField)
+                .append(filterEnumField)
+                .append(filterTransientModifier)
+                .append(filterStaticModifier)
+                .append(filterLoggers)
+                .append(filterFieldName)
+                .append(filterMethodName)
+                .append(filterMethodType)
+                .append(filterFieldType)
+                .append(enableMethods)
+                .append(jumpToMethod)
+                .append(sortElements)
+                .append(enabled)
+                .append(template)
+                .append(fileEncoding)
+                .toHashCode();
     }
 }

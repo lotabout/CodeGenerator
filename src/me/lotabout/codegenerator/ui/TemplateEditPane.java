@@ -41,14 +41,16 @@ public class TemplateEditPane {
     private JRadioButton atCaretRadioButton;
     private JRadioButton atEndOfClassRadioButton;
     private JScrollPane settingsPanel;
+    private JCheckBox templateEnabledCheckBox;
     private Editor editor;
 
     public TemplateEditPane(CodeGeneratorSettings settings, CodeTemplate codeTemplate,
                             CodeGeneratorConfig parentPane) {
-        settingsPanel.getVerticalScrollBar().setUnitIncrement(16);
+        settingsPanel.getVerticalScrollBar().setUnitIncrement(16); // scroll speed
 
         templateIdText.setText(codeTemplate.getId());
         templateNameText.setText(codeTemplate.name);
+        templateEnabledCheckBox.setSelected(codeTemplate.enabled);
         fileEncodingText.setText(StringUtil.notNullize(codeTemplate.fileEncoding, CodeTemplate.DEFAULT_ENCODING));
         templateTypeCombo.setSelectedItem(codeTemplate.type);
         fullQualifiedCheckBox.setSelected(codeTemplate.useFullyQualifiedName);
@@ -118,6 +120,10 @@ public class TemplateEditPane {
 
     public String name() {
         return templateNameText.getText();
+    }
+
+    public boolean enabled() {
+        return templateEnabledCheckBox.isSelected();
     }
 
     public String template() {
@@ -212,4 +218,5 @@ public class TemplateEditPane {
     public String toString() {
         return this.name();
     }
+
 }
