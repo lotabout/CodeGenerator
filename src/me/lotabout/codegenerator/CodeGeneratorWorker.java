@@ -15,7 +15,7 @@ import com.intellij.psi.*;
 import com.intellij.psi.codeStyle.CodeStyleManager;
 import com.intellij.psi.codeStyle.JavaCodeStyleManager;
 import com.intellij.util.IncorrectOperationException;
-import me.lotabout.codegenerator.config.GeneratorConfig;
+import me.lotabout.codegenerator.config.CodeTemplate;
 import org.jetbrains.java.generate.config.*;
 import org.jetbrains.java.generate.exception.GenerateCodeException;
 
@@ -26,19 +26,19 @@ public class CodeGeneratorWorker {
 
     private final Editor editor;
     private final PsiClass clazz;
-    private final GeneratorConfig generatorConfig;
+    private final CodeTemplate codeTemplate;
 
-    public CodeGeneratorWorker(PsiClass clazz, Editor editor, GeneratorConfig generatorConfig) {
+    public CodeGeneratorWorker(PsiClass clazz, Editor editor, CodeTemplate codeTemplate) {
         this.clazz = clazz;
         this.editor = editor;
-        this.generatorConfig = generatorConfig;
+        this.codeTemplate = codeTemplate;
     }
 
     public void execute(Collection<PsiMember> members, String template) throws IncorrectOperationException, GenerateCodeException {
         // user didn't click cancel so go on
         Map<String, String> params = new HashMap<>();
 
-        String body = GenerationUtil.velocityGenerateCode(clazz, members, params, template, generatorConfig.sortElements, generatorConfig.useFullyQualifiedName);
+        String body = GenerationUtil.velocityGenerateCode(clazz, members, params, template, codeTemplate.sortElements, codeTemplate.useFullyQualifiedName);
 
         if (logger.isDebugEnabled()) logger.debug("Method body generated from Velocity:\n" + body);
 
@@ -104,7 +104,7 @@ public class CodeGeneratorWorker {
                 membersToDelete.forEach(PsiElement::delete);
 
                 int offset = 0;
-                switch (generatorConfig.insertNewMethodOption) {
+                switch (codeTemplate.insertNewMethodOption) {
                     case AT_CARET:
                         offset = (editor != null) ? editor.getCaretModel().getOffset() : (clazz.getTextRange().getEndOffset() - 1);
                         break;
@@ -129,7 +129,7 @@ public class CodeGeneratorWorker {
      * @return The member to insert, null if no need to insert anything
      */
     private ConflictResolutionPolicy handleExistedMember(PsiMember member, PsiMember existingMember) {
-        final DuplicationPolicy dupPolicy = generatorConfig.whenDuplicatesOption;
+        final DuplicationPolicy dupPolicy = codeTemplate.whenDuplicatesOption;
         if (dupPolicy == DuplicationPolicy.ASK && existingMember != null) {
             DialogBuilder builder = new DialogBuilder();
             builder.setTitle("Replace existing member: " + member.getName() + "?");

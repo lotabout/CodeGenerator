@@ -5,9 +5,9 @@ import com.intellij.codeInsight.generation.actions.BaseGenerateAction;
 public class CodeGeneratorAction extends BaseGenerateAction {
     private String templateKey;
 
-    public CodeGeneratorAction(String templateKey) {
+    public CodeGeneratorAction(String templateKey, String templateName) {
         super(new CodeGeneratorActionHandler(templateKey));
         getTemplatePresentation().setDescription("description");
-        getTemplatePresentation().setText(templateKey, false);
+        getTemplatePresentation().setText(templateName, false);
     }
 }

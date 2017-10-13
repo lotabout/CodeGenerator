@@ -3,7 +3,10 @@ package me.lotabout.codegenerator.config;
 import org.jetbrains.java.generate.config.DuplicationPolicy;
 import org.jetbrains.java.generate.config.InsertWhere;
 
-public class GeneratorConfig {
+import java.util.UUID;
+
+public class CodeTemplate {
+    private UUID id;
     public String name;
     public String fileExtension = ".java";
     public String type = "body";
@@ -26,6 +29,21 @@ public class GeneratorConfig {
 
     public String template = DEFAULT_TEMPLATE;
     public String fileEncoding = DEFAULT_ENCODING;
+
+    public CodeTemplate(UUID id) {
+        this.id = id;
+    }
+    public CodeTemplate(String id) {
+        this.id = UUID.fromString(id);
+    }
+
+    public CodeTemplate() {
+        this(UUID.randomUUID());
+    }
+
+    public String getId() {
+        return this.id.toString();
+    }
 
     public boolean isValid() {
         return true;
@@ -56,7 +74,7 @@ public class GeneratorConfig {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        GeneratorConfig that = (GeneratorConfig) o;
+        CodeTemplate that = (CodeTemplate) o;
 
         if (useFullyQualifiedName != that.useFullyQualifiedName) return false;
         if (filterConstantField != that.filterConstantField) return false;

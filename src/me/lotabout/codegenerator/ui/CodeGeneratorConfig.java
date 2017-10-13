@@ -1,84 +1,125 @@
 package me.lotabout.codegenerator.ui;
 
-import com.intellij.ui.components.JBTabbedPane;
+import com.intellij.openapi.ui.Messages;
 import me.lotabout.codegenerator.CodeGeneratorSettings;
-import me.lotabout.codegenerator.config.GeneratorConfig;
+import me.lotabout.codegenerator.config.CodeTemplate;
 
 import javax.swing.*;
-import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
 
 public class CodeGeneratorConfig {
     private JPanel mainPane;
     private JButton addTemplateButton;
-    private JBTabbedPane tabbedPane;
-    private Map<String, TemplateEditPane> editPaneMap;
+    private JSplitPane splitPane;
+    private JList<TemplateEditPane> templateList;
+    private DefaultListModel<TemplateEditPane> templateListModel;
+    private JButton deleteTemplateButton;
+    private JPanel splitRightPane;
+    private JScrollPane scrollPane;
 
     public CodeGeneratorConfig(CodeGeneratorSettings settings) {
-        tabbedPane = new JBTabbedPane();
-        editPaneMap = new HashMap<>();
+        this.templateListModel = new DefaultListModel<>();
+        this.templateList.setModel(templateListModel);
+
+        templateList.addListSelectionListener(e -> {
+            if (e.getValueIsAdjusting()) {
+                return;
+            }
+
+            int length = templateListModel.getSize();
+            int index = templateList.getSelectedIndex();
+            if (length < 0 || index < 0 || index >= length) {
+                splitPane.setRightComponent(splitRightPane);
+                deleteTemplateButton.setEnabled(false);
+                return;
+            }
+
+            TemplateEditPane pane = templateListModel.get(templateList.getSelectedIndex());
+            deleteTemplateButton.setEnabled(true);
+            splitPane.setRightComponent(pane.templateEdit());
+        });
 
         addTemplateButton.addActionListener(e -> {
-            TemplateEditPane editPane = new TemplateEditPane(settings, "", this);
-            String title = "Untitled";
-            tabbedPane.addTab(title, editPane.templateEdit());
-            tabbedPane.setSelectedIndex(tabbedPane.getTabCount()-1);
-            editPaneMap.put(title, editPane);
+            CodeTemplate template = new CodeTemplate();
+            template.name = "Untitled";
+            TemplateEditPane editPane = new TemplateEditPane(settings, template, this);
+            DefaultListModel<TemplateEditPane> model = (DefaultListModel<TemplateEditPane>) templateList.getModel();
+            model.addElement(editPane);
+            templateList.setSelectedIndex(model.getSize()-1);
+        });
+
+        deleteTemplateButton.addActionListener(e -> {
+            int index = templateList.getSelectedIndex();
+            int size = templateListModel.getSize();
+            if (index >= 0 && index < size) {
+                int result = Messages.showYesNoDialog("Delete this template?", "Delete", null);
+                if (result == Messages.OK) {
+                    int lastIndex = templateList.getAnchorSelectionIndex();
+                    templateListModel.remove(index);
+
+                    int nextIndex = -1;
+                    if (lastIndex >= 0 && lastIndex < index || lastIndex == index && index < size-1) {
+                        nextIndex = lastIndex;
+                    } else if (lastIndex == index || lastIndex > index && lastIndex < size-1) {
+                        nextIndex = lastIndex - 1;
+                    } else if (lastIndex >= index){
+                        nextIndex = size-2; // should not be here
+                    }
+                    templateList.setSelectedIndex(nextIndex);
+                }
+            }
         });
 
         resetTabPane(settings);
-
-        GridBagConstraints constraints = new GridBagConstraints();
-        constraints.gridx = 0;
-        constraints.gridy = 1;
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.weightx = 1;
-        constraints.weighty = 1;
-        mainPane.add(tabbedPane, constraints);
     }
 
     public void refresh(CodeGeneratorSettings settings) {
-        tabbedPane.removeAll();
-        editPaneMap.clear();
+        templateListModel.removeAllElements();
         resetTabPane(settings);
     }
 
 
     private void resetTabPane(CodeGeneratorSettings settings) {
         settings.getCodeTemplates().forEach((key, value) -> {
-            TemplateEditPane editPane = new TemplateEditPane(settings, key, this);
-            tabbedPane.addTab(key, editPane.templateEdit());
-            editPaneMap.put(key, editPane);
+            TemplateEditPane editPane = new TemplateEditPane(settings, value, this);
+            templateListModel.addElement(editPane);
         });
+
+        // select first item
+        templateList.setSelectedIndex(0);
     }
 
-    public Map<String, GeneratorConfig> getTabTemplates() {
-        Map<String, GeneratorConfig> map = new HashMap<>();
-        editPaneMap.forEach((key, value) -> {
-            GeneratorConfig generatorConfig = new GeneratorConfig();
-            generatorConfig.name = value.name();
-            generatorConfig.type = value.type();
-            generatorConfig.fileEncoding = value.fileEncoding();
-            generatorConfig.template = value.template();
-            generatorConfig.useFullyQualifiedName = value.useFullyQualifiedName();
-            generatorConfig.enableMethods = value.enableMethods();
-            generatorConfig.jumpToMethod = value.jumpToMethod();
-            generatorConfig.sortElements = value.sortElements();
-            generatorConfig.filterConstantField = value.excludeConstant();
-            generatorConfig.filterStaticModifier = value.excludeStatic();
-            generatorConfig.filterTransientModifier = value.excludeTransient();
-            generatorConfig.filterEnumField = value.excludeEnum();
-            generatorConfig.filterLoggers = value.excludeLogger();
-            generatorConfig.filterFieldName = value.excludeFieldsByName();
-            generatorConfig.filterFieldType = value.excludeFieldsByType();
-            generatorConfig.filterMethodName = value.excludeMethodsByName();
-            generatorConfig.filterMethodType = value.excludeMethodsByType();
-            generatorConfig.whenDuplicatesOption = value.duplicationPolicy();
-            generatorConfig.insertNewMethodOption = value.insertWhere();
-            map.put(generatorConfig.name, generatorConfig);
-        });
-        return map;
+    public Map<String, CodeTemplate> getTabTemplates() {
+        Map<String, CodeTemplate> ret = new HashMap<>();
+        for (int i=0; i<templateListModel.getSize(); i++) {
+            TemplateEditPane value = templateListModel.get(i);
+
+            CodeTemplate codeTemplate = new CodeTemplate(value.id());
+            codeTemplate.name = value.name();
+            codeTemplate.type = value.type();
+            codeTemplate.fileEncoding = value.fileEncoding();
+            codeTemplate.template = value.template();
+            codeTemplate.useFullyQualifiedName = value.useFullyQualifiedName();
+            codeTemplate.enableMethods = value.enableMethods();
+            codeTemplate.jumpToMethod = value.jumpToMethod();
+            codeTemplate.sortElements = value.sortElements();
+            codeTemplate.filterConstantField = value.excludeConstant();
+            codeTemplate.filterStaticModifier = value.excludeStatic();
+            codeTemplate.filterTransientModifier = value.excludeTransient();
+            codeTemplate.filterEnumField = value.excludeEnum();
+            codeTemplate.filterLoggers = value.excludeLogger();
+            codeTemplate.filterFieldName = value.excludeFieldsByName();
+            codeTemplate.filterFieldType = value.excludeFieldsByType();
+            codeTemplate.filterMethodName = value.excludeMethodsByName();
+            codeTemplate.filterMethodType = value.excludeMethodsByType();
+            codeTemplate.whenDuplicatesOption = value.duplicationPolicy();
+            codeTemplate.insertNewMethodOption = value.insertWhere();
+
+            ret.put(codeTemplate.getId(), codeTemplate);
+        }
+
+        return ret;
     }
 
     /**

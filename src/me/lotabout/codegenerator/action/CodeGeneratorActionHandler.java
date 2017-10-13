@@ -4,7 +4,6 @@ import com.intellij.codeInsight.CodeInsightActionHandler;
 import com.intellij.codeInsight.FileModificationService;
 import com.intellij.codeInsight.generation.PsiElementClassMember;
 import com.intellij.ide.util.MemberChooser;
-import com.intellij.openapi.application.WriteAction;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Editor;
@@ -15,11 +14,10 @@ import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.psi.util.PsiUtil;
 import me.lotabout.codegenerator.CodeGeneratorSettings;
 import me.lotabout.codegenerator.CodeGeneratorWorker;
-import me.lotabout.codegenerator.config.GeneratorConfig;
+import me.lotabout.codegenerator.config.CodeTemplate;
 import me.lotabout.codegenerator.GenerationUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.java.generate.GenerateToStringContext;
 import org.jetbrains.java.generate.GenerateToStringUtils;
 import org.jetbrains.java.generate.config.Config;
 
@@ -34,11 +32,11 @@ public class CodeGeneratorActionHandler implements CodeInsightActionHandler {
 
     private CodeGeneratorSettings settings;
 
-    private String templateKey;
+    private String templateId;
 
-    CodeGeneratorActionHandler(String templateKey) {
+    CodeGeneratorActionHandler(String templateId) {
         this.settings = ServiceManager.getService(CodeGeneratorSettings.class);;
-        this.templateKey = templateKey;
+        this.templateId = templateId;
     }
 
     @Override
@@ -63,14 +61,14 @@ public class CodeGeneratorActionHandler implements CodeInsightActionHandler {
             return;
         }
 
-        GeneratorConfig generatorConfig = settings.getCodeTemplate(templateKey).orElseThrow(IllegalStateException::new);
+        CodeTemplate codeTemplate = settings.getCodeTemplate(templateId).orElseThrow(IllegalStateException::new);
 
         logger.debug("+++ doExecuteAction - START +++");
         if (logger.isDebugEnabled()) {
             logger.debug("Current project " + project.getName());
         }
 
-        final PsiElementClassMember[] dialogMembers = buildMembersToShow(clazz, generatorConfig);
+        final PsiElementClassMember[] dialogMembers = buildMembersToShow(clazz, codeTemplate);
 
         final MemberChooser<PsiElementClassMember> chooser =
                 new MemberChooser<PsiElementClassMember>(dialogMembers, true, true, project, PsiUtil.isLanguageLevel5OrHigher(clazz), new JPanel(new BorderLayout())) {
@@ -86,8 +84,8 @@ public class CodeGeneratorActionHandler implements CodeInsightActionHandler {
         if (DialogWrapper.OK_EXIT_CODE == chooser.getExitCode()) {
             Collection<PsiMember> selectedMembers = GenerationUtil.convertClassMembersToPsiMembers(chooser.getSelectedElements());
 
-            final CodeGeneratorWorker worker = new CodeGeneratorWorker(clazz, editor, generatorConfig);
-            worker.execute(selectedMembers, generatorConfig.template);
+            final CodeGeneratorWorker worker = new CodeGeneratorWorker(clazz, editor, codeTemplate);
+            worker.execute(selectedMembers, codeTemplate.template);
         }
         logger.debug("+++ doExecuteAction - END +++");
     }
@@ -109,8 +107,8 @@ public class CodeGeneratorActionHandler implements CodeInsightActionHandler {
         return clazz;
     }
 
-    public static PsiElementClassMember[] buildMembersToShow(PsiClass clazz, GeneratorConfig generatorConfig) {
-        Config config = generatorConfig2Config(generatorConfig);
+    public static PsiElementClassMember[] buildMembersToShow(PsiClass clazz, CodeTemplate codeTemplate) {
+        Config config = generatorConfig2Config(codeTemplate);
 
         PsiField[] filteredFields = GenerateToStringUtils.filterAvailableFields(clazz, true, config.getFilterPattern());
         if (logger.isDebugEnabled()) logger.debug("Number of fields after filtering: " + filteredFields.length);
@@ -132,23 +130,23 @@ public class CodeGeneratorActionHandler implements CodeInsightActionHandler {
                 .toArray(PsiElementClassMember[]::new);
     }
 
-    private static Config generatorConfig2Config(GeneratorConfig generatorConfig) {
+    private static Config generatorConfig2Config(CodeTemplate codeTemplate) {
         Config config = new Config();
-        config.useFullyQualifiedName = generatorConfig.useFullyQualifiedName;
-        config.insertNewMethodOption = generatorConfig.insertNewMethodOption;
-        config.whenDuplicatesOption = generatorConfig.whenDuplicatesOption;
-        config.filterConstantField = generatorConfig.filterConstantField;
-        config.filterEnumField = generatorConfig.filterEnumField;
-        config.filterTransientModifier = generatorConfig.filterTransientModifier;
-        config.filterStaticModifier = generatorConfig.filterStaticModifier;
-        config.filterFieldName = generatorConfig.filterFieldName;
-        config.filterMethodName = generatorConfig.filterMethodName;
-        config.filterMethodType = generatorConfig.filterMethodType;
-        config.filterFieldType = generatorConfig.filterFieldType;
-        config.filterLoggers = generatorConfig.filterLoggers;
-        config.enableMethods = generatorConfig.enableMethods;
-        config.jumpToMethod = generatorConfig.jumpToMethod;
-        config.sortElements = generatorConfig.sortElements;
+        config.useFullyQualifiedName = codeTemplate.useFullyQualifiedName;
+        config.insertNewMethodOption = codeTemplate.insertNewMethodOption;
+        config.whenDuplicatesOption = codeTemplate.whenDuplicatesOption;
+        config.filterConstantField = codeTemplate.filterConstantField;
+        config.filterEnumField = codeTemplate.filterEnumField;
+        config.filterTransientModifier = codeTemplate.filterTransientModifier;
+        config.filterStaticModifier = codeTemplate.filterStaticModifier;
+        config.filterFieldName = codeTemplate.filterFieldName;
+        config.filterMethodName = codeTemplate.filterMethodName;
+        config.filterMethodType = codeTemplate.filterMethodType;
+        config.filterFieldType = codeTemplate.filterFieldType;
+        config.filterLoggers = codeTemplate.filterLoggers;
+        config.enableMethods = codeTemplate.enableMethods;
+        config.jumpToMethod = codeTemplate.jumpToMethod;
+        config.sortElements = codeTemplate.sortElements;
         return config;
     }
 

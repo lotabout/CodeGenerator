@@ -29,18 +29,18 @@ public class CodeGeneratorGroup extends ActionGroup implements DumbAware {
         }
 
         final List<AnAction> children = settings.getCodeTemplates()
-                .keySet().stream()
-                .map(CodeGeneratorGroup::getOrCreateAction)
+                .entrySet().stream()
+                .map(entry -> CodeGeneratorGroup.getOrCreateAction(entry.getKey(), entry.getValue().name))
                 .collect(Collectors.toList());
 
         return children.toArray(new AnAction[children.size()]);
     }
 
-    private static AnAction getOrCreateAction(String templateName) {
-        final String actionId = "CodeMaker.Menu.Action." + templateName;
+    private static AnAction getOrCreateAction(String templateId, String templateName) {
+        final String actionId = "CodeMaker.Menu.Action." + templateId;
         AnAction action = ActionManager.getInstance().getAction(actionId);
         if (action == null) {
-            action = new CodeGeneratorAction(templateName);
+            action = new CodeGeneratorAction(templateId, templateName);
             ActionManager.getInstance().registerAction(actionId, action);
         }
         return action;
