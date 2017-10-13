@@ -1,4 +1,4 @@
-package me.lotabout.codegenerator;
+package me.lotabout.codegenerator.worker;
 
 import com.intellij.codeInsight.generation.GenerateMembersUtil;
 import com.intellij.codeInsight.generation.GenerationInfo;
@@ -10,45 +10,42 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.ui.DialogBuilder;
 import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.*;
 import com.intellij.psi.codeStyle.CodeStyleManager;
 import com.intellij.psi.codeStyle.JavaCodeStyleManager;
 import com.intellij.util.IncorrectOperationException;
+import com.intellij.util.containers.ContainerUtil;
+import me.lotabout.codegenerator.ConflictResolutionPolicy;
+import me.lotabout.codegenerator.util.ClassEntry;
+import me.lotabout.codegenerator.util.GenerationUtil;
 import me.lotabout.codegenerator.config.CodeTemplate;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.generate.config.*;
+import org.jetbrains.java.generate.element.*;
 import org.jetbrains.java.generate.exception.GenerateCodeException;
 
 import java.util.*;
 
-public class CodeGeneratorWorker {
-    private static final Logger logger = Logger.getInstance("#" + CodeGeneratorWorker.class.getName());
+public class JavaBodyWorker {
+    private static final Logger logger = Logger.getInstance("#" + JavaBodyWorker.class.getName());
 
     private final Editor editor;
     private final PsiClass clazz;
     private final CodeTemplate codeTemplate;
 
-    public CodeGeneratorWorker(PsiClass clazz, Editor editor, CodeTemplate codeTemplate) {
+    public JavaBodyWorker(PsiClass clazz, Editor editor, CodeTemplate codeTemplate) {
         this.clazz = clazz;
         this.editor = editor;
         this.codeTemplate = codeTemplate;
     }
 
-    public void execute(Collection<PsiMember> members, String template) throws IncorrectOperationException, GenerateCodeException {
+    public void execute(Collection<PsiMember> members) throws IncorrectOperationException, GenerateCodeException {
         // user didn't click cancel so go on
-        Map<String, String> params = new HashMap<>();
-
-        String body = GenerationUtil.velocityGenerateCode(clazz, members, params, template, codeTemplate.sortElements, codeTemplate.useFullyQualifiedName);
+        String body = velocityGenerateBody(clazz, members, codeTemplate.template, codeTemplate.sortElements, codeTemplate.useFullyQualifiedName);
 
         if (logger.isDebugEnabled()) logger.debug("Method body generated from Velocity:\n" + body);
 
-        // fix weird linebreak problem in IDEA #3296 and later
-        body = StringUtil.convertLineSeparators(body);
-
-        PsiFile file = clazz.getContainingFile();
-        if (file instanceof PsiJavaFile) {
-            executeJavaFile(body);
-        }
+        executeJavaFile(body);
     }
 
     private void executeJavaFile(String body) {
@@ -84,7 +81,7 @@ public class CodeGeneratorWorker {
 
             if (!notAskAgain) {
                 policy = handleExistedMember(member, existingMember);
-                notAskAgain = policy == ConflictResolutionPolicy.DUPLICATE_ALL || policy == ConflictResolutionPolicy.REPLACE_ALL;
+                notAskAgain = policy == ConflictResolutionPolicy.DUPLICATE_ALL || policy == me.lotabout.codegenerator.ConflictResolutionPolicy.REPLACE_ALL;
             }
 
             switch (policy) {
@@ -163,6 +160,71 @@ public class CodeGeneratorWorker {
 
         // If there is no conflict, duplicate policy will do the trick
         return ConflictResolutionPolicy.DUPLICATE;
+    }
+
+    public static String velocityGenerateBody(PsiClass clazz,
+                                              Collection<? extends PsiMember> selectedMembers,
+                                              String templateMacro,
+                                              int sortElements,
+                                              boolean useFullyQualifiedName)
+            throws GenerateCodeException {
+        return velocityGenerateBody(clazz, selectedMembers, Collections.<PsiMember>emptyList(), null, Collections.<String, Object>emptyMap(), templateMacro, sortElements, useFullyQualifiedName, false);
+    }
+
+    public static String velocityGenerateBody(@Nullable PsiClass clazz,
+                                              Collection<? extends PsiMember> selectedMembers,
+                                              Collection<? extends PsiMember> selectedNotNullMembers,
+                                              Map<String, Object> contextMap,
+                                              Map<String, Object> outputContext,
+                                              String templateMacro,
+                                              int sortElements,
+                                              boolean useFullyQualifiedName,
+                                              boolean useAccessors)
+            throws GenerateCodeException {
+        if (templateMacro == null) {
+            return null;
+        }
+
+        Map<String, Object> context = new HashMap<>();
+
+        // field information
+        logger.debug("Velocity Context - adding fields");
+        final List<FieldElement> fieldElements = ElementUtils.getOnlyAsFieldElements(selectedMembers, selectedNotNullMembers, useAccessors);
+        context.put("fields", fieldElements);
+        if (fieldElements.size() == 1) {
+            context.put("field", fieldElements.get(0));
+        }
+
+        PsiMember member = clazz != null ? clazz : ContainerUtil.getFirstItem(selectedMembers);
+
+        // method information
+        logger.debug("Velocity Context - adding methods");
+        context.put("methods", ElementUtils.getOnlyAsMethodElements(selectedMembers));
+
+        // element information (both fields and methods)
+        logger.debug("Velocity Context - adding members (fields and methods)");
+        List<Element> elements = ElementUtils.getOnlyAsFieldAndMethodElements(selectedMembers, selectedNotNullMembers, useAccessors);
+        // sort elements if enabled and not using chooser dialog
+        if (sortElements != 0) {
+            Collections.sort(elements, new ElementComparator(sortElements));
+        }
+        context.put("members", elements);
+
+        // class information
+        if (clazz != null) {
+            ClassElement ce = ElementFactory.newClassElement(clazz);
+            context.put("class", ce);
+            if (logger.isDebugEnabled()) logger.debug("Velocity Context - adding class: " + ce);
+
+            // information to keep as it is to avoid breaking compatibility with prior releases
+            context.put("classname", useFullyQualifiedName ? ce.getQualifiedName() : ce.getName());
+            context.put("FQClassname", ce.getQualifiedName());
+
+            context.put("class0", ClassEntry.of(clazz));
+        }
+
+        context.putAll(contextMap);
+        return GenerationUtil.velocityEvaluate(clazz, context, outputContext, templateMacro);
     }
 
 }

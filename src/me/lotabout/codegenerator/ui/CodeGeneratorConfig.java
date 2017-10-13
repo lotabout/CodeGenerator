@@ -116,6 +116,8 @@ public class CodeGeneratorConfig {
             codeTemplate.filterMethodType = value.excludeMethodsByType();
             codeTemplate.whenDuplicatesOption = value.duplicationPolicy();
             codeTemplate.insertNewMethodOption = value.insertWhere();
+            codeTemplate.classNameVm = value.className();
+            codeTemplate.classNumber = value.classNum();
 
             ret.put(codeTemplate.getId(), codeTemplate);
         }

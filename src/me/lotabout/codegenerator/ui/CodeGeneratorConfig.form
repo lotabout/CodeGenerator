@@ -34,7 +34,7 @@
               <component id="2bdf9" class="javax.swing.JList" binding="templateList">
                 <constraints/>
                 <properties>
-                  <minimumSize width="200" height="0"/>
+                  <minimumSize width="170" height="0"/>
                   <model/>
                   <preferredSize width="170" height="0"/>
                   <selectionMode value="0"/>

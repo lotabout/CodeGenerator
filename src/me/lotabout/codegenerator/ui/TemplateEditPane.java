@@ -42,6 +42,8 @@ public class TemplateEditPane {
     private JRadioButton atEndOfClassRadioButton;
     private JScrollPane settingsPanel;
     private JCheckBox templateEnabledCheckBox;
+    private JTextField classNameText;
+    private JSpinner classNumSpinner;
     private Editor editor;
 
     public TemplateEditPane(CodeGeneratorSettings settings, CodeTemplate codeTemplate,
@@ -70,6 +72,9 @@ public class TemplateEditPane {
         textExcludeFieldsByType.setText(codeTemplate.filterFieldType);
         textExcludeMethodsByName.setText(codeTemplate.filterMethodName);
         textExcludeMethodsByType.setText(codeTemplate.filterMethodType);
+
+        classNameText.setText(codeTemplate.classNameVm);
+        classNumSpinner.setValue(codeTemplate.classNumber);
 
         askRadioButton.setSelected(false);
         replaceExistingRadioButton.setSelected(false);
@@ -213,6 +218,14 @@ public class TemplateEditPane {
 
     public JPanel templateEdit() {
         return templateEdit;
+    }
+
+    public String className() {
+        return classNameText.getText();
+    }
+
+    public int classNum() {
+        return (int) classNumSpinner.getValue();
     }
 
     public String toString() {

@@ -1,4 +1,4 @@
-package me.lotabout.codegenerator;
+package me.lotabout.codegenerator.util;
 
 import com.intellij.codeInsight.generation.PsiElementClassMember;
 import com.intellij.codeInsight.generation.PsiFieldMember;
@@ -25,6 +25,7 @@ import org.jetbrains.java.generate.velocity.VelocityFactory;
 
 import java.io.StringWriter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class GenerationUtil {
     private static final Logger logger = Logger.getInstance("#" + GenerationUtil.class.getName());
@@ -65,51 +66,11 @@ public class GenerationUtil {
         return psiMemberList;
     }
 
-    /**
-     * Generates the code using Velocity.
-     * <p>
-     * This is used to create the {@code toString} method body and it's javadoc.
-     *
-     * @param clazz
-     * @param selectedMembers       the selected members as both {@link PsiField} and {@link PsiMethod}.
-     * @param params                additional parameters stored with key/value in the map.
-     * @param templateMacro         the velocity macro template
-     * @param sortElements
-     * @param useFullyQualifiedName @return code (usually javacode). Returns null if templateMacro is null.
-     * @throws GenerateCodeException is thrown when there is an error generating the javacode.
-     */
-    public static String velocityGenerateCode(PsiClass clazz,
-                                              Collection<? extends PsiMember> selectedMembers,
-                                              Map<String, String> params,
-                                              String templateMacro,
-                                              int sortElements,
-                                              boolean useFullyQualifiedName)
-            throws GenerateCodeException {
-        return velocityGenerateCode(clazz, selectedMembers, Collections.<PsiMember>emptyList(), params, Collections.<String, Object>emptyMap(), templateMacro, sortElements, useFullyQualifiedName, false);
-    }
-
-    /**
-     * Generates the code using Velocity.
-     * <p/>
-     * This is used to create the {@code toString} method body and it's javadoc.
-     *
-     * @param selectedMembers the selected members as both {@link PsiField} and {@link PsiMethod}.
-     * @param params          additional parameters stored with key/value in the map.
-     * @param templateMacro   the velocity macro template
-     * @param useAccessors    if true, accessor property for FieldElement bean would be assigned to field getter name append with ()
-     * @return code (usually javacode). Returns null if templateMacro is null.
-     * @throws GenerateCodeException is thrown when there is an error generating the javacode.
-     */
-    public static String velocityGenerateCode(@Nullable PsiClass clazz,
-                                              Collection<? extends PsiMember> selectedMembers,
-                                              Collection<? extends PsiMember> selectedNotNullMembers,
-                                              Map<String, String> params,
-                                              Map<String, Object> contextMap,
-                                              String templateMacro,
-                                              int sortElements,
-                                              boolean useFullyQualifiedName,
-                                              boolean useAccessors)
-            throws GenerateCodeException {
+    public static String velocityEvaluate(
+            @Nullable PsiClass clazz,
+            Map<String, Object> contextMap,
+            Map<String, Object> outputContext,
+            String templateMacro) throws GenerateCodeException {
         if (templateMacro == null) {
             return null;
         }
@@ -118,54 +79,16 @@ public class GenerationUtil {
         try {
             VelocityContext vc = new VelocityContext();
 
-            // field information
-            logger.debug("Velocity Context - adding fields");
-            final List<FieldElement> fieldElements = ElementUtils.getOnlyAsFieldElements(selectedMembers, selectedNotNullMembers, useAccessors);
-            vc.put("fields", fieldElements);
-            if (fieldElements.size() == 1) {
-                vc.put("field", fieldElements.get(0));
-            }
-
-            PsiMember member = clazz != null ? clazz : ContainerUtil.getFirstItem(selectedMembers);
-
-            // method information
-            logger.debug("Velocity Context - adding methods");
-            vc.put("methods", ElementUtils.getOnlyAsMethodElements(selectedMembers));
-
-            // element information (both fields and methods)
-            logger.debug("Velocity Context - adding members (fields and methods)");
-            List<Element> elements = ElementUtils.getOnlyAsFieldAndMethodElements(selectedMembers, selectedNotNullMembers, useAccessors);
-            // sort elements if enabled and not using chooser dialog
-            if (sortElements != 0) {
-                Collections.sort(elements, new ElementComparator(sortElements));
-            }
-            vc.put("members", elements);
-
-            // class information
-            if (clazz != null) {
-                ClassElement ce = ElementFactory.newClassElement(clazz);
-                vc.put("class", ce);
-                if (logger.isDebugEnabled()) logger.debug("Velocity Context - adding class: " + ce);
-
-                // information to keep as it is to avoid breaking compatibility with prior releases
-                vc.put("classname", useFullyQualifiedName ? ce.getQualifiedName() : ce.getName());
-                vc.put("FQClassname", ce.getQualifiedName());
-            }
-
-            if (member != null) {
-                vc.put("java_version", PsiAdapter.getJavaVersion(member));
-                final Project project = member.getProject();
-                vc.put("settings", CodeStyleSettingsManager.getSettings(project));
-                vc.put("project", project);
-            }
-
+            final Project project = clazz.getProject();
+            vc.put("settings", CodeStyleSettingsManager.getSettings(project));
+            vc.put("project", project);
+            vc.put("java_version", PsiAdapter.getJavaVersion(clazz));
             vc.put("helper", GenerationHelper.class);
             vc.put("StringUtil", StringUtil.class);
             vc.put("NameUtil", NameUtil.class);
             vc.put("PsiShortNamesCache", PsiShortNamesCache.class);
             vc.put("JavaPsiFacade", JavaPsiFacade.class);
             vc.put("GlobalSearchScope", GlobalSearchScope.class);
-
 
             for (String paramName : contextMap.keySet()) {
                 vc.put(paramName, contextMap.get(paramName));
@@ -176,12 +99,15 @@ public class GenerationUtil {
             // velocity
             VelocityEngine velocity = VelocityFactory.getVelocityEngine();
             logger.debug("Executing velocity +++ START +++");
-            velocity.evaluate(vc, sw, CodeGeneratorWorker.class.getName(), templateMacro);
+            velocity.evaluate(vc, sw, clazz.getName(), templateMacro);
             logger.debug("Executing velocity +++ END +++");
 
-            // any additional packages to import returned from velocity?
-            if (vc.get("autoImportPackages") != null) {
-                params.put("autoImportPackages", (String)vc.get("autoImportPackages"));
+            if (outputContext != null) {
+                for (Object key : vc.getKeys()) {
+                    if (key instanceof String) {
+                    outputContext.put((String) key, vc.get((String) key));
+                    }
+                }
             }
         }
         catch (ProcessCanceledException e) {
@@ -193,6 +119,7 @@ public class GenerationUtil {
 
         return StringUtil.convertLineSeparators(sw.getBuffer().toString());
     }
+
 
     /**
      * Handles any exception during the executing on this plugin.
@@ -222,4 +149,37 @@ public class GenerationUtil {
             throw new RuntimeException(e); // rethrow as runtime to make IDEA alert user
         }
     }
+
+    static List<FieldElement> getFields(PsiClass clazz) {
+        return Arrays.stream(clazz.getFields())
+                    .map(f -> ElementFactory.newFieldElement(f, false))
+                    .collect(Collectors.toList());
+    }
+    static List<FieldElement> getAllFields(PsiClass clazz) {
+        return Arrays.stream(clazz.getAllFields())
+                .map(f -> ElementFactory.newFieldElement(f, false))
+                .collect(Collectors.toList());
+    }
+
+    static List<MethodElement> getMethods(PsiClass clazz) {
+        return Arrays.stream(clazz.getMethods())
+                .map(ElementFactory::newMethodElement)
+                .collect(Collectors.toList());
+    }
+    static List<MethodElement> getAllMethods(PsiClass clazz) {
+        return Arrays.stream(clazz.getAllMethods())
+                .map(ElementFactory::newMethodElement)
+                .collect(Collectors.toList());
+    }
+
+    static List<String> getImportList(PsiJavaFile javaFile) {
+        PsiImportList importList = javaFile.getImportList();
+        if (importList == null) {
+            return new ArrayList<>();
+        }
+        return Arrays.stream(importList.getImportStatements())
+                .map(PsiImportStatement::getQualifiedName)
+                .collect(Collectors.toList());
+    }
+
 }

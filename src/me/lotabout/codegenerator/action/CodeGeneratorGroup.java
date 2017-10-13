@@ -23,6 +23,8 @@ public class CodeGeneratorGroup extends ActionGroup implements DumbAware {
             return AnAction.EMPTY_ARRAY;
         }
 
+        String fileName = anActionEvent.getDataContext().getData(DataKeys.PSI_FILE).getName();
+
         Project project = PlatformDataKeys.PROJECT.getData(anActionEvent.getDataContext());
         if (project == null) {
             return AnAction.EMPTY_ARRAY;
@@ -31,6 +33,7 @@ public class CodeGeneratorGroup extends ActionGroup implements DumbAware {
         final List<AnAction> children = settings.getCodeTemplates()
                 .entrySet().stream()
                 .filter(entry -> entry.getValue().enabled)
+                .filter(entry -> fileName.matches(entry.getValue().fileNamePattern))
                 .map(entry -> CodeGeneratorGroup.getOrCreateAction(entry.getKey(), entry.getValue().name))
                 .collect(Collectors.toList());
 
