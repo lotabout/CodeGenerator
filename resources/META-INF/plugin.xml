@@ -1,23 +1,27 @@
 <idea-plugin>
   <id>me.lotabout.codegenerator</id>
   <name>CodeGenerator</name>
-  <version>0.2</version>
-  <vendor email="lotabout@gmail.com" url="https://lotabout.me">LotAbout</vendor>
+  <version>1.0</version>
+  <vendor email="lotabout@gmail.com" url="https://lotabout.me">Personal</vendor>
 
   <description><![CDATA[
-      Code Generator enables us to create customized velocity templates for code generation.
-      Intellij had already support common generations like constructors, getters/setters, toString, etc.
-      These templates however are limited, for example toString will allow us to generate `toString` method only.
-      Code Generator want to generalize the ability to utilize velocity templates so that you can create whatever
-      template you need.
-
-      Currently only Java files are supported.
-      <em>most HTML tags may be used</em>
+  <p>This plugin allows user to create customized velocity templates like <code>toString</code> or <code>builder</code></p>
+  <p>As we know, Intellij had provided useful code generators such as constructors, getter/setters, equals, hashCode,
+   overrides and delegates, etc. And Intellij allows us to apply customized velocity templates for each generator.
+   But we cannot add our own generators.</p>
+  <p>Code Generator is here to help. Two types of generation are supported here</p>
+  <ul>
+    <li>Members(fields/method) based templates, such as serializers, equals, etc.</li>
+    <li>Class based template, such as transformers, converters, etc. Normally new classes are created.</li>
+  </ul>
+  <p>I've always hoped Intellij would support this by default, but for now we have an working alternative.</p>
+  <p>See <a href="https://github.com/lotabout/CodeGenerator/blob/master/README.md">README</a> for more</p>
     ]]></description>
 
   <change-notes><![CDATA[
-      Add change notes here.<br>
-      <em>most HTML tags may be used</em>
+  <ul>
+  <li>version 1.0 <p>First release</p></li>
+  </ul>
     ]]>
   </change-notes>
 
