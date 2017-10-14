@@ -202,7 +202,7 @@ public class JavaBodyWorker {
 
         // element information (both fields and methods)
         logger.debug("Velocity Context - adding members (fields and methods)");
-        List<Element> elements = EntryUtils.getOnlyAsFieldAndMethodElements(selectedMembers, selectedNotNullMembers, useAccessors);
+        List<MemberEntry> elements = EntryUtils.getOnlyAsFieldAndMethodElements(selectedMembers, selectedNotNullMembers, useAccessors);
         // sort elements if enabled and not using chooser dialog
         if (sortElements != 0) {
             elements.sort(new ElementComparator(sortElements));

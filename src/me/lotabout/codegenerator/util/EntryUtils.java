@@ -10,32 +10,33 @@ import java.util.Collection;
 import java.util.List;
 
 public class EntryUtils {
-    public static List<Element> getOnlyAsFieldAndMethodElements(Collection<? extends PsiMember> members,
+    public static List<MemberEntry> getOnlyAsFieldAndMethodElements(Collection<? extends PsiMember> members,
                                                                 Collection<? extends PsiMember> selectedNotNullMembers,
                                                                 boolean useAccessors) {
-        List<Element> elementList = new ArrayList<>();
+        List<MemberEntry>
+                entryList = new ArrayList<>();
 
         for (PsiMember member : members) {
-            Element element = null;
+            MemberEntry entry = null;
             if (member instanceof PsiField) {
-                FieldEntry entry = EntryFactory.newFieldEntry((PsiField) member, useAccessors);
+                FieldEntry fieldEntry= EntryFactory.newFieldEntry((PsiField) member, useAccessors);
                 if (selectedNotNullMembers.contains(member)) {
-                    entry.setNotNull(true);
+                    fieldEntry.setNotNull(true);
                 }
-                element = entry;
+                entry = fieldEntry;
             } else if (member instanceof PsiMethod) {
-                MethodEntry entry = EntryFactory.newMethodEntry((PsiMethod) member);
+                MethodEntry methodEntry = EntryFactory.newMethodEntry((PsiMethod) member);
                 if (selectedNotNullMembers.contains(member)) {
-                    entry.setNotNull(true);
+                    methodEntry.setNotNull(true);
                 }
-                element = entry;
+                entry = methodEntry;
             }
 
-            if (element != null) {
-                elementList.add(element);
+            if (entry != null) {
+                entryList.add(entry);
             }
         }
-        return elementList;
+        return entryList;
     }
 
     public static List<FieldEntry> getOnlyAsFieldEntrys(Collection<? extends PsiMember> members,

@@ -1,11 +1,13 @@
 package me.lotabout.codegenerator.config;
 
+import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.text.StringUtil;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.jetbrains.java.generate.config.DuplicationPolicy;
 import org.jetbrains.java.generate.config.InsertWhere;
 
+import java.io.IOException;
 import java.util.UUID;
 
 public class CodeTemplate {
@@ -66,22 +68,16 @@ public class CodeTemplate {
 
     public static final String DEFAULT_ENCODING = "UTF-8";
 
-    public static final String DEFAULT_TEMPLATE = ""
-            + "## The available variables\n"
-            + "## - List<FieldElement>  fields: The selected fields\n"
-            + "## - List<MethodElement> methods: The selected methods (currently not supported)\n"
-            + "## - List<Element>       members: selected (fields + methods)\n"
-            + "## - ClassElement        class: The current class\n"
-            + "## - String              classname: Class Name\n"
-            + "## - String              FQClassname: Full Qualified Class Name\n"
-            + "## - int                 java_version: java version\n"
-            + "## - CodeStyleSettings   settings: settings of code style\n"
-            + "## - Project             project: The project instance, normally used by Psi related utilities\n"
-            + "## - GenerationHelper    helper:\n"
-            + "## - StringUtil          StringUtil: The utility class to deal with string\n"
-            + "## - NameUtil            NameUtil: The utility class to handle names\n"
-            + "## - PsiShortNamesCache  PsiShortNamesCache: utility to search classes\n"
-            + "## - PsiJavaPsiFacade    PsiJavaPsiFacade: Java specific utility to search classes\n"
-            + "## - GlobalSearchScope   GlobalSearchScope: class to create search scopes, used by above utilities\n";
+    private static final String DEFAULT_TEMPLATE;
 
+    static {
+        String default_template;
+        try {
+            default_template = FileUtil.loadTextAndClose(CodeTemplate.class.getResourceAsStream("/template/default.vm"));
+        } catch (IOException e) {
+            default_template = "";
+            e.printStackTrace();
+        }
+        DEFAULT_TEMPLATE = default_template;
+    }
 }

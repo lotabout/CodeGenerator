@@ -7,7 +7,7 @@ import org.jetbrains.java.generate.element.MethodElement;
 /**
  * Wrapper around MethodElement
  */
-public class MethodEntry implements Element {
+public class MethodEntry implements MemberEntry<PsiMethod> {
     PsiMethod raw;
     MethodElement element;
 

@@ -1,13 +1,12 @@
 package me.lotabout.codegenerator.util;
 
 import com.intellij.psi.PsiField;
-import org.jetbrains.java.generate.element.Element;
 import org.jetbrains.java.generate.element.FieldElement;
 
 /**
  * Wrapper around FieldElement
  */
-public class FieldEntry implements Element {
+public class FieldEntry implements MemberEntry<PsiField> {
     private PsiField raw;
     private FieldElement element;
 
