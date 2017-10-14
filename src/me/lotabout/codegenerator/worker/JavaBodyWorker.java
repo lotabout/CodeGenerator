@@ -16,8 +16,7 @@ import com.intellij.psi.codeStyle.JavaCodeStyleManager;
 import com.intellij.util.IncorrectOperationException;
 import com.intellij.util.containers.ContainerUtil;
 import me.lotabout.codegenerator.ConflictResolutionPolicy;
-import me.lotabout.codegenerator.util.ClassEntry;
-import me.lotabout.codegenerator.util.GenerationUtil;
+import me.lotabout.codegenerator.util.*;
 import me.lotabout.codegenerator.config.CodeTemplate;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.generate.config.*;
@@ -168,7 +167,7 @@ public class JavaBodyWorker {
                                               int sortElements,
                                               boolean useFullyQualifiedName)
             throws GenerateCodeException {
-        return velocityGenerateBody(clazz, selectedMembers, Collections.<PsiMember>emptyList(), null, Collections.<String, Object>emptyMap(), templateMacro, sortElements, useFullyQualifiedName, false);
+        return velocityGenerateBody(clazz, selectedMembers, Collections.<PsiMember>emptyList(), Collections.emptyMap(), null, templateMacro, sortElements, useFullyQualifiedName, false);
     }
 
     public static String velocityGenerateBody(@Nullable PsiClass clazz,
@@ -189,7 +188,7 @@ public class JavaBodyWorker {
 
         // field information
         logger.debug("Velocity Context - adding fields");
-        final List<FieldElement> fieldElements = ElementUtils.getOnlyAsFieldElements(selectedMembers, selectedNotNullMembers, useAccessors);
+        final List<FieldEntry> fieldElements = EntryUtils.getOnlyAsFieldEntrys(selectedMembers, selectedNotNullMembers, useAccessors);
         context.put("fields", fieldElements);
         if (fieldElements.size() == 1) {
             context.put("field", fieldElements.get(0));
@@ -199,14 +198,14 @@ public class JavaBodyWorker {
 
         // method information
         logger.debug("Velocity Context - adding methods");
-        context.put("methods", ElementUtils.getOnlyAsMethodElements(selectedMembers));
+        context.put("methods", EntryUtils.getOnlyAsMethodEntrys(selectedMembers));
 
         // element information (both fields and methods)
         logger.debug("Velocity Context - adding members (fields and methods)");
-        List<Element> elements = ElementUtils.getOnlyAsFieldAndMethodElements(selectedMembers, selectedNotNullMembers, useAccessors);
+        List<Element> elements = EntryUtils.getOnlyAsFieldAndMethodElements(selectedMembers, selectedNotNullMembers, useAccessors);
         // sort elements if enabled and not using chooser dialog
         if (sortElements != 0) {
-            Collections.sort(elements, new ElementComparator(sortElements));
+            elements.sort(new ElementComparator(sortElements));
         }
         context.put("members", elements);
 
@@ -220,7 +219,7 @@ public class JavaBodyWorker {
             context.put("classname", useFullyQualifiedName ? ce.getQualifiedName() : ce.getName());
             context.put("FQClassname", ce.getQualifiedName());
 
-            context.put("class0", ClassEntry.of(clazz));
+            context.put("class0", EntryFactory.newClassEntry(clazz));
         }
 
         context.putAll(contextMap);

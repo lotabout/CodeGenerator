@@ -18,7 +18,7 @@ import com.intellij.refactoring.PackageWrapper;
 import com.intellij.refactoring.move.moveClassesOrPackages.MoveClassesOrPackagesUtil;
 import com.intellij.util.IncorrectOperationException;
 import me.lotabout.codegenerator.config.CodeTemplate;
-import me.lotabout.codegenerator.util.ClassEntry;
+import me.lotabout.codegenerator.util.EntryFactory;
 import me.lotabout.codegenerator.util.GenerationUtil;
 import org.jetbrains.java.generate.exception.GenerateCodeException;
 
@@ -46,20 +46,19 @@ public class JavaClassWorker {
             return;
         }
 
-        Map<String, String> params = new HashMap<>();
         Map<String, Object> context = new HashMap<>();
 
         logger.debug("Velocity Context - adding classes");
         for (int i=0; i<selectedClasses.size(); i++) {
-            context.put("class"+String.valueOf(i), ClassEntry.of(selectedClasses.get(i)));
+            context.put("class"+String.valueOf(i), EntryFactory.newClassEntry(selectedClasses.get(i)));
         }
 
         try {
 
-            String className = GenerationUtil.velocityEvaluate(clazz, params, context, codeTemplate.classNameVm);
+            String className = GenerationUtil.velocityEvaluate(clazz, null, context, codeTemplate.classNameVm);
             context.put("ClassName", className);
 
-            String content = GenerationUtil.velocityEvaluate(clazz, params, context, codeTemplate.template);
+            String content = GenerationUtil.velocityEvaluate(clazz, null, context, codeTemplate.template);
             if (logger.isDebugEnabled()) logger.debug("class content generated from Velocity:\n" + content);
 
             writeToFile(clazz, className, content);
@@ -68,7 +67,7 @@ public class JavaClassWorker {
         }
     }
 
-    public void writeToFile(PsiClass clazz, String className, String content) {
+    private void writeToFile(PsiClass clazz, String className, String content) {
         Project project = clazz.getProject();
         String packageName = ((PsiJavaFile)clazz.getContainingFile()).getPackageName();
         VirtualFile sourceRoot = findSourceRoot(packageName, clazz);
@@ -133,14 +132,5 @@ public class JavaClassWorker {
 
     private boolean userConfirmedOverride() {
         return Messages.showYesNoDialog("Overwrite?", "File Exists", null) == Messages.OK;
-    }
-
-    private static PsiDirectory findSubdirectory(PsiDirectory baseDir, String path) {
-        String[] pathList = path.split("/");
-        PsiDirectory dir = baseDir;
-        for (int i=0; i<pathList.length && dir != null; i++) {
-            dir = dir.findSubdirectory(pathList[i]);
-        }
-        return dir;
     }
 }

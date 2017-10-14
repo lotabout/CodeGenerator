@@ -5,77 +5,62 @@ import com.intellij.psi.PsiClassOwner;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiJavaFile;
 import org.jetbrains.java.generate.element.ClassElement;
-import org.jetbrains.java.generate.element.FieldElement;
-import org.jetbrains.java.generate.element.MethodElement;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class ClassEntry {
-    private String name;
-    private PsiClass clazz;
+    private PsiClass raw;
+    private ClassElement element;
+
     private String packageName;
     private List<String> importList;
-    private ClassElement classElement;
-    private List<FieldElement> fields;
-    private List<FieldElement> allFields;
-    private List<MethodElement> methods;
-    private List<MethodElement> allMethods;
+    private List<FieldEntry> fields;
+    private List<FieldEntry> allFields;
+    private List<MethodEntry> methods;
+    private List<MethodEntry> allMethods;
     private List<ClassEntry> innerClasses;
     private List<ClassEntry> allInnerClasses;
-    private List<String> typeParams = Collections.emptyList();
+    private List<String> typeParamList = Collections.emptyList();
 
-    public static ClassEntry of(PsiClass clazz) {
+    public static ClassEntry of(PsiClass clazz, ClassElement element) {
         PsiFile psiFile = clazz.getContainingFile();
         ClassEntry entry = new ClassEntry();
-        entry.setName(clazz.getName());
-        entry.setClazz(clazz);
+        entry.setRaw(clazz);
+        entry.setElement(element);
         entry.setPackageName(((PsiClassOwner)psiFile).getPackageName());
         entry.setImportList(GenerationUtil.getImportList((PsiJavaFile) psiFile));
         entry.setFields(GenerationUtil.getFields(clazz));
         entry.setAllFields(GenerationUtil.getAllFields(clazz));
         entry.setMethods(GenerationUtil.getMethods(clazz));
         entry.setAllMethods(GenerationUtil.getAllMethods(clazz));
-        entry.setInnerClasses(Arrays.stream(clazz.getInnerClasses())
-                .map(ClassEntry::of)
-                .collect(Collectors.toList()));
-        entry.setAllInnerClasses(Arrays.stream(clazz.getAllInnerClasses())
-                .map(ClassEntry::of)
-                .collect(Collectors.toList()));
+        entry.setInnerClasses(GenerationUtil.getInnerClasses(clazz));
+        entry.setAllInnerClasses(GenerationUtil.getAllInnerClasses(clazz));
+        entry.setTypeParamList(GenerationUtil.getClassTypeParameters(clazz));
         return entry;
     }
 
-    public PsiClass getClazz() {
-        return clazz;
+    public PsiClass getRaw() {
+        return raw;
     }
 
-    public void setClazz(PsiClass clazz) {
-        this.clazz = clazz;
+    public void setRaw(PsiClass raw) {
+        this.raw = raw;
     }
 
-    public List<ClassEntry> getAllInnerClasses() {
-        return allInnerClasses;
+    public ClassElement getElement() {
+        return element;
     }
 
-    private void setAllInnerClasses(List<ClassEntry> allInnerClasses) {
-        this.allInnerClasses = allInnerClasses;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    private void setName(String name) {
-        this.name = name;
+    public void setElement(ClassElement element) {
+        this.element = element;
     }
 
     public String getPackageName() {
         return packageName;
     }
 
-    private void setPackageName(String packageName) {
+    public void setPackageName(String packageName) {
         this.packageName = packageName;
     }
 
@@ -83,47 +68,39 @@ public class ClassEntry {
         return importList;
     }
 
-    private void setImportList(List<String> importList) {
+    public void setImportList(List<String> importList) {
         this.importList = importList;
     }
 
-    public ClassElement getClassElement() {
-        return classElement;
-    }
-
-    public void setClassElement(ClassElement classElement) {
-        this.classElement = classElement;
-    }
-
-    public List<FieldElement> getFields() {
+    public List<FieldEntry> getFields() {
         return fields;
     }
 
-    private void setFields(List<FieldElement> fields) {
+    public void setFields(List<FieldEntry> fields) {
         this.fields = fields;
     }
 
-    public List<FieldElement> getAllFields() {
+    public List<FieldEntry> getAllFields() {
         return allFields;
     }
 
-    private void setAllFields(List<FieldElement> allFields) {
+    public void setAllFields(List<FieldEntry> allFields) {
         this.allFields = allFields;
     }
 
-    public List<MethodElement> getMethods() {
+    public List<MethodEntry> getMethods() {
         return methods;
     }
 
-    private void setMethods(List<MethodElement> methods) {
+    public void setMethods(List<MethodEntry> methods) {
         this.methods = methods;
     }
 
-    public List<MethodElement> getAllMethods() {
+    public List<MethodEntry> getAllMethods() {
         return allMethods;
     }
 
-    private void setAllMethods(List<MethodElement> allMethods) {
+    public void setAllMethods(List<MethodEntry> allMethods) {
         this.allMethods = allMethods;
     }
 
@@ -131,15 +108,119 @@ public class ClassEntry {
         return innerClasses;
     }
 
-    private void setInnerClasses(List<ClassEntry> innerClasses) {
+    public void setInnerClasses(List<ClassEntry> innerClasses) {
         this.innerClasses = innerClasses;
     }
 
-    public List<String> getTypeParams() {
-        return typeParams;
+    public List<ClassEntry> getAllInnerClasses() {
+        return allInnerClasses;
     }
 
-    private void setTypeParams(List<String> typeParams) {
-        this.typeParams = typeParams;
+    public void setAllInnerClasses(List<ClassEntry> allInnerClasses) {
+        this.allInnerClasses = allInnerClasses;
+    }
+
+    public List<String> getTypeParamList() {
+        return typeParamList;
+    }
+
+    public void setTypeParamList(List<String> typeParamList) {
+        this.typeParamList = typeParamList;
+    }
+
+    public boolean isImplements(String s) {
+        return element.isImplements(s);
+    }
+
+    public boolean isExtends(String s) {
+        return element.isExtends(s);
+    }
+
+    public boolean matchName(String s) throws IllegalArgumentException {
+        return element.matchName(s);
+    }
+
+    public String[] getImplementNames() {
+        return element.getImplementNames();
+    }
+
+    public void setImplementNames(String[] strings) {
+        element.setImplementNames(strings);
+    }
+
+    public String getSuperQualifiedName() {
+        return element.getSuperQualifiedName();
+    }
+
+    public void setSuperQualifiedName(String s) {
+        element.setSuperQualifiedName(s);
+    }
+
+    public String getSuperName() {
+        return element.getSuperName();
+    }
+
+    public void setSuperName(String s) {
+        element.setSuperName(s);
+    }
+
+    public String getName() {
+        return element.getName();
+    }
+
+    public void setName(String s) {
+        element.setName(s);
+    }
+
+    public String getQualifiedName() {
+        return element.getQualifiedName();
+    }
+
+    public void setQualifiedName(String s) {
+        element.setQualifiedName(s);
+    }
+
+    public boolean isHasSuper() {
+        return element.isHasSuper();
+    }
+
+    public boolean isDeprecated() {
+        return element.isDeprecated();
+    }
+
+    public void setDeprecated(boolean b) {
+        element.setDeprecated(b);
+    }
+
+    public boolean isEnum() {
+        return element.isEnum();
+    }
+
+    public void setEnum(boolean b) {
+        element.setEnum(b);
+    }
+
+    public boolean isException() {
+        return element.isException();
+    }
+
+    public void setException(boolean b) {
+        element.setException(b);
+    }
+
+    public boolean isAbstract() {
+        return element.isAbstract();
+    }
+
+    public void setAbstract(boolean b) {
+        element.setAbstract(b);
+    }
+
+    public void setTypeParams(int i) {
+        element.setTypeParams(i);
+    }
+
+    public int getTypeParams() {
+        return element.getTypeParams();
     }
 }
