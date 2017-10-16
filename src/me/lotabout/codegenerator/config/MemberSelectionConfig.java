@@ -14,7 +14,7 @@ public class MemberSelectionConfig implements PipelineStep {
     public String filterMethodName = "";
     public String filterMethodType = "";
     public boolean enableMethods = false;
-    public String providerTemplate = "#set($availableMembers = $class0.members)";
+    public String providerTemplate = DEFAULT_TEMPLATE;
     public boolean allowMultiSelection = true;
     public boolean allowEmptySelection = true;
     public int sortElements = 0;
@@ -68,4 +68,9 @@ public class MemberSelectionConfig implements PipelineStep {
                 .append(sortElements)
                 .toHashCode();
     }
+
+    private static String DEFAULT_TEMPLATE = "## set `availableMembers` to provide the members to select\n"
+            + "## set `selectedMembers` to select the members initially, set nothing to select all\n"
+            + "#set($availableMembers = $class0.members)\n";
+
 }

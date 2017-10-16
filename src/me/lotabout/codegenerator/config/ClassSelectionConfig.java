@@ -4,7 +4,7 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
 public class ClassSelectionConfig implements PipelineStep {
-    public String initialClass = "";
+    public String initialClass = "$class0.name";
     @Override public String type() {
         return "class-selection";
     }
