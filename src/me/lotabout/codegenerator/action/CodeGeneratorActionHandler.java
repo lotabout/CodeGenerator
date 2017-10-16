@@ -1,6 +1,5 @@
 package me.lotabout.codegenerator.action;
 
-import clojure.lang.Obj;
 import com.intellij.codeInsight.CodeInsightActionHandler;
 import com.intellij.codeInsight.FileModificationService;
 import com.intellij.codeInsight.generation.PsiElementClassMember;
@@ -81,25 +80,20 @@ public class CodeGeneratorActionHandler implements CodeInsightActionHandler {
         }
 
         Map<String, Object> contextMap = new HashMap<>();
-        contextMap.put("class0", EntryFactory.newClassEntry(clazz));
+        contextMap.put("class0", EntryFactory.of(clazz));
 
         logger.debug("Select member/class through pipeline");
-        int numOfClass = 0;
-        int numOfMembers = 0;
-
         for (PipelineStep step: template.pipeline) {
             switch (step.type()) {
             case "class-selection":
-                numOfClass += 1;
                 PsiClass selectedClass = selectClass(clazz, (ClassSelectionConfig)step, contextMap);
                 if (selectedClass == null) return;
-                contextMap.put("class"+numOfClass, selectedClass);
+                contextMap.put("class"+step.step(), selectedClass);
                 break;
             case "member-selection":
-                numOfMembers += 1;
                 List<PsiMember> selectedMembers = selectMember(clazz, (MemberSelectionConfig)step, contextMap);
                 if (selectedMembers == null) return;
-                GenerationUtil.insertMembersToContext(selectedMembers, Collections.emptyList(), contextMap, numOfMembers, ((MemberSelectionConfig)step).sortElements);
+                GenerationUtil.insertMembersToContext(selectedMembers, Collections.emptyList(), contextMap, step.step(), ((MemberSelectionConfig)step).sortElements);
                 break;
             }
         }

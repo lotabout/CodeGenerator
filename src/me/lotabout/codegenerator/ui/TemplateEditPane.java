@@ -16,6 +16,7 @@ import org.jetbrains.java.generate.config.InsertWhere;
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.stream.Collectors;
 
 public class TemplateEditPane {
@@ -80,8 +81,26 @@ public class TemplateEditPane {
         }
 
         codeTemplate.pipeline.forEach(this::addMemberSelection);
-        addMemberButton.addActionListener(e -> addMemberSelection(new MemberSelectionConfig()));
-        addClassButton.addActionListener(e -> addMemberSelection(new ClassSelectionConfig()));
+        addMemberButton.addActionListener(e -> {
+            int currentStep = pipeline.stream()
+                    .filter(m -> m instanceof MemberSelectionPane)
+                    .map(PipelineStepConfig::step)
+                    .max(Comparator.naturalOrder())
+                    .orElse(0);
+            MemberSelectionConfig config = new MemberSelectionConfig();
+            config.stepNumber = currentStep + 1;
+            addMemberSelection(config);
+        });
+        addClassButton.addActionListener(e -> {
+            int currentStep = pipeline.stream()
+                    .filter(m -> m instanceof ClassSelectionPane)
+                    .map(PipelineStepConfig::step)
+                    .max(Comparator.naturalOrder())
+                    .orElse(0);
+            ClassSelectionConfig config = new ClassSelectionConfig();
+            config.stepNumber = currentStep + 1;
+            addMemberSelection(config);
+        });
 
         addVmEditor(codeTemplate.template);
     }

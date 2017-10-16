@@ -13,7 +13,6 @@ import com.intellij.psi.codeStyle.CodeStyleSettingsManager;
 import com.intellij.psi.codeStyle.NameUtil;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.search.PsiShortNamesCache;
-import com.intellij.util.containers.ContainerUtil;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.jetbrains.annotations.NotNull;
@@ -118,7 +117,7 @@ public class GenerationUtil {
             vc.put("PsiShortNamesCache", PsiShortNamesCache.class);
             vc.put("JavaPsiFacade", JavaPsiFacade.class);
             vc.put("GlobalSearchScope", GlobalSearchScope.class);
-            vc.put("ElementFactory", ElementFactory.class);
+            vc.put("EntryFactory", EntryFactory.class);
 
             for (String paramName : contextMap.keySet()) {
                 vc.put(paramName, contextMap.get(paramName));
@@ -182,34 +181,34 @@ public class GenerationUtil {
 
     static List<FieldEntry> getFields(PsiClass clazz) {
         return Arrays.stream(clazz.getFields())
-                    .map(f -> EntryFactory.newFieldEntry(f, false))
+                    .map(f -> EntryFactory.of(f, false))
                     .collect(Collectors.toList());
     }
     static List<FieldEntry> getAllFields(PsiClass clazz) {
         return Arrays.stream(clazz.getAllFields())
-                .map(f -> EntryFactory.newFieldEntry(f, false))
+                .map(f -> EntryFactory.of(f, false))
                 .collect(Collectors.toList());
     }
 
     static List<MethodEntry> getMethods(PsiClass clazz) {
         return Arrays.stream(clazz.getMethods())
-                .map(EntryFactory::newMethodEntry)
+                .map(EntryFactory::of)
                 .collect(Collectors.toList());
     }
     static List<MethodEntry> getAllMethods(PsiClass clazz) {
         return Arrays.stream(clazz.getAllMethods())
-                .map(EntryFactory::newMethodEntry)
+                .map(EntryFactory::of)
                 .collect(Collectors.toList());
     }
 
     static List<ClassEntry> getInnerClasses(PsiClass clazz) {
         return Arrays.stream(clazz.getInnerClasses())
-                .map(EntryFactory::newClassEntry)
+                .map(EntryFactory::of)
                 .collect(Collectors.toList());
     }
     static List<ClassEntry> getAllInnerClasses(PsiClass clazz) {
         return Arrays.stream(clazz.getAllInnerClasses())
-                .map(EntryFactory::newClassEntry)
+                .map(EntryFactory::of)
                 .collect(Collectors.toList());
     }
 

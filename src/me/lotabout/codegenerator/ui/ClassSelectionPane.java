@@ -9,9 +9,11 @@ public class ClassSelectionPane implements PipelineStepConfig {
     private JPanel topPane;
     private JTextField initialClassText;
     private JButton removeStepButton;
+    private JTextField stepNumberText;
 
     public ClassSelectionPane(ClassSelectionConfig config, TemplateEditPane parent) {
         initialClassText.setText(config.initialClass);
+        stepNumberText.setText(String.valueOf(config.stepNumber));
 
         removeStepButton.addActionListener(e -> {
             int result = Messages.showYesNoDialog("Really remove this step?", "Delete", null);
@@ -22,9 +24,15 @@ public class ClassSelectionPane implements PipelineStepConfig {
     }
 
     @Override
+    public int step() {
+        return Integer.valueOf(stepNumberText.getText());
+    }
+
+    @Override
     public ClassSelectionConfig getConfig() {
         ClassSelectionConfig config = new ClassSelectionConfig();
         config.initialClass = initialClassText.getText();
+        config.stepNumber = this.step();
         return config;
     }
 
