@@ -43,7 +43,7 @@ public class CodeGeneratorConfig {
         addTemplateButton.addActionListener(e -> {
             CodeTemplate template = new CodeTemplate();
             template.name = "Untitled";
-            TemplateEditPane editPane = new TemplateEditPane(settings, template, this);
+            TemplateEditPane editPane = new TemplateEditPane(template);
             DefaultListModel<TemplateEditPane> model = (DefaultListModel<TemplateEditPane>) templateList.getModel();
             model.addElement(editPane);
             templateList.setSelectedIndex(model.getSize()-1);
@@ -82,7 +82,7 @@ public class CodeGeneratorConfig {
 
     private void resetTabPane(CodeGeneratorSettings settings) {
         settings.getCodeTemplates().forEach((key, value) -> {
-            TemplateEditPane editPane = new TemplateEditPane(settings, value, this);
+            TemplateEditPane editPane = new TemplateEditPane(value);
             templateListModel.addElement(editPane);
         });
 
@@ -94,31 +94,7 @@ public class CodeGeneratorConfig {
         Map<String, CodeTemplate> ret = new HashMap<>();
         for (int i=0; i<templateListModel.getSize(); i++) {
             TemplateEditPane value = templateListModel.get(i);
-
-            CodeTemplate codeTemplate = new CodeTemplate(value.id());
-            codeTemplate.name = value.name();
-            codeTemplate.type = value.type();
-            codeTemplate.enabled = value.enabled();
-            codeTemplate.fileEncoding = value.fileEncoding();
-            codeTemplate.template = value.template();
-            codeTemplate.useFullyQualifiedName = value.useFullyQualifiedName();
-            codeTemplate.enableMethods = value.enableMethods();
-            codeTemplate.jumpToMethod = value.jumpToMethod();
-            codeTemplate.sortElements = value.sortElements();
-            codeTemplate.filterConstantField = value.excludeConstant();
-            codeTemplate.filterStaticModifier = value.excludeStatic();
-            codeTemplate.filterTransientModifier = value.excludeTransient();
-            codeTemplate.filterEnumField = value.excludeEnum();
-            codeTemplate.filterLoggers = value.excludeLogger();
-            codeTemplate.filterFieldName = value.excludeFieldsByName();
-            codeTemplate.filterFieldType = value.excludeFieldsByType();
-            codeTemplate.filterMethodName = value.excludeMethodsByName();
-            codeTemplate.filterMethodType = value.excludeMethodsByType();
-            codeTemplate.whenDuplicatesOption = value.duplicationPolicy();
-            codeTemplate.insertNewMethodOption = value.insertWhere();
-            codeTemplate.classNameVm = value.className();
-            codeTemplate.classNumber = value.classNum();
-
+            CodeTemplate codeTemplate = value.getCodeTemplate();
             ret.put(codeTemplate.getId(), codeTemplate);
         }
 

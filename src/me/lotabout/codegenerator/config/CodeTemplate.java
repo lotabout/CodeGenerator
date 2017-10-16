@@ -8,6 +8,7 @@ import org.jetbrains.java.generate.config.DuplicationPolicy;
 import org.jetbrains.java.generate.config.InsertWhere;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
 
 public class CodeTemplate {
@@ -16,6 +17,9 @@ public class CodeTemplate {
     public String fileNamePattern = ".*\\.java$";
     public String type = "body";
     public boolean enabled = true;
+    public String template = DEFAULT_TEMPLATE;
+    public String fileEncoding = DEFAULT_ENCODING;
+    public List<PipelineStep> pipeline;
 
     // used for body type template
     public boolean useFullyQualifiedName = false;
@@ -38,8 +42,6 @@ public class CodeTemplate {
     public int classNumber = 0;
     public String classNameVm = "$class0.name";
 
-    public String template = DEFAULT_TEMPLATE;
-    public String fileEncoding = DEFAULT_ENCODING;
 
     public CodeTemplate(UUID id) {
         this.id = id;
