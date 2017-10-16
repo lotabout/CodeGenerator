@@ -6,7 +6,7 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiJavaFile;
 import org.jetbrains.java.generate.element.ClassElement;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ClassEntry {
@@ -15,13 +15,15 @@ public class ClassEntry {
 
     private String packageName;
     private List<String> importList;
-    private List<FieldEntry> fields;
-    private List<FieldEntry> allFields;
-    private List<MethodEntry> methods;
-    private List<MethodEntry> allMethods;
-    private List<ClassEntry> innerClasses;
-    private List<ClassEntry> allInnerClasses;
-    private List<String> typeParamList = Collections.emptyList();
+    private List<FieldEntry> fields = new ArrayList<>();
+    private List<FieldEntry> allFields = new ArrayList<>();
+    private List<MethodEntry> methods = new ArrayList<>();
+    private List<MethodEntry> allMethods = new ArrayList<>();
+    private List<ClassEntry> innerClasses = new ArrayList<>();
+    private List<ClassEntry> allInnerClasses = new ArrayList<>();
+    private List<MemberEntry> members = new ArrayList<>();
+    private List<MemberEntry> allMembers = new ArrayList<>();
+    private List<String> typeParamList;
 
     public static ClassEntry of(PsiClass clazz, ClassElement element) {
         PsiFile psiFile = clazz.getContainingFile();
@@ -30,10 +32,10 @@ public class ClassEntry {
         entry.setElement(element);
         entry.setPackageName(((PsiClassOwner)psiFile).getPackageName());
         entry.setImportList(GenerationUtil.getImportList((PsiJavaFile) psiFile));
-        entry.setFields(GenerationUtil.getFields(clazz));
-        entry.setAllFields(GenerationUtil.getAllFields(clazz));
-        entry.setMethods(GenerationUtil.getMethods(clazz));
-        entry.setAllMethods(GenerationUtil.getAllMethods(clazz));
+        entry.addFields(GenerationUtil.getFields(clazz));
+        entry.addAllFields(GenerationUtil.getAllFields(clazz));
+        entry.addMethod(GenerationUtil.getMethods(clazz));
+        entry.addAllMethods(GenerationUtil.getAllMethods(clazz));
         entry.setInnerClasses(GenerationUtil.getInnerClasses(clazz));
         entry.setAllInnerClasses(GenerationUtil.getAllInnerClasses(clazz));
         entry.setTypeParamList(GenerationUtil.getClassTypeParameters(clazz));
@@ -76,36 +78,48 @@ public class ClassEntry {
         return fields;
     }
 
-    public void setFields(List<FieldEntry> fields) {
-        this.fields = fields;
+    public void addFields(List<FieldEntry> fields) {
+        this.fields.addAll(fields);
+        this.members.addAll(fields);
     }
 
     public List<FieldEntry> getAllFields() {
         return allFields;
     }
 
-    public void setAllFields(List<FieldEntry> allFields) {
+    public void addAllFields(List<FieldEntry> allFields) {
         this.allFields = allFields;
+        this.allMembers.addAll(fields);
     }
 
     public List<MethodEntry> getMethods() {
         return methods;
     }
 
-    public void setMethods(List<MethodEntry> methods) {
-        this.methods = methods;
+    public void addMethod(List<MethodEntry> methods) {
+        this.methods.addAll(methods);
+        this.members.addAll(methods);
     }
 
     public List<MethodEntry> getAllMethods() {
         return allMethods;
     }
 
-    public void setAllMethods(List<MethodEntry> allMethods) {
-        this.allMethods = allMethods;
+    public void addAllMethods(List<MethodEntry> allMethods) {
+        this.allMethods.addAll(allMethods);
+        this.allMembers.addAll(allMethods);
     }
 
     public List<ClassEntry> getInnerClasses() {
         return innerClasses;
+    }
+
+    public List<MemberEntry> getMembers() {
+        return members;
+    }
+
+    public List<MemberEntry> getAllMembers() {
+        return allMembers;
     }
 
     public void setInnerClasses(List<ClassEntry> innerClasses) {
@@ -222,5 +236,24 @@ public class ClassEntry {
 
     public int getTypeParams() {
         return element.getTypeParams();
+    }
+
+    @Override
+    public String toString() {
+        return "ClassEntry{" +
+                "raw=" + raw +
+                ", element=" + element +
+                ", packageName='" + packageName + '\'' +
+                ", importList=" + importList +
+                ", fields=" + fields +
+                ", allFields=" + allFields +
+                ", methods=" + methods +
+                ", allMethods=" + allMethods +
+                ", innerClasses=" + innerClasses +
+                ", allInnerClasses=" + allInnerClasses +
+                ", members=" + members +
+                ", allMembers=" + allMembers +
+                ", typeParamList=" + typeParamList +
+                '}';
     }
 }

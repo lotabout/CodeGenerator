@@ -1,5 +1,6 @@
 package me.lotabout.codegenerator.action;
 
+import clojure.lang.Obj;
 import com.intellij.codeInsight.CodeInsightActionHandler;
 import com.intellij.codeInsight.FileModificationService;
 import com.intellij.codeInsight.generation.PsiElementClassMember;
@@ -22,9 +23,8 @@ import me.lotabout.codegenerator.CodeGeneratorSettings;
 import me.lotabout.codegenerator.config.ClassSelectionConfig;
 import me.lotabout.codegenerator.config.MemberSelectionConfig;
 import me.lotabout.codegenerator.config.PipelineStep;
-import me.lotabout.codegenerator.util.EntryFactory;
+import me.lotabout.codegenerator.util.*;
 import me.lotabout.codegenerator.config.CodeTemplate;
-import me.lotabout.codegenerator.util.GenerationUtil;
 import me.lotabout.codegenerator.worker.JavaWorker;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
@@ -37,6 +37,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class CodeGeneratorActionHandler implements CodeInsightActionHandler {
 
@@ -146,11 +147,12 @@ public class CodeGeneratorActionHandler implements CodeInsightActionHandler {
         if (logger.isDebugEnabled()) logger.debug("start to select members by template: ", config.providerTemplate);
         GenerationUtil.velocityEvaluate(clazz, contextMap, contextMap, config.providerTemplate);
 
-        PsiMember[] availableMembers = new PsiMember[0];
-        PsiMember[] selectedMembers = new PsiMember[0];
+        // members should be MemberEntry[] or PsiMember[]
+        List availableMembers = Collections.emptyList();
+        List selectedMembers = Collections.emptyList();
         if (contextMap.containsKey(AVAILABLE_MEMBERS)) {
-            availableMembers = (PsiMember[])contextMap.get(AVAILABLE_MEMBERS);
-            selectedMembers = (PsiMember[])contextMap.get(SELECTED_MEMBERS);
+            availableMembers = (List) contextMap.get(AVAILABLE_MEMBERS);
+            selectedMembers = (List) contextMap.get(SELECTED_MEMBERS);
             selectedMembers = selectedMembers == null ? availableMembers : selectedMembers;
         }
 
@@ -158,9 +160,8 @@ public class CodeGeneratorActionHandler implements CodeInsightActionHandler {
         contextMap.remove(SELECTED_MEMBERS);
 
         // filter the members by configuration
-        FilterPattern filterPattern = generatorConfig2Config(config).getFilterPattern();
-        PsiElementClassMember[] dialogMembers = buildClassMember(filterMembers(availableMembers, filterPattern));
-        PsiElementClassMember[] membersSelected = buildClassMember(filterMembers(selectedMembers, filterPattern));
+        PsiElementClassMember[] dialogMembers = buildClassMember(filterMembers(availableMembers, config));
+        PsiElementClassMember[] membersSelected = buildClassMember(filterMembers(selectedMembers, config));
 
         final MemberChooser<PsiElementClassMember> chooser =
                 new MemberChooser<PsiElementClassMember>(dialogMembers, config.allowEmptySelection, config.allowMultiSelection, project, PsiUtil.isLanguageLevel5OrHigher(clazz), new JPanel(new BorderLayout())) {
@@ -180,21 +181,30 @@ public class CodeGeneratorActionHandler implements CodeInsightActionHandler {
         return GenerationUtil.convertClassMembersToPsiMembers(chooser.getSelectedElements());
     }
 
-    private static PsiMember[] filterMembers(PsiMember[] members, FilterPattern pattern) {
-        return (PsiMember[])Arrays.stream(members)
-                .filter(member -> {
-                    if (member instanceof PsiField) {
-                        return pattern.fieldMatches((PsiField)member);
-                    } else if (member instanceof PsiMethod) {
-                        return pattern.methodMatches((PsiMethod)member);
+    private static List<PsiMember> filterMembers(List<Object> members, final MemberSelectionConfig config) {
+        FilterPattern pattern = generatorConfig2Config(config).getFilterPattern();
+        return members.stream()
+                .map(member -> {
+                    if (member instanceof PsiMember) {
+                        return (PsiMember) member;
+                    } else if (member instanceof MemberEntry) {
+                        return (((MemberEntry) member).getRaw());
                     } else {
-                        return true;
+                        return null;
                     }
-                }).toArray();
+                }).filter(member -> {
+                    if (member instanceof PsiField) {
+                        return !pattern.fieldMatches((PsiField)member);
+                    } if (config.enableMethods && member instanceof PsiMethod) {
+                        return !pattern.methodMatches((PsiMethod)member);
+                    } else {
+                        return false;
+                    }
+                }).collect(Collectors.toList());
     }
 
-    private static PsiElementClassMember[] buildClassMember(PsiMember[] members) {
-        return (PsiElementClassMember[])Arrays.stream(members)
+    private static PsiElementClassMember[] buildClassMember(List<PsiMember> members) {
+        List<PsiElementClassMember> ret = members.stream()
                 .filter(m -> (m instanceof PsiField) || (m instanceof PsiMethod))
                 .map(m -> {
                     if (m instanceof PsiField) {
@@ -204,7 +214,9 @@ public class CodeGeneratorActionHandler implements CodeInsightActionHandler {
                     } else {
                         return null;
                     }
-                }).toArray();
+                }).collect(Collectors.toList());
+
+        return ret.toArray(new PsiElementClassMember[ret.size()]);
     }
 
     @Nullable

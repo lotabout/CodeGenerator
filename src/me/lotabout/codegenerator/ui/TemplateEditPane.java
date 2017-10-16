@@ -87,6 +87,10 @@ public class TemplateEditPane {
     }
 
     private void addMemberSelection(PipelineStep step) {
+        if (step == null) {
+            return;
+        }
+
         PipelineStepConfig pane = null;
         String title = "";
         if (step instanceof MemberSelectionConfig) {

@@ -56,7 +56,7 @@ public class JavaWorker {
             context.put("ClassName", className);
         }
 
-        String body = GenerationUtil.velocityEvaluate(clazz, context, Collections.emptyMap(), codeTemplate.template);
+        String body = GenerationUtil.velocityEvaluate(clazz, context, null, codeTemplate.template);
         if (logger.isDebugEnabled()) logger.debug("Method body generated from Velocity:\n" + body);
 
         switch (codeTemplate.type) {
