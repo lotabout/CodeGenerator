@@ -39,7 +39,7 @@ public class EntryUtils {
         return entryList;
     }
 
-    public static List<FieldEntry> getOnlyAsFieldEntrys(Collection<? extends PsiMember> members,
+    public static List<FieldEntry> getOnlyAsFieldEntries(Collection<? extends PsiMember> members,
                                                             Collection<? extends PsiMember> selectedNotNullMembers,
                                                             boolean useAccessors) {
         List<FieldEntry> fieldEntryList = new ArrayList<>();

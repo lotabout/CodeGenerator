@@ -9,6 +9,7 @@ import com.intellij.uiDesigner.core.GridConstraints;
 import me.lotabout.codegenerator.config.ClassSelectionConfig;
 import me.lotabout.codegenerator.config.CodeTemplate;
 import me.lotabout.codegenerator.config.MemberSelectionConfig;
+import me.lotabout.codegenerator.config.PipelineStep;
 import org.jetbrains.java.generate.config.DuplicationPolicy;
 import org.jetbrains.java.generate.config.InsertWhere;
 
@@ -24,11 +25,7 @@ public class TemplateEditPane {
     private JTextField templateNameText;
     private JPanel editorPane;
     private JTextField fileEncodingText;
-    private JCheckBox fullQualifiedCheckBox;
-    private JCheckBox enableMethodsCheckBox;
     private JCheckBox jumpToMethodCheckBox;
-    private JCheckBox sortElementsCheckBox;
-    private JComboBox comboBoxSortElements;
     private JRadioButton askRadioButton;
     private JRadioButton replaceExistingRadioButton;
     private JRadioButton generateDuplicateMemberRadioButton;
@@ -39,6 +36,7 @@ public class TemplateEditPane {
     private JTabbedPane templateTabbedPane;
     private JButton addMemberButton;
     private JButton addClassButton;
+    private JTextField classNameVmText;
     private Editor editor;
     private java.util.List<PipelineStepConfig> pipeline = new ArrayList<>();
 
@@ -50,13 +48,8 @@ public class TemplateEditPane {
         templateEnabledCheckBox.setSelected(codeTemplate.enabled);
         fileEncodingText.setText(StringUtil.notNullize(codeTemplate.fileEncoding, CodeTemplate.DEFAULT_ENCODING));
         templateTypeCombo.setSelectedItem(codeTemplate.type);
-        fullQualifiedCheckBox.setSelected(codeTemplate.useFullyQualifiedName);
-        enableMethodsCheckBox.setSelected(codeTemplate.enableMethods);
         jumpToMethodCheckBox.setSelected(codeTemplate.jumpToMethod);
-
-        sortElementsCheckBox.addItemListener(e -> comboBoxSortElements.setEnabled(sortElementsCheckBox.isSelected()));
-        comboBoxSortElements.setSelectedIndex(codeTemplate.sortElements - 1);
-        sortElementsCheckBox.setSelected(codeTemplate.sortElements != 0);
+        classNameVmText.setText(codeTemplate.classNameVm);
 
         askRadioButton.setSelected(false);
         replaceExistingRadioButton.setSelected(false);
@@ -86,21 +79,28 @@ public class TemplateEditPane {
                 break;
         }
 
-        addMemberButton.addActionListener(e -> {
-            MemberSelectionPane pane = new MemberSelectionPane(new MemberSelectionConfig(), this);
-            pipeline.add(pane);
-            templateTabbedPane.addTab("Member Selection", pane.getComponent());
-            templateTabbedPane.setSelectedIndex(templateTabbedPane.getTabCount() - 1);
-        });
-
-        addClassButton.addActionListener(e -> {
-            ClassSelectionPane pane = new ClassSelectionPane(new ClassSelectionConfig(), this);
-            pipeline.add(pane);
-            templateTabbedPane.addTab("Class Selection", pane.getComponent());
-            templateTabbedPane.setSelectedIndex(templateTabbedPane.getTabCount() - 1);
-        });
+        codeTemplate.pipeline.forEach(this::addMemberSelection);
+        addMemberButton.addActionListener(e -> addMemberSelection(new MemberSelectionConfig()));
+        addClassButton.addActionListener(e -> addMemberSelection(new ClassSelectionConfig()));
 
         addVmEditor(codeTemplate.template);
+    }
+
+    private void addMemberSelection(PipelineStep step) {
+        PipelineStepConfig pane = null;
+        String title = "";
+        if (step instanceof MemberSelectionConfig) {
+            pane = new MemberSelectionPane((MemberSelectionConfig)step, this);
+            title = "Member Selection";
+        } else if (step instanceof ClassSelectionConfig) {
+            pane = new ClassSelectionPane((ClassSelectionConfig)step, this);
+            title = "Class Selection";
+        }
+
+        pipeline.add(pane);
+        assert pane != null;
+        templateTabbedPane.addTab(title, pane.getComponent());
+        templateTabbedPane.setSelectedIndex(templateTabbedPane.getTabCount() - 1);
     }
 
     private void addVmEditor(String template) {
@@ -139,23 +139,8 @@ public class TemplateEditPane {
         return (String) templateTypeCombo.getSelectedItem();
     }
 
-    public boolean useFullyQualifiedName() {
-        return fullQualifiedCheckBox.isSelected();
-    }
-
-    public boolean enableMethods() {
-        return enableMethodsCheckBox.isSelected();
-    }
-
     public boolean jumpToMethod() {
         return jumpToMethodCheckBox.isSelected();
-    }
-
-    public int sortElements() {
-        if (!sortElementsCheckBox.isSelected()) {
-            return 0;
-        }
-        return comboBoxSortElements.getSelectedIndex() + 1;
     }
 
     public DuplicationPolicy duplicationPolicy() {
@@ -182,6 +167,10 @@ public class TemplateEditPane {
         return templateEdit;
     }
 
+    public String classNameVm() {
+        return classNameVmText.getText();
+    }
+
     public String toString() {
         return this.name();
     }
@@ -193,12 +182,11 @@ public class TemplateEditPane {
         template.enabled = this.enabled();
         template.fileEncoding = this.fileEncoding();
         template.template = this.template();
-        template.enableMethods = this.enableMethods();
         template.jumpToMethod = this.jumpToMethod();
-        template.sortElements = this.sortElements();
         template.insertNewMethodOption = this.insertWhere();
         template.whenDuplicatesOption = this.duplicationPolicy();
         template.pipeline = pipeline.stream().map(PipelineStepConfig::getConfig).collect(Collectors.toList());
+        template.classNameVm = this.classNameVm();
 
         return template;
     }

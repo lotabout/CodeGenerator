@@ -16,6 +16,7 @@ import com.intellij.psi.search.PsiShortNamesCache;
 import com.intellij.util.containers.ContainerUtil;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.generate.element.*;
 import org.jetbrains.java.generate.exception.GenerateCodeException;
@@ -66,8 +67,36 @@ public class GenerationUtil {
         return psiMemberList;
     }
 
+    public static void insertMembersToContext(List<PsiMember> members, List<PsiMember> notNullMembers, Map<String, Object> context, int index, int sortElements) {
+        logger.debug("insertMembersToContext - adding fields");
+        String postfix = index >= 0 ? String.valueOf(index) : "";
+        // field information
+        final List fieldElements = EntryUtils.getOnlyAsFieldEntries(members, notNullMembers, false);
+        context.put("fields" + postfix, fieldElements);
+        context.put("fields", fieldElements);
+        if (fieldElements.size() == 1) {
+            context.put("field" + postfix, fieldElements.get(0));
+            context.put("field", fieldElements.get(0));
+        }
+
+        // method information
+        logger.debug("insertMembersToContext - adding members");
+        context.put("methods" + postfix, EntryUtils.getOnlyAsMethodEntrys(members));
+        context.put("methods", EntryUtils.getOnlyAsMethodEntrys(members));
+
+        // element information (both fields and methods)
+        logger.debug("Velocity Context - adding members (fields and methods)");
+        List<MemberEntry> elements = EntryUtils.getOnlyAsFieldAndMethodElements(members, notNullMembers, false);
+        // sort elements if enabled and not using chooser dialog
+        if (sortElements != 0) {
+            elements.sort(new ElementComparator(sortElements));
+        }
+        context.put("members" + postfix, elements);
+        context.put("members", elements);
+    }
+
     public static String velocityEvaluate(
-            @Nullable PsiClass clazz,
+            @NotNull PsiClass clazz,
             Map<String, Object> contextMap,
             Map<String, Object> outputContext,
             String templateMacro) throws GenerateCodeException {

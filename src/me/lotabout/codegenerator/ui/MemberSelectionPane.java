@@ -26,6 +26,8 @@ public class MemberSelectionPane implements PipelineStepConfig {
     private JCheckBox enableMethodSelectionCheckBox;
     private JPanel topPane;
     private JButton removeStepButton;
+    private JComboBox comboBoxSortElements;
+    private JCheckBox sortElementsCheckBox;
     private Editor editor;
 
     public MemberSelectionPane(MemberSelectionConfig config, TemplateEditPane parent) {
@@ -41,7 +43,9 @@ public class MemberSelectionPane implements PipelineStepConfig {
         excludeMethodsByNameText.setText(config.filterMethodName);
         excludeMethodsByTypeText.setText(config.filterMethodType);
         enableMethodSelectionCheckBox.setSelected(config.enableMethods);
-        addVmEditor(config.providerTemplate);
+        sortElementsCheckBox.addItemListener(e -> comboBoxSortElements.setEnabled(sortElementsCheckBox.isSelected()));
+        comboBoxSortElements.setSelectedIndex(config.sortElements - 1);
+        sortElementsCheckBox.setSelected(config.sortElements != 0);
 
         removeStepButton.addActionListener(e -> {
             int result = Messages.showYesNoDialog("Really remove this step?", "Delete", null);
@@ -49,6 +53,14 @@ public class MemberSelectionPane implements PipelineStepConfig {
                 parent.removePipelineStep(this);
             }
         });
+        addVmEditor(config.providerTemplate);
+    }
+
+    public int sortElements() {
+        if (!sortElementsCheckBox.isSelected()) {
+            return 0;
+        }
+        return comboBoxSortElements.getSelectedIndex() + 1;
     }
 
     @Override
@@ -65,6 +77,7 @@ public class MemberSelectionPane implements PipelineStepConfig {
         config.filterMethodType = excludeMethodsByTypeText.getText();
         config.enableMethods = enableMethodSelectionCheckBox.isSelected();
         config.providerTemplate = editor.getDocument().getText();
+        config.sortElements = this.sortElements();
         return config;
     }
 
