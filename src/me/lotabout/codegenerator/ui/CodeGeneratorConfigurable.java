@@ -10,6 +10,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -37,14 +38,14 @@ public class CodeGeneratorConfigurable implements SearchableConfigurable {
     }
 
     @Override public boolean isModified() {
-        Map<String, CodeTemplate> templates = config.getTabTemplates();
+        List<CodeTemplate> templates = config.getTabTemplates();
         if (settings.getCodeTemplates().size() != templates.size()) {
             return true;
         }
 
-        for (Map.Entry<String, CodeTemplate> entry : templates.entrySet()) {
-            Optional<CodeTemplate> codeTemplate = settings.getCodeTemplate(entry.getKey());
-            if (!codeTemplate.isPresent() || !codeTemplate.get().equals(entry.getValue())) {
+        for (CodeTemplate template: templates) {
+            Optional<CodeTemplate> codeTemplate = settings.getCodeTemplate(template.getId());
+            if (!codeTemplate.isPresent() || !codeTemplate.get().equals(template)) {
                 return true;
             }
         }
@@ -53,13 +54,14 @@ public class CodeGeneratorConfigurable implements SearchableConfigurable {
     }
 
     @Override public void apply() throws ConfigurationException {
-        Map<String, CodeTemplate> templates = config.getTabTemplates();
-        for (Map.Entry<String, CodeTemplate> entry : templates.entrySet()) {
-            if (!entry.getValue().isValid()) {
+        List<CodeTemplate> templates = config.getTabTemplates();
+        for (CodeTemplate template : templates) {
+            if (!template.isValid()) {
                 throw new ConfigurationException(
                         "Not property can be empty and classNumber should be a number");
             }
         }
+
         settings.setCodeTemplates(templates);
         config.refresh(settings);
     }

@@ -5,7 +5,9 @@ import me.lotabout.codegenerator.CodeGeneratorSettings;
 import me.lotabout.codegenerator.config.CodeTemplate;
 
 import javax.swing.*;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class CodeGeneratorConfig {
@@ -81,8 +83,9 @@ public class CodeGeneratorConfig {
 
 
     private void resetTabPane(CodeGeneratorSettings settings) {
-        settings.getCodeTemplates().forEach((key, value) -> {
-            TemplateEditPane editPane = new TemplateEditPane(value);
+        settings.getCodeTemplates().forEach(template -> {
+            if (template == null) return;
+            TemplateEditPane editPane = new TemplateEditPane(template);
             templateListModel.addElement(editPane);
         });
 
@@ -90,12 +93,11 @@ public class CodeGeneratorConfig {
         templateList.setSelectedIndex(0);
     }
 
-    public Map<String, CodeTemplate> getTabTemplates() {
-        Map<String, CodeTemplate> ret = new HashMap<>();
+    public List<CodeTemplate> getTabTemplates() {
+        List<CodeTemplate> ret = new ArrayList<>();
         for (int i=0; i<templateListModel.getSize(); i++) {
             TemplateEditPane value = templateListModel.get(i);
-            CodeTemplate codeTemplate = value.getCodeTemplate();
-            ret.put(codeTemplate.getId(), codeTemplate);
+            ret.add(value.getCodeTemplate());
         }
 
         return ret;

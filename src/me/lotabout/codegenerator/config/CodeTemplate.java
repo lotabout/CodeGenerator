@@ -24,7 +24,7 @@ public class CodeTemplate {
     public InsertWhere insertNewMethodOption = InsertWhere.AT_CARET;
     public DuplicationPolicy whenDuplicatesOption = DuplicationPolicy.ASK;
     public boolean jumpToMethod = true; // jump cursor to toString method
-    public String classNameVm = "";
+    public String classNameVm = "$class0.name";
 
 
     public CodeTemplate(UUID id) {

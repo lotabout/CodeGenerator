@@ -76,7 +76,11 @@ public class MemberSelectionConfig implements PipelineStep {
 
     private static String DEFAULT_TEMPLATE = "## set `availableMembers` to provide the members to select\n"
             + "## set `selectedMembers` to select the members initially, set nothing to select all\n"
-            + "## Note that it should be type List<PsiMember> or List<MemberEntry>"
+            + "## Note that it should be type List<PsiMember> or List<MemberEntry>\n"
+            + "## And the selected result will be\n"
+            + "## - fields1:  List<FieldEntry> where `1` is the step number that you specified\n"
+            + "## - methods1: List<MethodEntry>\n"
+            + "## - members:  List<MemberEntry>\n"
             + "#set($availableMembers = $class0.members)\n";
 
 }

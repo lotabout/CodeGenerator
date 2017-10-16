@@ -9,6 +9,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.util.PsiTreeUtil;
 import me.lotabout.codegenerator.CodeGeneratorSettings;
+import me.lotabout.codegenerator.config.CodeTemplate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -46,21 +47,19 @@ public class CodeGeneratorGroup extends ActionGroup implements DumbAware {
 
 
         String fileName = file.getName();
-        final List<AnAction> children = settings.getCodeTemplates()
-                .entrySet().stream()
-                .filter(entry -> entry.getValue().enabled)
-                .filter(entry -> fileName.matches(entry.getValue().fileNamePattern))
-                .map(entry -> CodeGeneratorGroup.getOrCreateAction(entry.getKey(), entry.getValue().name))
+        final List<AnAction> children = settings.getCodeTemplates().stream()
+                .filter(t -> t.enabled && fileName.matches(t.fileNamePattern))
+                .map(CodeGeneratorGroup::getOrCreateAction)
                 .collect(Collectors.toList());
 
         return children.toArray(new AnAction[children.size()]);
     }
 
-    private static AnAction getOrCreateAction(String templateId, String templateName) {
-        final String actionId = "CodeMaker.Menu.Action." + templateId;
+    private static AnAction getOrCreateAction(CodeTemplate template) {
+        final String actionId = "CodeMaker.Menu.Action." + template.getId();
         AnAction action = ActionManager.getInstance().getAction(actionId);
         if (action == null) {
-            action = new CodeGeneratorAction(templateId, templateName);
+            action = new CodeGeneratorAction(template.getId(), template.name);
             ActionManager.getInstance().registerAction(actionId, action);
         }
         return action;

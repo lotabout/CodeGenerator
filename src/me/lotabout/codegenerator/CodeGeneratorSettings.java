@@ -7,6 +7,8 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import me.lotabout.codegenerator.config.CodeTemplate;
+import me.lotabout.codegenerator.config.MemberSelectionConfig;
+import me.lotabout.codegenerator.config.PipelineStep;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -19,13 +21,13 @@ import java.util.stream.Collectors;
 public class CodeGeneratorSettings implements PersistentStateComponent<CodeGeneratorSettings> {
 
     private static final Logger LOGGER = Logger.getInstance(CodeGeneratorSettings.class);
-    private Map<String, CodeTemplate> codeTemplates;
+    private List<CodeTemplate> codeTemplates;
 
     public CodeGeneratorSettings() {
 
     }
 
-    public CodeGeneratorSettings setCodeTemplates(Map<String, CodeTemplate> codeTemplates) {
+    public CodeGeneratorSettings setCodeTemplates(List<CodeTemplate> codeTemplates) {
         this.codeTemplates = codeTemplates;
         return this;
     }
@@ -42,7 +44,7 @@ public class CodeGeneratorSettings implements PersistentStateComponent<CodeGener
         XmlSerializerUtil.copyBean(codeGeneratorSettings, this);
     }
 
-    public Map<String, CodeTemplate> getCodeTemplates() {
+    public List<CodeTemplate> getCodeTemplates() {
         if (codeTemplates == null) {
             codeTemplates = loadDefaultTemplates();
         }
@@ -50,31 +52,34 @@ public class CodeGeneratorSettings implements PersistentStateComponent<CodeGener
     }
 
     public Optional<CodeTemplate> getCodeTemplate(String templateId) {
-        return Optional.ofNullable(codeTemplates.get(templateId));
+        return codeTemplates.stream()
+                .filter(t -> t.getId().equals(templateId))
+                .findFirst();
     }
 
     public void removeCodeTemplate(String templateId) {
-        codeTemplates.remove(templateId);
+        codeTemplates.removeIf(template -> template.name.equals(templateId));
     }
 
-    private Map<String, CodeTemplate> loadDefaultTemplates() {
+    private List<CodeTemplate> loadDefaultTemplates() {
         List<CodeTemplate> templates = new ArrayList<>();
         try {
-            templates.add(createTemplate("HUESerialization", "body"));
+            templates.add(createTemplate("HUESerialization", "body", Collections.singletonList(new MemberSelectionConfig())));
         } catch (Exception e) {
             LOGGER.error("loadDefaultTemplates failed", e);
         }
 
-        return templates.stream().collect(Collectors.toMap(CodeTemplate::getId, Function.identity()));
+        return templates;
     }
 
     @NotNull
-    private CodeTemplate createTemplate(String name, String type) throws IOException {
+    private CodeTemplate createTemplate(String name, String type, List<PipelineStep> pipeline) throws IOException {
         String velocityTemplate = FileUtil.loadTextAndClose(CodeGeneratorSettings.class.getResourceAsStream("/template/" + name + ".vm"));
         CodeTemplate codeTemplate = new CodeTemplate();
         codeTemplate.type = type;
         codeTemplate.name = name;
         codeTemplate.template = velocityTemplate;
+        codeTemplate.pipeline.addAll(pipeline);
         return codeTemplate;
     }
 
