@@ -1,7 +1,7 @@
 <idea-plugin>
   <id>me.lotabout.codegenerator</id>
   <name>CodeGenerator</name>
-  <version>1.0</version>
+  <version>1.1</version>
   <vendor email="lotabout@gmail.com" url="https://lotabout.me">Personal</vendor>
 
   <description><![CDATA[
@@ -20,6 +20,7 @@
 
   <change-notes><![CDATA[
   <ul>
+  <li>version 1.1 <p>Able to define workflows for selecting members/classes</p></li>
   <li>version 1.0 <p>First release</p></li>
   </ul>
     ]]>
