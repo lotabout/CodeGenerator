@@ -16,6 +16,10 @@ public class MethodEntry implements MemberEntry<PsiMethod> {
         this.element = element;
     }
 
+    public MethodElement getElement() {
+        return element;
+    }
+
     public PsiMethod getRaw() {
         return raw;
     }

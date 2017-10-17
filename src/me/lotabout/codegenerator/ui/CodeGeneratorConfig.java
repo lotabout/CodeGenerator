@@ -6,9 +6,7 @@ import me.lotabout.codegenerator.config.CodeTemplate;
 
 import javax.swing.*;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class CodeGeneratorConfig {
     private JPanel mainPane;
@@ -73,6 +71,11 @@ public class CodeGeneratorConfig {
                     templateList.setSelectedIndex(nextIndex);
                 }
             }
+        });
+
+        exportButton.addActionListener(e -> {
+            int index = templateList.getSelectedIndex();
+            TemplateEditPane template = templateListModel.get(index);
         });
 
         resetTabPane(settings);

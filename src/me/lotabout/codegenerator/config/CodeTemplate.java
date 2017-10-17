@@ -5,8 +5,16 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.jetbrains.java.generate.config.DuplicationPolicy;
 import org.jetbrains.java.generate.config.InsertWhere;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
+import javax.xml.bind.JAXB;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -59,6 +67,16 @@ public class CodeTemplate {
             e.printStackTrace();
         }
         DEFAULT_TEMPLATE = default_template;
+    }
+
+    public static CodeTemplate fromXML(String xml) {
+        return JAXB.unmarshal(new StringReader(xml), CodeTemplate.class);
+    }
+
+    public String toXML() {
+        StringWriter sw = new StringWriter();
+        JAXB.marshal(this, sw);
+        return sw.toString();
     }
 
     @Override public boolean equals(Object o) {

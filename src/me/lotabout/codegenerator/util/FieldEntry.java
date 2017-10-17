@@ -19,6 +19,10 @@ public class FieldEntry implements MemberEntry<PsiField> {
         return raw;
     }
 
+    public FieldElement getElement() {
+        return element;
+    }
+
     public String getAccessor() {
         return element.getAccessor();
     }
