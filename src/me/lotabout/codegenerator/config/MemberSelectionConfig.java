@@ -18,14 +18,17 @@ public class MemberSelectionConfig implements PipelineStep {
     public boolean allowMultiSelection = true;
     public boolean allowEmptySelection = true;
     public int sortElements = 0;
-    public int stepNumber = 1;
+    public String postfix = "";
     public boolean enabled = true;
 
     @Override public String type() {
         return "member-selection";
     }
 
-    @Override public int step() {return stepNumber;}
+    @Override
+    public String postfix() {
+        return postfix;
+    }
 
     @Override
     public boolean enabled() {
@@ -48,7 +51,6 @@ public class MemberSelectionConfig implements PipelineStep {
         if (allowMultiSelection != that.allowMultiSelection) return false;
         if (allowEmptySelection != that.allowEmptySelection) return false;
         if (sortElements != that.sortElements) return false;
-        if (stepNumber != that.stepNumber) return false;
         if (enabled != that.enabled) return false;
         if (filterFieldName != null ? !filterFieldName.equals(that.filterFieldName) : that.filterFieldName != null)
             return false;
@@ -58,7 +60,9 @@ public class MemberSelectionConfig implements PipelineStep {
             return false;
         if (filterMethodType != null ? !filterMethodType.equals(that.filterMethodType) : that.filterMethodType != null)
             return false;
-        return providerTemplate != null ? providerTemplate.equals(that.providerTemplate) : that.providerTemplate == null;
+        if (providerTemplate != null ? !providerTemplate.equals(that.providerTemplate) : that.providerTemplate != null)
+            return false;
+        return postfix != null ? postfix.equals(that.postfix) : that.postfix == null;
     }
 
     @Override
@@ -77,7 +81,7 @@ public class MemberSelectionConfig implements PipelineStep {
         result = 31 * result + (allowMultiSelection ? 1 : 0);
         result = 31 * result + (allowEmptySelection ? 1 : 0);
         result = 31 * result + sortElements;
-        result = 31 * result + stepNumber;
+        result = 31 * result + (postfix != null ? postfix.hashCode() : 0);
         result = 31 * result + (enabled ? 1 : 0);
         return result;
     }

@@ -5,7 +5,7 @@ import me.lotabout.codegenerator.config.PipelineStep;
 import javax.swing.*;
 
 public interface PipelineStepConfig {
-    int step();
+    String postfix();
     PipelineStep getConfig();
     JComponent getComponent();
 }

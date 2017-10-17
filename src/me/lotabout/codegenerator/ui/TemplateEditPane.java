@@ -16,6 +16,8 @@ import org.jetbrains.java.generate.config.InsertWhere;
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.stream.Collectors;
 
@@ -82,27 +84,32 @@ public class TemplateEditPane {
 
         codeTemplate.pipeline.forEach(this::addMemberSelection);
         addMemberButton.addActionListener(e -> {
-            int currentStep = pipeline.stream()
+            int currentStep = findMaxStepPotfix(pipeline.stream()
                     .filter(m -> m instanceof MemberSelectionPane)
-                    .map(PipelineStepConfig::step)
-                    .max(Comparator.naturalOrder())
-                    .orElse(0);
+                    .collect(Collectors.toList()));
             MemberSelectionConfig config = new MemberSelectionConfig();
-            config.stepNumber = currentStep + 1;
+            config.postfix = String.valueOf(currentStep + 1);
             addMemberSelection(config);
         });
         addClassButton.addActionListener(e -> {
-            int currentStep = pipeline.stream()
+            int currentStep = findMaxStepPotfix(pipeline.stream()
                     .filter(m -> m instanceof ClassSelectionPane)
-                    .map(PipelineStepConfig::step)
-                    .max(Comparator.naturalOrder())
-                    .orElse(0);
+                    .collect(Collectors.toList()));
             ClassSelectionConfig config = new ClassSelectionConfig();
-            config.stepNumber = currentStep + 1;
+            config.postfix = String.valueOf(currentStep + 1);
             addMemberSelection(config);
         });
 
         addVmEditor(codeTemplate.template);
+    }
+
+    private static int findMaxStepPotfix(Collection<? extends PipelineStepConfig> pipelinePanes) {
+        return pipelinePanes.stream()
+                .map(PipelineStepConfig::postfix)
+                .filter(str -> str.matches("\\d+"))
+                .map(Integer::valueOf)
+                .max(Comparator.naturalOrder())
+                .orElse(0);
     }
 
     private void addMemberSelection(PipelineStep step) {
@@ -114,10 +121,10 @@ public class TemplateEditPane {
         String title = "";
         if (step instanceof MemberSelectionConfig) {
             pane = new MemberSelectionPane((MemberSelectionConfig)step, this);
-            title = "Member Selection";
+            title = "Member";
         } else if (step instanceof ClassSelectionConfig) {
             pane = new ClassSelectionPane((ClassSelectionConfig)step, this);
-            title = "Class Selection";
+            title = "Class";
         }
 
         pipeline.add(pane);

@@ -66,9 +66,8 @@ public class GenerationUtil {
         return psiMemberList;
     }
 
-    public static void insertMembersToContext(List<PsiMember> members, List<PsiMember> notNullMembers, Map<String, Object> context, int index, int sortElements) {
+    public static void insertMembersToContext(List<PsiMember> members, List<PsiMember> notNullMembers, Map<String, Object> context, String postfix, int sortElements) {
         logger.debug("insertMembersToContext - adding fields");
-        String postfix = index >= 0 ? String.valueOf(index) : "";
         // field information
         final List fieldElements = EntryUtils.getOnlyAsFieldEntries(members, notNullMembers, false);
         context.put("fields" + postfix, fieldElements);

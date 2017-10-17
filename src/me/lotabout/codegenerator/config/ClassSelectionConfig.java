@@ -2,15 +2,15 @@ package me.lotabout.codegenerator.config;
 
 public class ClassSelectionConfig implements PipelineStep {
     public String initialClass = "$class0.name";
-    public int stepNumber = 1;
     public boolean enabled;
+    public String postfix = "";
     @Override public String type() {
         return "class-selection";
     }
 
     @Override
-    public int step() {
-        return stepNumber;
+    public String postfix() {
+        return postfix;
     }
 
     @Override
@@ -25,16 +25,16 @@ public class ClassSelectionConfig implements PipelineStep {
 
         ClassSelectionConfig that = (ClassSelectionConfig) o;
 
-        if (stepNumber != that.stepNumber) return false;
         if (enabled != that.enabled) return false;
-        return initialClass != null ? initialClass.equals(that.initialClass) : that.initialClass == null;
+        if (initialClass != null ? !initialClass.equals(that.initialClass) : that.initialClass != null) return false;
+        return postfix != null ? postfix.equals(that.postfix) : that.postfix == null;
     }
 
     @Override
     public int hashCode() {
         int result = initialClass != null ? initialClass.hashCode() : 0;
-        result = 31 * result + stepNumber;
         result = 31 * result + (enabled ? 1 : 0);
+        result = 31 * result + (postfix != null ? postfix.hashCode() : 0);
         return result;
     }
 }

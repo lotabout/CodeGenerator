@@ -9,12 +9,12 @@ public class ClassSelectionPane implements PipelineStepConfig {
     private JPanel topPane;
     private JTextField initialClassText;
     private JButton removeStepButton;
-    private JTextField stepNumberText;
+    private JTextField stepPostfixText;
     private JCheckBox enableStepCheckBox;
 
     public ClassSelectionPane(ClassSelectionConfig config, TemplateEditPane parent) {
         initialClassText.setText(config.initialClass);
-        stepNumberText.setText(String.valueOf(config.stepNumber));
+        stepPostfixText.setText(config.postfix());
         enableStepCheckBox.setSelected(config.enabled());
 
         removeStepButton.addActionListener(e -> {
@@ -26,15 +26,15 @@ public class ClassSelectionPane implements PipelineStepConfig {
     }
 
     @Override
-    public int step() {
-        return Integer.valueOf(stepNumberText.getText());
+    public String postfix() {
+        return stepPostfixText.getText();
     }
 
     @Override
     public ClassSelectionConfig getConfig() {
         ClassSelectionConfig config = new ClassSelectionConfig();
         config.initialClass = initialClassText.getText();
-        config.stepNumber = this.step();
+        config.postfix = this.postfix();
         config.enabled = enableStepCheckBox.isSelected();
         return config;
     }
