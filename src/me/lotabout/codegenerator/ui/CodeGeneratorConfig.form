@@ -101,23 +101,22 @@
               </toolbar>
               <scrollpane id="35227" binding="scrollPane">
                 <constraints>
-                  <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="3" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+                  <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
+                  <autoscrolls value="true"/>
                   <horizontalScrollBarPolicy value="30"/>
                   <minimumSize width="170" height="19"/>
                   <opaque value="false"/>
+                  <verticalScrollBarPolicy value="20"/>
                 </properties>
                 <border type="empty"/>
                 <children>
-                  <component id="2bdf9" class="javax.swing.JList" binding="templateList">
+                  <component id="c15f5" class="javax.swing.JList" binding="templateList">
                     <constraints/>
                     <properties>
-                      <dragEnabled value="false"/>
-                      <minimumSize width="170" height="0"/>
-                      <model/>
-                      <preferredSize width="170" height="0"/>
-                      <selectionMode value="0"/>
+                      <layoutOrientation value="0"/>
+                      <visibleRowCount value="4"/>
                     </properties>
                   </component>
                 </children>

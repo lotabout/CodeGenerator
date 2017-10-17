@@ -1,5 +1,6 @@
 package me.lotabout.codegenerator.ui;
 
+import clojure.lang.Obj;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
@@ -16,7 +17,6 @@ import org.jetbrains.java.generate.config.InsertWhere;
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.stream.Collectors;
 
@@ -40,7 +40,7 @@ public class TemplateEditPane {
     private JButton addClassButton;
     private JTextField classNameVmText;
     private Editor editor;
-    private java.util.List<PipelineStepConfig> pipeline = new ArrayList<>();
+    private java.util.List<SelectionPane> pipeline = new ArrayList<>();
 
     public TemplateEditPane(CodeTemplate codeTemplate) {
         settingsPanel.getVerticalScrollBar().setUnitIncrement(16); // scroll speed
@@ -83,17 +83,13 @@ public class TemplateEditPane {
 
         codeTemplate.pipeline.forEach(this::addMemberSelection);
         addMemberButton.addActionListener(e -> {
-            int currentStep = findMaxStepPostfix(pipeline.stream()
-                    .filter(m -> m instanceof MemberSelectionPane)
-                    .collect(Collectors.toList()));
+            int currentStep = findMaxStepPostfix(pipeline, "member");
             MemberSelectionConfig config = new MemberSelectionConfig();
             config.postfix = String.valueOf(currentStep + 1);
             addMemberSelection(config);
         });
         addClassButton.addActionListener(e -> {
-            int currentStep = findMaxStepPostfix(pipeline.stream()
-                    .filter(m -> m instanceof ClassSelectionPane)
-                    .collect(Collectors.toList()));
+            int currentStep = findMaxStepPostfix(pipeline, "class");
             ClassSelectionConfig config = new ClassSelectionConfig();
             config.postfix = String.valueOf(currentStep + 1);
             addMemberSelection(config);
@@ -102,10 +98,10 @@ public class TemplateEditPane {
         addVmEditor(codeTemplate.template);
     }
 
-    private static int findMaxStepPostfix(Collection<? extends PipelineStepConfig> pipelinePanes) {
+    private static int findMaxStepPostfix(java.util.List<SelectionPane> pipelinePanes, String type) {
         return pipelinePanes.stream()
-                .map(PipelineStepConfig::getConfig)
-                .map(PipelineStep::postfix)
+                .filter(p -> p.type().equals(type))
+                .map(SelectionPane::postfix)
                 .filter(str -> str.matches("\\d+"))
                 .map(Integer::valueOf)
                 .max(Comparator.naturalOrder())
@@ -124,7 +120,7 @@ public class TemplateEditPane {
             title = "Class";
         }
 
-        PipelineStepConfig pane = new SelectionPane(step, this);
+        SelectionPane pane = new SelectionPane(step, this);
         pipeline.add(pane);
         templateTabbedPane.addTab(title, pane.getComponent());
     }

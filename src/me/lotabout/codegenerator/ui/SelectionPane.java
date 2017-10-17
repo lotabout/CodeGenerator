@@ -6,13 +6,10 @@ import me.lotabout.codegenerator.config.MemberSelectionConfig;
 import me.lotabout.codegenerator.config.PipelineStep;
 
 import javax.swing.*;
-import java.awt.*;
 
 public class SelectionPane implements PipelineStepConfig {
     private JTextField postfixText;
     private JCheckBox enableStepCheckBox;
-    private JButton moveTabLeftButton;
-    private JButton moveTabRightButton;
     private JButton removeThisStepButton;
     private JPanel topPanel;
     private JScrollPane contentPane;
@@ -61,6 +58,15 @@ public class SelectionPane implements PipelineStepConfig {
             return step;
         }
         return null;
+    }
+
+    public String type() {
+        if (selectionPane instanceof MemberSelectionPane) {
+            return "member";
+        } else if (selectionPane instanceof ClassSelectionPane) {
+            return "class";
+        }
+        return "";
     }
 
     @Override public JComponent getComponent() {
