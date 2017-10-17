@@ -10,10 +10,12 @@ public class ClassSelectionPane implements PipelineStepConfig {
     private JTextField initialClassText;
     private JButton removeStepButton;
     private JTextField stepNumberText;
+    private JCheckBox enableStepCheckBox;
 
     public ClassSelectionPane(ClassSelectionConfig config, TemplateEditPane parent) {
         initialClassText.setText(config.initialClass);
         stepNumberText.setText(String.valueOf(config.stepNumber));
+        enableStepCheckBox.setSelected(config.enabled());
 
         removeStepButton.addActionListener(e -> {
             int result = Messages.showYesNoDialog("Really remove this step?", "Delete", null);
@@ -33,6 +35,7 @@ public class ClassSelectionPane implements PipelineStepConfig {
         ClassSelectionConfig config = new ClassSelectionConfig();
         config.initialClass = initialClassText.getText();
         config.stepNumber = this.step();
+        config.enabled = enableStepCheckBox.isSelected();
         return config;
     }
 

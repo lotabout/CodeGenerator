@@ -84,6 +84,7 @@ public class CodeGeneratorActionHandler implements CodeInsightActionHandler {
 
         logger.debug("Select member/class through pipeline");
         for (PipelineStep step: template.pipeline) {
+            if (!step.enabled()) continue;
             switch (step.type()) {
             case "class-selection":
                 PsiClass selectedClass = selectClass(clazz, (ClassSelectionConfig)step, contextMap);

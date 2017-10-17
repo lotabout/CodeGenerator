@@ -29,6 +29,7 @@ public class MemberSelectionPane implements PipelineStepConfig {
     private JComboBox comboBoxSortElements;
     private JCheckBox sortElementsCheckBox;
     private JTextField stepNumberText;
+    private JCheckBox enableStepCheckBox;
     private Editor editor;
 
     public MemberSelectionPane(MemberSelectionConfig config, TemplateEditPane parent) {
@@ -48,6 +49,7 @@ public class MemberSelectionPane implements PipelineStepConfig {
         comboBoxSortElements.setSelectedIndex(config.sortElements - 1);
         sortElementsCheckBox.setSelected(config.sortElements != 0);
         stepNumberText.setText(String.valueOf(config.stepNumber));
+        enableStepCheckBox.setSelected(config.enabled());
 
         removeStepButton.addActionListener(e -> {
             int result = Messages.showYesNoDialog("Really remove this step?", "Delete", null);
@@ -86,6 +88,7 @@ public class MemberSelectionPane implements PipelineStepConfig {
         config.providerTemplate = editor.getDocument().getText();
         config.sortElements = this.sortElements();
         config.stepNumber = Integer.valueOf(stepNumberText.getText());
+        config.enabled = enableStepCheckBox.isSelected();
         return config;
     }
 

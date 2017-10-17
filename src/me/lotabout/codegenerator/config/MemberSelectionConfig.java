@@ -19,12 +19,18 @@ public class MemberSelectionConfig implements PipelineStep {
     public boolean allowEmptySelection = true;
     public int sortElements = 0;
     public int stepNumber = 1;
+    public boolean enabled = true;
 
     @Override public String type() {
         return "member-selection";
     }
 
     @Override public int step() {return stepNumber;}
+
+    @Override
+    public boolean enabled() {
+        return enabled;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -43,6 +49,7 @@ public class MemberSelectionConfig implements PipelineStep {
         if (allowEmptySelection != that.allowEmptySelection) return false;
         if (sortElements != that.sortElements) return false;
         if (stepNumber != that.stepNumber) return false;
+        if (enabled != that.enabled) return false;
         if (filterFieldName != null ? !filterFieldName.equals(that.filterFieldName) : that.filterFieldName != null)
             return false;
         if (filterFieldType != null ? !filterFieldType.equals(that.filterFieldType) : that.filterFieldType != null)
@@ -71,6 +78,7 @@ public class MemberSelectionConfig implements PipelineStep {
         result = 31 * result + (allowEmptySelection ? 1 : 0);
         result = 31 * result + sortElements;
         result = 31 * result + stepNumber;
+        result = 31 * result + (enabled ? 1 : 0);
         return result;
     }
 
