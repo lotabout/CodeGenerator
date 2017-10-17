@@ -89,7 +89,7 @@ public class CodeGeneratorActionHandler implements CodeInsightActionHandler {
             case "class-selection":
                 PsiClass selectedClass = selectClass(clazz, (ClassSelectionConfig)step, contextMap);
                 if (selectedClass == null) return;
-                contextMap.put("class"+step.postfix(), selectedClass);
+                contextMap.put("class"+step.postfix(), EntryFactory.of(selectedClass));
                 break;
             case "member-selection":
                 List<PsiMember> selectedMembers = selectMember(clazz, (MemberSelectionConfig)step, contextMap);

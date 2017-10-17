@@ -2,7 +2,7 @@ package me.lotabout.codegenerator.config;
 
 public class ClassSelectionConfig implements PipelineStep {
     public String initialClass = "$class0.name";
-    public boolean enabled;
+    public boolean enabled = true;
     public String postfix = "";
     @Override public String type() {
         return "class-selection";
