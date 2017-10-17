@@ -118,6 +118,7 @@
 ## - PsiShortNamesCache: Class   utility to search classes
 ## - PsiJavaPsiFacade: Class     Java specific utility to search classes
 ## - GlobalSearchScope: Class    class to create search scopes, used by above utilities
+## - EntryFactory: Class         EntryFactory.of(...) to turn PsiXXX to XXXEntry.
 ##
 ## References
 ## ----------

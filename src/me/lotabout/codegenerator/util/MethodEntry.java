@@ -271,4 +271,12 @@ public class MethodEntry implements MemberEntry<PsiMethod> {
     public boolean isModifierFinal() {
         return element.isModifierFinal();
     }
+
+    @Override
+    public String toString() {
+        return "MethodEntry{" +
+                "raw=" + raw +
+                ", element=" + element +
+                '}';
+    }
 }

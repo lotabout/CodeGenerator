@@ -234,4 +234,12 @@ public class FieldEntry implements MemberEntry<PsiField> {
     public boolean isModifierFinal() {
         return element.isModifierFinal();
     }
+
+    @Override
+    public String toString() {
+        return "FieldEntry{" +
+                "raw=" + raw +
+                ", element=" + element +
+                '}';
+    }
 }
