@@ -53,7 +53,7 @@ public class CodeGeneratorSettings implements PersistentStateComponent<CodeGener
 
     public Optional<CodeTemplate> getCodeTemplate(String templateId) {
         return codeTemplates.stream()
-                .filter(t -> t.getId().equals(templateId))
+                .filter(t -> t!= null && t.getId().equals(templateId))
                 .findFirst();
     }
 
