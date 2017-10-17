@@ -19,6 +19,8 @@ public class CodeGeneratorConfig {
     private JButton deleteTemplateButton;
     private JPanel splitRightPane;
     private JScrollPane scrollPane;
+    private JButton importButton;
+    private JButton exportButton;
 
     public CodeGeneratorConfig(CodeGeneratorSettings settings) {
         this.templateListModel = new DefaultListModel<>();

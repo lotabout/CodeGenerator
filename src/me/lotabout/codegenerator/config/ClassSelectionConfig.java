@@ -14,8 +14,18 @@ public class ClassSelectionConfig implements PipelineStep {
     }
 
     @Override
+    public void postfix(String postfix) {
+        this.postfix = postfix;
+    }
+
+    @Override
     public boolean enabled() {
         return enabled;
+    }
+
+    @Override
+    public void enabled(boolean enabled) {
+        this.enabled = enabled;
     }
 
     @Override

@@ -1,8 +1,5 @@
 package me.lotabout.codegenerator.config;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-
 public class MemberSelectionConfig implements PipelineStep {
     public boolean filterConstantField = true;
     public boolean filterEnumField = false;
@@ -31,8 +28,18 @@ public class MemberSelectionConfig implements PipelineStep {
     }
 
     @Override
+    public void postfix(String postfix) {
+        this.postfix = postfix;
+    }
+
+    @Override
     public boolean enabled() {
         return enabled;
+    }
+
+    @Override
+    public void enabled(boolean enabled) {
+        this.enabled = enabled;
     }
 
     @Override

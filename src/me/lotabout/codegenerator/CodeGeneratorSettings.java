@@ -14,8 +14,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @State(name = "CodeGeneratorSettings", storages = {@Storage(id = "app-default", file = "$APP_CONFIG$/CodeGenerator-settings.xml")})
 public class CodeGeneratorSettings implements PersistentStateComponent<CodeGeneratorSettings> {
@@ -77,6 +75,7 @@ public class CodeGeneratorSettings implements PersistentStateComponent<CodeGener
         String velocityTemplate = FileUtil.loadTextAndClose(CodeGeneratorSettings.class.getResourceAsStream("/template/" + name + ".vm"));
         CodeTemplate codeTemplate = new CodeTemplate();
         codeTemplate.type = type;
+        codeTemplate.enabled = false;
         codeTemplate.name = name;
         codeTemplate.template = velocityTemplate;
         codeTemplate.pipeline.addAll(pipeline);

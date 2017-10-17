@@ -82,6 +82,21 @@
                       <text value=""/>
                     </properties>
                   </component>
+                  <hspacer id="9474e">
+                    <constraints/>
+                  </hspacer>
+                  <component id="b3333" class="javax.swing.JButton" binding="importButton" default-binding="true">
+                    <constraints/>
+                    <properties>
+                      <text value="Import"/>
+                    </properties>
+                  </component>
+                  <component id="80591" class="javax.swing.JButton" binding="exportButton" default-binding="true">
+                    <constraints/>
+                    <properties>
+                      <text value="Export"/>
+                    </properties>
+                  </component>
                 </children>
               </toolbar>
               <scrollpane id="35227" binding="scrollPane">

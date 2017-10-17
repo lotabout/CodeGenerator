@@ -17,7 +17,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.stream.Collectors;
 
@@ -84,7 +83,7 @@ public class TemplateEditPane {
 
         codeTemplate.pipeline.forEach(this::addMemberSelection);
         addMemberButton.addActionListener(e -> {
-            int currentStep = findMaxStepPotfix(pipeline.stream()
+            int currentStep = findMaxStepPostfix(pipeline.stream()
                     .filter(m -> m instanceof MemberSelectionPane)
                     .collect(Collectors.toList()));
             MemberSelectionConfig config = new MemberSelectionConfig();
@@ -92,7 +91,7 @@ public class TemplateEditPane {
             addMemberSelection(config);
         });
         addClassButton.addActionListener(e -> {
-            int currentStep = findMaxStepPotfix(pipeline.stream()
+            int currentStep = findMaxStepPostfix(pipeline.stream()
                     .filter(m -> m instanceof ClassSelectionPane)
                     .collect(Collectors.toList()));
             ClassSelectionConfig config = new ClassSelectionConfig();
@@ -103,9 +102,10 @@ public class TemplateEditPane {
         addVmEditor(codeTemplate.template);
     }
 
-    private static int findMaxStepPotfix(Collection<? extends PipelineStepConfig> pipelinePanes) {
+    private static int findMaxStepPostfix(Collection<? extends PipelineStepConfig> pipelinePanes) {
         return pipelinePanes.stream()
-                .map(PipelineStepConfig::postfix)
+                .map(PipelineStepConfig::getConfig)
+                .map(PipelineStep::postfix)
                 .filter(str -> str.matches("\\d+"))
                 .map(Integer::valueOf)
                 .max(Comparator.naturalOrder())
@@ -117,20 +117,16 @@ public class TemplateEditPane {
             return;
         }
 
-        PipelineStepConfig pane = null;
         String title = "";
         if (step instanceof MemberSelectionConfig) {
-            pane = new MemberSelectionPane((MemberSelectionConfig)step, this);
             title = "Member";
         } else if (step instanceof ClassSelectionConfig) {
-            pane = new ClassSelectionPane((ClassSelectionConfig)step, this);
             title = "Class";
         }
 
+        PipelineStepConfig pane = new SelectionPane(step, this);
         pipeline.add(pane);
-        assert pane != null;
         templateTabbedPane.addTab(title, pane.getComponent());
-        templateTabbedPane.setSelectedIndex(templateTabbedPane.getTabCount() - 1);
     }
 
     private void addVmEditor(String template) {
