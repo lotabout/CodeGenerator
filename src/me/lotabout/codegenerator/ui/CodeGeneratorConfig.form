@@ -89,12 +89,14 @@
                     <constraints/>
                     <properties>
                       <text value="Import"/>
+                      <visible value="false"/>
                     </properties>
                   </component>
                   <component id="80591" class="javax.swing.JButton" binding="exportButton" default-binding="true">
                     <constraints/>
                     <properties>
                       <text value="Export"/>
+                      <visible value="false"/>
                     </properties>
                   </component>
                 </children>
