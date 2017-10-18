@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<codeTemplateList>
+    <templates>
+        <templates version="1.3">
+            <id>1f752c8b-3601-42d1-a9e2-43c2e714f822</id>
+            <name>Getter and Setter</name>
+            <fileNamePattern>.*\.java$</fileNamePattern>
+            <type>body</type>
+            <enabled>false</enabled>
+            <template>#foreach($field in $fields)
+#set($name = $StringUtil.capitalizeWithJavaBeanConvention($StringUtil.sanitizeJavaIdentifier($helper.getPropertyName($field.element, $project))))
+#if ($field.boolean &amp;&amp; $field.primitive)
+#set($getter = "is${name}")
+#else
+#set($getter = "get${name}")
+#end
+#set($setter = "set${name}")
+#if($field.modifierStatic)
+static ##
+#end
+$field.type ##
+${getter}() {
+return $field.name;
+}
+
+#if($field.modifierStatic)
+static ##
+#end
+void ${setter}($field.type $paramName) {
+#if ($field.name == $paramName)
+    #if (!$field.modifierStatic)
+    this.##
+    #else
+        $classname.##
+    #end
+#end
+$field.name = $paramName;
+}
+#end</template>
+            <fileEncoding>UTF-8</fileEncoding>
+            <pipeline>
+                <memberSelection>
+                    <filterConstantField>true</filterConstantField>
+                    <filterEnumField>false</filterEnumField>
+                    <filterTransientModifier>false</filterTransientModifier>
+                    <filterStaticModifier>true</filterStaticModifier>
+                    <filterLoggers>true</filterLoggers>
+                    <filterFieldName></filterFieldName>
+                    <filterFieldType></filterFieldType>
+                    <filterMethodName></filterMethodName>
+                    <filterMethodType></filterMethodType>
+                    <enableMethods>false</enableMethods>
+                    <providerTemplate>#set($availableMembers = [])
+#set($methodNames = [])
+#foreach($method in $class0.methods)
+$methodNames.add($method.methodName)
+#end
+#foreach($field in $class0.fields)
+#set($name = $StringUtil.capitalizeWithJavaBeanConvention($StringUtil.sanitizeJavaIdentifier($helper.getPropertyName($field.element, $project))))
+#if ($field.boolean &amp;&amp; $field.primitive)
+#set($getter = "is${name}")
+#else
+#set($getter = "get${name}")
+#end
+#set($setter = "set${name}")
+#if (!$methodNames.contains($getter) || !$methodNames.contains($setter))
+$availableMembers.add($field)
+#end
+#end
+</providerTemplate>
+                    <allowMultiSelection>true</allowMultiSelection>
+                    <allowEmptySelection>false</allowEmptySelection>
+                    <sortElements>0</sortElements>
+                    <postfix>1</postfix>
+                    <enabled>true</enabled>
+                </memberSelection>
+            </pipeline>
+            <insertNewMethodOption>AT_CARET</insertNewMethodOption>
+            <whenDuplicatesOption>ASK</whenDuplicatesOption>
+            <jumpToMethod>true</jumpToMethod>
+            <classNameVm>$class0.name</classNameVm>
+        </templates>
+    </templates>
+</codeTemplateList>

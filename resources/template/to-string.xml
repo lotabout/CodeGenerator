@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<codeTemplateList>
+    <templates>
+        <templates version="1.3">
+            <id>df5bbb3e-4465-4474-8920-2316a5df67c4</id>
+            <name>ToString</name>
+            <fileNamePattern>.*\.java$</fileNamePattern>
+            <type>body</type>
+            <enabled>false</enabled>
+            <template>public java.lang.String toString() {
+#if ( $members.size() &gt; 0 )
+#set ( $i = 0 )
+    return "$class0.name{" +
+#foreach( $member in $members )
+#if ( $i == 0 )
+    "##
+#else
+    ", ##
+#end
+#if ( $member.objectArray )
+#if ($java_version &lt; 5)
+$member.name=" + ($member.accessor == null ? null : java.util.Arrays.asList($member.accessor)) +
+#else
+$member.name=" + java.util.Arrays.toString($member.accessor) +
+#end
+#elseif ( $member.primitiveArray &amp;&amp; $java_version &gt;= 5)
+$member.name=" + java.util.Arrays.toString($member.accessor) +
+#elseif ( $member.string )
+$member.name='" + $member.accessor + '\'' +
+#else
+$member.name=" + $member.accessor +
+#end
+#set ( $i = $i + 1 )
+#end
+    '}';
+#else
+    return "$class0.name{}";
+#end
+}</template>
+            <fileEncoding>UTF-8</fileEncoding>
+            <pipeline>
+                <memberSelection>
+                    <filterConstantField>true</filterConstantField>
+                    <filterEnumField>false</filterEnumField>
+                    <filterTransientModifier>false</filterTransientModifier>
+                    <filterStaticModifier>true</filterStaticModifier>
+                    <filterLoggers>true</filterLoggers>
+                    <filterFieldName></filterFieldName>
+                    <filterFieldType></filterFieldType>
+                    <filterMethodName></filterMethodName>
+                    <filterMethodType></filterMethodType>
+                    <enableMethods>false</enableMethods>
+                    <providerTemplate>## set `availableMembers` to provide the members to select
+## set `selectedMembers` to select the members initially, set nothing to select all
+## Note that it should be type List&lt;PsiMember&gt; or List&lt;MemberEntry&gt;
+## And the selected result will be
+## - fields1:  List&lt;FieldEntry&gt; where `1` is the step number that you specified
+## - methods1: List&lt;MethodEntry&gt;
+## - members:  List&lt;MemberEntry&gt;
+#set($availableMembers = $class0.members)
+</providerTemplate>
+                    <allowMultiSelection>true</allowMultiSelection>
+                    <allowEmptySelection>true</allowEmptySelection>
+                    <sortElements>0</sortElements>
+                    <postfix>1</postfix>
+                    <enabled>true</enabled>
+                </memberSelection>
+            </pipeline>
+            <insertNewMethodOption>AT_CARET</insertNewMethodOption>
+            <whenDuplicatesOption>ASK</whenDuplicatesOption>
+            <jumpToMethod>true</jumpToMethod>
+            <classNameVm>$class0.name</classNameVm>
+        </templates>
+    </templates>
+</codeTemplateList>

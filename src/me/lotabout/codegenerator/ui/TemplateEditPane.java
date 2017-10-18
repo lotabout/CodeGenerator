@@ -17,6 +17,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class TemplateEditPane {
@@ -39,7 +40,7 @@ public class TemplateEditPane {
     private JButton addClassButton;
     private JTextField classNameVmText;
     private Editor editor;
-    private java.util.List<SelectionPane> pipeline = new ArrayList<>();
+    private List<SelectionPane> pipeline = new ArrayList<>();
 
     public TemplateEditPane(CodeTemplate codeTemplate) {
         settingsPanel.getVerticalScrollBar().setUnitIncrement(16); // scroll speed
@@ -97,7 +98,7 @@ public class TemplateEditPane {
         addVmEditor(codeTemplate.template);
     }
 
-    private static int findMaxStepPostfix(java.util.List<SelectionPane> pipelinePanes, String type) {
+    private static int findMaxStepPostfix(List<SelectionPane> pipelinePanes, String type) {
         return pipelinePanes.stream()
                 .filter(p -> p.type().equals(type))
                 .map(SelectionPane::postfix)

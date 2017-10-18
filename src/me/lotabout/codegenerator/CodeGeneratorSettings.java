@@ -64,25 +64,18 @@ public class CodeGeneratorSettings implements PersistentStateComponent<CodeGener
     }
 
     private List<CodeTemplate> loadDefaultTemplates() {
+        List<CodeTemplate> templates = new ArrayList<>();
         try {
-            String defaultSettings = FileUtil.loadTextAndClose(CodeGeneratorSettings.class.getResourceAsStream("/template/default-templates.xml"));
-            return CodeTemplateList.fromXML(defaultSettings);
+            templates.addAll(loadTemplates("getters-and-setters.xml"));
+            templates.addAll(loadTemplates("to-string.xml"));
+            templates.addAll(loadTemplates("HUE-Serialization.xml"));
         } catch (Exception e) {
             LOGGER.error("loadDefaultTemplates failed", e);
         }
         return Collections.emptyList();
     }
 
-    @NotNull
-    private CodeTemplate createTemplate(String name, String type, List<PipelineStep> pipeline) throws IOException {
-        String velocityTemplate = FileUtil.loadTextAndClose(CodeGeneratorSettings.class.getResourceAsStream("/template/" + name + ".vm"));
-        CodeTemplate codeTemplate = new CodeTemplate();
-        codeTemplate.type = type;
-        codeTemplate.enabled = false;
-        codeTemplate.name = name;
-        codeTemplate.template = velocityTemplate;
-        codeTemplate.pipeline.addAll(pipeline);
-        return codeTemplate;
+    private List<CodeTemplate> loadTemplates(String templateFileName) throws IOException {
+        return CodeTemplateList.fromXML(FileUtil.loadTextAndClose(CodeGeneratorSettings.class.getResourceAsStream("/template/" + templateFileName)));
     }
-
 }
