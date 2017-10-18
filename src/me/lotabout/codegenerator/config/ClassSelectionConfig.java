@@ -1,5 +1,11 @@
 package me.lotabout.codegenerator.config;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
+
+@XmlRootElement(name = "classSelection")
+@XmlAccessorType(XmlAccessType.FIELD)
 public class ClassSelectionConfig implements PipelineStep {
     public String initialClass = "$class0.name";
     public boolean enabled = true;

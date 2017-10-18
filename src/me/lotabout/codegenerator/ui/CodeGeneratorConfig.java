@@ -1,10 +1,26 @@
 package me.lotabout.codegenerator.ui;
 
+import com.intellij.openapi.fileChooser.FileChooser;
+import com.intellij.openapi.fileChooser.FileChooserDescriptor;
+import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
+import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.ui.Messages;
 import me.lotabout.codegenerator.CodeGeneratorSettings;
 import me.lotabout.codegenerator.config.CodeTemplate;
+import org.jetbrains.concurrency.AsyncPromise;
+import org.jetbrains.concurrency.Promise;
 
 import javax.swing.*;
+import javax.xml.bind.JAXB;
+import javax.xml.bind.annotation.*;
+import java.awt.event.ActionEvent;
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,6 +35,9 @@ public class CodeGeneratorConfig {
     private JScrollPane scrollPane;
     private JButton importButton;
     private JButton exportButton;
+    private JButton exportAllButton;
+
+    private static String DEFAULT_EXPORT_PATH = "code-generator.xml";
 
     public CodeGeneratorConfig(CodeGeneratorSettings settings) {
         this.templateListModel = new DefaultListModel<>();
@@ -73,22 +92,89 @@ public class CodeGeneratorConfig {
             }
         });
 
-        exportButton.addActionListener(e -> {
+        exportButton.addActionListener((ActionEvent e) -> {
             int index = templateList.getSelectedIndex();
             TemplateEditPane template = templateListModel.get(index);
+
+            String xml = toXML(new CodeTemplateList(template.getCodeTemplate()));
+            saveToFile(xml);
         });
 
-        resetTabPane(settings);
+        exportAllButton.addActionListener((ActionEvent e) -> {
+            List<CodeTemplate> templates = new ArrayList<>();
+            for (int i=0; i<templateListModel.getSize(); i++) {
+                templates.add(templateListModel.get(i).getCodeTemplate());
+            }
+
+            String xml = toXML(new CodeTemplateList(templates));
+            saveToFile(xml);
+        });
+
+        importButton.addActionListener(e -> {
+            readFromFile().done(xml -> {
+                try {
+                    CodeTemplateList templates = fromXML(xml);
+                    List<CodeTemplate> currentTemplates = getTabTemplates();
+                    currentTemplates.addAll(templates.getTemplates());
+                    refresh(currentTemplates);
+                    Messages.showMessageDialog("Import finished!", "Import", null);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    Messages.showMessageDialog("Fail to import\n"+ex.getMessage(), "Import Error", null);
+                }
+            });
+        });
+
+        resetTabPane(settings.getCodeTemplates());
     }
 
-    public void refresh(CodeGeneratorSettings settings) {
+    public void refresh(List<CodeTemplate> templates) {
         templateListModel.removeAllElements();
-        resetTabPane(settings);
+        resetTabPane(templates);
     }
 
+    private void saveToFile(String content) {
+        final FileChooserDescriptor descriptor = FileChooserDescriptorFactory.createSingleLocalFileDescriptor();
+        descriptor.setTitle("Choose Directory to Export");
+        descriptor.setDescription("save to directory/"+DEFAULT_EXPORT_PATH + " or the file to overwrite");
+        FileChooser.chooseFile(descriptor, null, mainPane, null, virtualFile -> {
+            String targetPath;
+            if (virtualFile.isDirectory()) {
+                targetPath = virtualFile.getPath() + '/' + DEFAULT_EXPORT_PATH;
+            } else {
+                targetPath = virtualFile.getPath();
+            }
 
-    private void resetTabPane(CodeGeneratorSettings settings) {
-        settings.getCodeTemplates().forEach(template -> {
+            Path path = Paths.get(targetPath);
+            if (virtualFile.isDirectory() && Files.exists(path)) {
+                int result = Messages.showYesNoDialog("Overwrite the file?\n" + path, "Overwrite", null);
+                if (result != Messages.OK) {
+                    return;
+                }
+            }
+
+            try {
+                Files.write(path, content.getBytes(), StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
+                Messages.showMessageDialog("Exported to \n"+path, "Export Successful", null);
+            } catch (IOException e) {
+                e.printStackTrace();
+                Messages.showMessageDialog("Error occurred\n"+e.getMessage(), "Export Error", null);
+            }
+        });
+    }
+
+    private Promise<String> readFromFile() {
+        final FileChooserDescriptor descriptor = FileChooserDescriptorFactory.createSingleFileDescriptor("xml");
+        descriptor.setTitle("Choose File to Import");
+        final AsyncPromise<String> result = new AsyncPromise<>();
+        FileChooser.chooseFile(descriptor, null, mainPane, null, virtualFile -> {
+            result.setResult(FileDocumentManager.getInstance().getDocument(virtualFile).getText());
+        });
+        return result;
+    }
+
+    private void resetTabPane(List<CodeTemplate> templates) {
+        templates.forEach(template -> {
             if (template == null) return;
             TemplateEditPane editPane = new TemplateEditPane(template);
             templateListModel.addElement(editPane);
@@ -108,6 +194,16 @@ public class CodeGeneratorConfig {
         return ret;
     }
 
+    public static CodeTemplateList fromXML(String xml) {
+        return JAXB.unmarshal(new StringReader(xml), CodeTemplateList.class);
+    }
+
+    public static String toXML(CodeTemplateList templates) {
+        StringWriter sw = new StringWriter();
+        JAXB.marshal(templates, sw);
+        return sw.toString();
+    }
+
     /**
      * Getter method for property <tt>mainPane</tt>.
      *
@@ -115,5 +211,29 @@ public class CodeGeneratorConfig {
      */
     public JPanel getMainPane() {
         return mainPane;
+    }
+
+    @XmlAccessorType(XmlAccessType.FIELD)
+    private static class CodeTemplateList {
+        @XmlElement(type = CodeTemplate.class)
+        @XmlElementWrapper
+        private List<CodeTemplate> templates = new ArrayList<>();
+
+        CodeTemplateList() {}
+        CodeTemplateList(List<CodeTemplate> templates) {
+            this.templates.addAll(templates);
+        }
+        CodeTemplateList(CodeTemplate template) {
+            this.templates.add(template);
+        }
+
+        public List<CodeTemplate> getTemplates() {
+            templates.forEach(CodeTemplate::regenerateId);
+            return templates;
+        }
+
+        public void setTemplates(List<CodeTemplate> templates) {
+            this.templates = templates;
+        }
     }
 }

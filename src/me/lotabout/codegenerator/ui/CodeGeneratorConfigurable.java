@@ -63,6 +63,6 @@ public class CodeGeneratorConfigurable implements SearchableConfigurable {
         }
 
         settings.setCodeTemplates(templates);
-        config.refresh(settings);
+        config.refresh(templates);
     }
 }

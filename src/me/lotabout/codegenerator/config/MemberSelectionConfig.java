@@ -1,5 +1,11 @@
 package me.lotabout.codegenerator.config;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
+
+@XmlRootElement(name = "memberSelection")
+@XmlAccessorType(XmlAccessType.FIELD)
 public class MemberSelectionConfig implements PipelineStep {
     public boolean filterConstantField = true;
     public boolean filterEnumField = false;

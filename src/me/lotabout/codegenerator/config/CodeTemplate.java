@@ -5,13 +5,9 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.jetbrains.java.generate.config.DuplicationPolicy;
 import org.jetbrains.java.generate.config.InsertWhere;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
 import javax.xml.bind.JAXB;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.bind.annotation.*;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -19,6 +15,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+@XmlRootElement(name = "codeTemplate")
+@XmlAccessorType(XmlAccessType.FIELD)
 public class CodeTemplate {
     private UUID id;
     public String name = "Untitled";
@@ -27,6 +25,11 @@ public class CodeTemplate {
     public boolean enabled = true;
     public String template = DEFAULT_TEMPLATE;
     public String fileEncoding = DEFAULT_ENCODING;
+    @XmlElements({
+            @XmlElement(name="memberSelection", type=MemberSelectionConfig.class),
+            @XmlElement(name="classSelection", type=ClassSelectionConfig.class)
+    })
+    @XmlElementWrapper
     public List<PipelineStep> pipeline = new ArrayList<>();
 
     public InsertWhere insertNewMethodOption = InsertWhere.AT_CARET;
@@ -44,6 +47,10 @@ public class CodeTemplate {
 
     public CodeTemplate() {
         this(UUID.randomUUID());
+    }
+
+    public void regenerateId() {
+        this.id = UUID.randomUUID();
     }
 
     public String getId() {
@@ -69,15 +76,6 @@ public class CodeTemplate {
         DEFAULT_TEMPLATE = default_template;
     }
 
-    public static CodeTemplate fromXML(String xml) {
-        return JAXB.unmarshal(new StringReader(xml), CodeTemplate.class);
-    }
-
-    public String toXML() {
-        StringWriter sw = new StringWriter();
-        JAXB.marshal(this, sw);
-        return sw.toString();
-    }
 
     @Override public boolean equals(Object o) {
         if (this == o)

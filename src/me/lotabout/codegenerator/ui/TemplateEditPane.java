@@ -1,6 +1,5 @@
 package me.lotabout.codegenerator.ui;
 
-import clojure.lang.Obj;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
@@ -15,9 +14,13 @@ import org.jetbrains.java.generate.config.DuplicationPolicy;
 import org.jetbrains.java.generate.config.InsertWhere;
 
 import javax.swing.*;
+import javax.xml.bind.JAXB;
 import java.awt.*;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class TemplateEditPane {

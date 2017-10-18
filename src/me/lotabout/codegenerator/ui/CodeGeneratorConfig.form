@@ -88,6 +88,7 @@
                   <component id="b3333" class="javax.swing.JButton" binding="importButton" default-binding="true">
                     <constraints/>
                     <properties>
+                      <borderPainted value="false"/>
                       <text value="Import"/>
                       <visible value="true"/>
                     </properties>
@@ -95,8 +96,16 @@
                   <component id="80591" class="javax.swing.JButton" binding="exportButton" default-binding="true">
                     <constraints/>
                     <properties>
+                      <borderPainted value="false"/>
                       <text value="Export"/>
                       <visible value="true"/>
+                    </properties>
+                  </component>
+                  <component id="afe48" class="javax.swing.JButton" binding="exportAllButton">
+                    <constraints/>
+                    <properties>
+                      <borderPainted value="false"/>
+                      <text value="Export ALL"/>
                     </properties>
                   </component>
                 </children>
