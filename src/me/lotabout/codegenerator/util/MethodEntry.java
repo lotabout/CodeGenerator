@@ -1,7 +1,6 @@
 package me.lotabout.codegenerator.util;
 
 import com.intellij.psi.PsiMethod;
-import org.jetbrains.java.generate.element.Element;
 import org.jetbrains.java.generate.element.MethodElement;
 
 /**

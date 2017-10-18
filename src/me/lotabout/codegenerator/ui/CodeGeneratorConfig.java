@@ -12,7 +12,10 @@ import org.jetbrains.concurrency.Promise;
 
 import javax.swing.*;
 import javax.xml.bind.JAXB;
-import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.io.StringReader;

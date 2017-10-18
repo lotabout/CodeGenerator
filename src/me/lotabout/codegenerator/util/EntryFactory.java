@@ -5,7 +5,6 @@ import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiMethod;
 import org.jetbrains.java.generate.element.ElementFactory;
 import org.jetbrains.java.generate.element.FieldElement;
-import org.jetbrains.java.generate.element.MethodElement;
 
 public class EntryFactory {
     public static FieldEntry of(PsiField field, boolean useAccessor) {

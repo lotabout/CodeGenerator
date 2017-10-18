@@ -20,10 +20,12 @@ import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.psi.util.PsiUtil;
 import me.lotabout.codegenerator.CodeGeneratorSettings;
 import me.lotabout.codegenerator.config.ClassSelectionConfig;
+import me.lotabout.codegenerator.config.CodeTemplate;
 import me.lotabout.codegenerator.config.MemberSelectionConfig;
 import me.lotabout.codegenerator.config.PipelineStep;
-import me.lotabout.codegenerator.util.*;
-import me.lotabout.codegenerator.config.CodeTemplate;
+import me.lotabout.codegenerator.util.EntryFactory;
+import me.lotabout.codegenerator.util.GenerationUtil;
+import me.lotabout.codegenerator.util.MemberEntry;
 import me.lotabout.codegenerator.worker.JavaWorker;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
@@ -34,8 +36,10 @@ import org.jetbrains.java.generate.exception.GenerateCodeException;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class CodeGeneratorActionHandler implements CodeInsightActionHandler {

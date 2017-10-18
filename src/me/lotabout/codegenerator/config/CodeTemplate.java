@@ -6,11 +6,8 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.jetbrains.java.generate.config.DuplicationPolicy;
 import org.jetbrains.java.generate.config.InsertWhere;
 
-import javax.xml.bind.JAXB;
 import javax.xml.bind.annotation.*;
 import java.io.IOException;
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -18,6 +15,9 @@ import java.util.UUID;
 @XmlRootElement(name = "codeTemplate")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class CodeTemplate {
+    @XmlAttribute
+    public static final String VERSION = "1.3";
+
     private UUID id;
     public String name = "Untitled";
     public String fileNamePattern = ".*\\.java$";

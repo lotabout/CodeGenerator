@@ -11,7 +11,6 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 public class CodeGeneratorConfigurable implements SearchableConfigurable {

@@ -1,6 +1,5 @@
 package me.lotabout.codegenerator.ui;
 
-import com.intellij.openapi.ui.Messages;
 import me.lotabout.codegenerator.config.ClassSelectionConfig;
 
 import javax.swing.*;
