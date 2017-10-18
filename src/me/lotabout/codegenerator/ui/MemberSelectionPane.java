@@ -26,6 +26,8 @@ public class MemberSelectionPane implements PipelineStepConfig {
     private JComboBox comboBoxSortElements;
     private JCheckBox sortElementsCheckBox;
     private JPanel topPane;
+    private JCheckBox allowMultipleSelectionCheckBox;
+    private JCheckBox allowEmptySelectionCheckBox;
     private Editor editor;
 
     MemberSelectionPane(MemberSelectionConfig config) {
@@ -42,6 +44,8 @@ public class MemberSelectionPane implements PipelineStepConfig {
         sortElementsCheckBox.addItemListener(e -> comboBoxSortElements.setEnabled(sortElementsCheckBox.isSelected()));
         comboBoxSortElements.setSelectedIndex(config.sortElements - 1);
         sortElementsCheckBox.setSelected(config.sortElements != 0);
+        allowEmptySelectionCheckBox.setSelected(config.allowEmptySelection);
+        allowMultipleSelectionCheckBox.setSelected(config.allowMultiSelection);
 
         addVmEditor(config.providerTemplate);
     }
@@ -79,6 +83,8 @@ public class MemberSelectionPane implements PipelineStepConfig {
         config.filterMethodType = excludeMethodsByTypeText.getText();
         config.enableMethods = enableMethodSelectionCheckBox.isSelected();
         config.providerTemplate = editor.getDocument().getText();
+        config.allowEmptySelection = allowEmptySelectionCheckBox.isSelected();
+        config.allowMultiSelection = allowMultipleSelectionCheckBox.isSelected();
         config.sortElements = sortElements();
         return config;
     }

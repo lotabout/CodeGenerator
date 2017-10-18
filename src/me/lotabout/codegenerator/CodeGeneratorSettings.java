@@ -7,6 +7,7 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import me.lotabout.codegenerator.config.CodeTemplate;
+import me.lotabout.codegenerator.config.CodeTemplateList;
 import me.lotabout.codegenerator.config.MemberSelectionConfig;
 import me.lotabout.codegenerator.config.PipelineStep;
 import org.jetbrains.annotations.NotNull;
@@ -63,14 +64,13 @@ public class CodeGeneratorSettings implements PersistentStateComponent<CodeGener
     }
 
     private List<CodeTemplate> loadDefaultTemplates() {
-        List<CodeTemplate> templates = new ArrayList<>();
         try {
-            templates.add(createTemplate("HUESerialization", "body", Collections.singletonList(new MemberSelectionConfig())));
+            String defaultSettings = FileUtil.loadTextAndClose(CodeGeneratorSettings.class.getResourceAsStream("/template/default-templates.xml"));
+            return CodeTemplateList.fromXML(defaultSettings);
         } catch (Exception e) {
             LOGGER.error("loadDefaultTemplates failed", e);
         }
-
-        return templates;
+        return Collections.emptyList();
     }
 
     @NotNull

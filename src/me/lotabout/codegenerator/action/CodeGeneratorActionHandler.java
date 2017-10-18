@@ -162,6 +162,12 @@ public class CodeGeneratorActionHandler implements CodeInsightActionHandler {
         PsiElementClassMember[] dialogMembers = buildClassMember(filterMembers(availableMembers, config));
         PsiElementClassMember[] membersSelected = buildClassMember(filterMembers(selectedMembers, config));
 
+        if (!config.allowEmptySelection && dialogMembers.length <= 0) {
+            Messages.showMessageDialog(project, "No members are provided to select from.\nAnd template doesn't allow empty selection",
+                    "Warning", Messages.getWarningIcon());
+            return null;
+        }
+
         final MemberChooser<PsiElementClassMember> chooser =
                 new MemberChooser<PsiElementClassMember>(dialogMembers, config.allowEmptySelection, config.allowMultiSelection, project, PsiUtil.isLanguageLevel5OrHigher(clazz), new JPanel(new BorderLayout())) {
                     @Nullable @Override protected String getHelpId() {

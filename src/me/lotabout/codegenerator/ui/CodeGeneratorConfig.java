@@ -7,19 +7,13 @@ import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.ui.Messages;
 import me.lotabout.codegenerator.CodeGeneratorSettings;
 import me.lotabout.codegenerator.config.CodeTemplate;
+import me.lotabout.codegenerator.config.CodeTemplateList;
 import org.jetbrains.concurrency.AsyncPromise;
 import org.jetbrains.concurrency.Promise;
 
 import javax.swing.*;
-import javax.xml.bind.JAXB;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -99,7 +93,7 @@ public class CodeGeneratorConfig {
             int index = templateList.getSelectedIndex();
             TemplateEditPane template = templateListModel.get(index);
 
-            String xml = toXML(new CodeTemplateList(template.getCodeTemplate()));
+            String xml = CodeTemplateList.toXML(template.getCodeTemplate());
             saveToFile(xml);
         });
 
@@ -109,16 +103,16 @@ public class CodeGeneratorConfig {
                 templates.add(templateListModel.get(i).getCodeTemplate());
             }
 
-            String xml = toXML(new CodeTemplateList(templates));
+            String xml = CodeTemplateList.toXML(templates);
             saveToFile(xml);
         });
 
         importButton.addActionListener(e -> {
             readFromFile().done(xml -> {
                 try {
-                    CodeTemplateList templates = fromXML(xml);
+                    List<CodeTemplate> templates = CodeTemplateList.fromXML(xml);
                     List<CodeTemplate> currentTemplates = getTabTemplates();
-                    currentTemplates.addAll(templates.getTemplates());
+                    currentTemplates.addAll(templates);
                     refresh(currentTemplates);
                     Messages.showMessageDialog("Import finished!", "Import", null);
                 } catch (Exception ex) {
@@ -197,16 +191,6 @@ public class CodeGeneratorConfig {
         return ret;
     }
 
-    public static CodeTemplateList fromXML(String xml) {
-        return JAXB.unmarshal(new StringReader(xml), CodeTemplateList.class);
-    }
-
-    public static String toXML(CodeTemplateList templates) {
-        StringWriter sw = new StringWriter();
-        JAXB.marshal(templates, sw);
-        return sw.toString();
-    }
-
     /**
      * Getter method for property <tt>mainPane</tt>.
      *
@@ -214,29 +198,5 @@ public class CodeGeneratorConfig {
      */
     public JPanel getMainPane() {
         return mainPane;
-    }
-
-    @XmlAccessorType(XmlAccessType.FIELD)
-    private static class CodeTemplateList {
-        @XmlElement(type = CodeTemplate.class)
-        @XmlElementWrapper
-        private List<CodeTemplate> templates = new ArrayList<>();
-
-        CodeTemplateList() {}
-        CodeTemplateList(List<CodeTemplate> templates) {
-            this.templates.addAll(templates);
-        }
-        CodeTemplateList(CodeTemplate template) {
-            this.templates.add(template);
-        }
-
-        public List<CodeTemplate> getTemplates() {
-            templates.forEach(CodeTemplate::regenerateId);
-            return templates;
-        }
-
-        public void setTemplates(List<CodeTemplate> templates) {
-            this.templates = templates;
-        }
     }
 }
