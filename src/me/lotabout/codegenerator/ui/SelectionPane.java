@@ -27,14 +27,14 @@ public class SelectionPane implements PipelineStepConfig {
             }
         });
 
+        PipelineStepConfig pane = null;
         if (config instanceof MemberSelectionConfig) {
-            MemberSelectionPane pane = new MemberSelectionPane((MemberSelectionConfig)config);
-            contentPane.setViewportView(pane.getComponent());
-            selectionPane = pane;
+            pane = new MemberSelectionPane((MemberSelectionConfig)config);
         } else if (config instanceof ClassSelectionConfig) {
-            ClassSelectionPane pane = new ClassSelectionPane((ClassSelectionConfig)config);
-            contentPane.setViewportView(pane.getComponent());
+            pane = new ClassSelectionPane((ClassSelectionConfig)config);
         }
+        contentPane.setViewportView(pane.getComponent());
+        selectionPane = pane;
     }
 
     public String postfix() {
