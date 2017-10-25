@@ -107,7 +107,6 @@
 ##
 ## Utilities
 ## ---------
-## - java_version: int           java version
 ## - settings: CodeStyleSettings settings of code style
 ## - project: Project            The project instance, normally used by Psi related utilities
 ## - helper: GenerationHelper

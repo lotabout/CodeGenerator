@@ -57,6 +57,7 @@
                       <model>
                         <item value="body"/>
                         <item value="class"/>
+                        <item value="caret"/>
                       </model>
                     </properties>
                   </component>
