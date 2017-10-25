@@ -1,10 +1,9 @@
 package me.lotabout.codegenerator.worker;
 
-import com.intellij.codeInsight.generation.PsiElementClassMember;
+import com.intellij.ide.highlighter.JavaFileType;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.application.WriteAction;
+import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtilCore;
@@ -14,7 +13,11 @@ import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
-import com.intellij.psi.*;
+import com.intellij.psi.PsiDirectory;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiFileFactory;
+import com.intellij.psi.PsiJavaFile;
+import com.intellij.psi.codeStyle.CodeStyleManager;
 import com.intellij.psi.codeStyle.JavaCodeStyleManager;
 import com.intellij.psi.impl.file.PsiDirectoryFactory;
 import me.lotabout.codegenerator.config.CodeTemplate;
@@ -23,10 +26,6 @@ import me.lotabout.codegenerator.util.PackageUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.util.Map;
 
 public class JavaClassWorker {
@@ -79,48 +78,30 @@ public class JavaClassWorker {
             return;
         }
 
-        final String targetPath = targetPackageDir.getVirtualFile().getPath() + File.separator + className + ".java";
+        final String targetFileName = className + ".java";
+        final String targetPath = targetPackageDir.getVirtualFile().getPath() + File.separator + targetFileName;
         final VirtualFileManager manager = VirtualFileManager.getInstance();
         final VirtualFile virtualFile = manager.refreshAndFindFileByUrl(VfsUtil.pathToUrl(targetPath));
         if (virtualFile != null && virtualFile.exists() && !userConfirmedOverride()) {
             return;
         }
 
+        final PsiFile targetFile = PsiFileFactory.getInstance(project).createFileFromText(className + ".java", JavaFileType.INSTANCE, content);
+        JavaCodeStyleManager.getInstance(project).shortenClassReferences(targetFile);
+        CodeStyleManager.getInstance(project).reformat(targetFile);
 
-        WriteAction.run(() -> {
+        WriteCommandAction.runWriteCommandAction(project, () -> {
             try {
-                // write the content to file.
-
-                VirtualFile finalVirtualFile;
-                if (virtualFile != null && virtualFile.exists()) {
-                    virtualFile.setBinaryContent(content.getBytes(codeTemplate.fileEncoding));
-                    finalVirtualFile = virtualFile;
-                } else {
-
-                    Path path = Paths.get(targetPath);
-                    Files.write(path, content.getBytes(codeTemplate.fileEncoding), StandardOpenOption.CREATE);
-                    finalVirtualFile = manager.refreshAndFindFileByUrl(VfsUtil.pathToUrl(targetPath));
+                final PsiFile oldFile = targetPackageDir.findFile(targetFileName);
+                if (oldFile != null) {
+                    oldFile.delete();
                 }
-
-                // auto import
-
-                assert finalVirtualFile != null;
-                PsiFile file = PsiManager.getInstance(project).findFile(finalVirtualFile);
-                assert file != null;
-                Document document = PsiDocumentManager.getInstance(project).getCachedDocument(file);
-
-                if (document != null) {
-                    PsiDocumentManager.getInstance(project).commitDocument(document);
-                }
-
-                if (file instanceof PsiJavaFile) {
-                    JavaCodeStyleManager.getInstance(project).shortenClassReferences(file);
-                }
+                targetPackageDir.add(targetFile);
 
                 // open the file in editor
+                final PsiFile file = targetPackageDir.findFile(targetFile.getName());
                 ApplicationManager.getApplication()
-                        .invokeLater(() -> FileEditorManager.getInstance(project).openFile(finalVirtualFile, true, true));
-
+                        .invokeLater(() -> FileEditorManager.getInstance(project).openFile(file.getVirtualFile(), true, true));
             } catch (Exception e) {
                 e.printStackTrace();
                 GenerationUtil.handleException(project, e);
