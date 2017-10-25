@@ -55,7 +55,7 @@ public class JavaWorker {
     public void execute(Map<String, Object> context) throws IncorrectOperationException, GenerateCodeException {
         String className = "";
         if (codeTemplate.type.equals("class")) {
-            className = GenerationUtil.velocityEvaluate(clazz, null, context, codeTemplate.classNameVm);
+            className = GenerationUtil.velocityEvaluate(clazz, context, context, codeTemplate.classNameVm);
             context.put("ClassName", className);
         }
 

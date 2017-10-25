@@ -96,7 +96,7 @@ public class GenerationUtil {
 
     public static String velocityEvaluate(
             @NotNull PsiClass clazz,
-            Map<String, Object> contextMap,
+            @NotNull Map<String, Object> contextMap,
             Map<String, Object> outputContext,
             String templateMacro) throws GenerateCodeException {
         if (templateMacro == null) {
