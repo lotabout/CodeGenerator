@@ -39,6 +39,7 @@ public class TemplateEditPane {
     private JButton addMemberButton;
     private JButton addClassButton;
     private JTextField classNameVmText;
+    private JCheckBox alwaysPromptForPackageCheckBox;
     private Editor editor;
     private List<SelectionPane> pipeline = new ArrayList<>();
 
@@ -52,6 +53,7 @@ public class TemplateEditPane {
         templateTypeCombo.setSelectedItem(codeTemplate.type);
         jumpToMethodCheckBox.setSelected(codeTemplate.jumpToMethod);
         classNameVmText.setText(codeTemplate.classNameVm);
+        alwaysPromptForPackageCheckBox.setSelected(codeTemplate.alwaysPromptForPackage);
 
         askRadioButton.setSelected(false);
         replaceExistingRadioButton.setSelected(false);
@@ -193,6 +195,9 @@ public class TemplateEditPane {
         return classNameVmText.getText();
     }
 
+    public boolean alwaysPromptForPackage() {
+        return this.alwaysPromptForPackageCheckBox.isSelected();
+    }
     public String toString() {
         return this.name();
     }
@@ -209,6 +214,7 @@ public class TemplateEditPane {
         template.whenDuplicatesOption = this.duplicationPolicy();
         template.pipeline = pipeline.stream().map(PipelineStepConfig::getConfig).collect(Collectors.toList());
         template.classNameVm = this.classNameVm();
+        template.alwaysPromptForPackage = this.alwaysPromptForPackage();
 
         return template;
     }

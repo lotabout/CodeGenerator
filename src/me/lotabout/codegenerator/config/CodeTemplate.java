@@ -35,8 +35,8 @@ public class CodeTemplate {
     public InsertWhere insertNewMethodOption = InsertWhere.AT_CARET;
     public DuplicationPolicy whenDuplicatesOption = DuplicationPolicy.ASK;
     public boolean jumpToMethod = true; // jump cursor to toString method
-    public String classNameVm = "$class0.name";
-
+    public String classNameVm = "${class0.qualifiedName}Test";
+    public boolean alwaysPromptForPackage = false;
 
     public CodeTemplate(UUID id) {
         this.id = id;
@@ -76,7 +76,6 @@ public class CodeTemplate {
         DEFAULT_TEMPLATE = default_template;
     }
 
-
     @Override public boolean equals(Object o) {
         if (this == o)
             return true;
@@ -89,6 +88,7 @@ public class CodeTemplate {
         return new EqualsBuilder()
                 .append(enabled, template1.enabled)
                 .append(jumpToMethod, template1.jumpToMethod)
+                .append(alwaysPromptForPackage, template1.alwaysPromptForPackage)
                 .append(id, template1.id)
                 .append(name, template1.name)
                 .append(fileNamePattern, template1.fileNamePattern)
@@ -116,6 +116,7 @@ public class CodeTemplate {
                 .append(whenDuplicatesOption)
                 .append(jumpToMethod)
                 .append(classNameVm)
+                .append(alwaysPromptForPackage)
                 .toHashCode();
     }
 }

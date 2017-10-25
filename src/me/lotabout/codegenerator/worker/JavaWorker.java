@@ -14,7 +14,6 @@ import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtilCore;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.JavaProjectRootsUtil;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.ui.DialogBuilder;
 import com.intellij.openapi.ui.Messages;
@@ -25,8 +24,6 @@ import com.intellij.psi.*;
 import com.intellij.psi.codeStyle.CodeStyleManager;
 import com.intellij.psi.codeStyle.JavaCodeStyleManager;
 import com.intellij.psi.impl.file.PsiDirectoryFactory;
-import com.intellij.refactoring.PackageWrapper;
-import com.intellij.refactoring.move.moveClassesOrPackages.MoveClassesOrPackagesUtil;
 import com.intellij.util.IncorrectOperationException;
 import me.lotabout.codegenerator.ConflictResolutionPolicy;
 import me.lotabout.codegenerator.config.CodeTemplate;
@@ -60,8 +57,20 @@ public class JavaWorker {
 
     public void execute(Map<String, Object> context) throws IncorrectOperationException, GenerateCodeException {
         String className = "";
+        String packageName = "";
         if (codeTemplate.type.equals("class")) {
-            className = GenerationUtil.velocityEvaluate(clazz, context, context, codeTemplate.classNameVm);
+            String FQClass = GenerationUtil.velocityEvaluate(clazz, context, context, codeTemplate.classNameVm);
+
+            int index = FQClass.lastIndexOf(".");
+            if (index >= 0) {
+                packageName = FQClass.substring(0, index);
+                className = FQClass.substring(index+1);
+            } else {
+                packageName = "";
+                className = FQClass;
+            }
+
+            context.put("PackageName", packageName);
             context.put("ClassName", className);
         }
 
@@ -73,7 +82,7 @@ public class JavaWorker {
             executeJavaFile(body);
             break;
         case "class":
-            writeToFile(clazz, className, body);
+            writeToFile(clazz, packageName, className, body);
             break;
         }
 
@@ -187,27 +196,34 @@ public class JavaWorker {
         return ConflictResolutionPolicy.DUPLICATE;
     }
 
-    private void writeToFile(@NotNull PsiClass selectedClass, String className, String content) {
+    private void writeToFile(@NotNull PsiClass selectedClass, String packageName, String className, String content) {
         Project project = selectedClass.getProject();
-        String packageName = ((PsiJavaFile)selectedClass.getContainingFile()).getPackageName();
+        String selectedPackage = ((PsiJavaFile)selectedClass.getContainingFile()).getPackageName();
+        String targetPackageName = packageName.equals("") ? selectedPackage : packageName;
+
+        // select or create package
 
         Module currentModule = ModuleUtilCore.findModuleForPsiElement(selectedClass);
         assert currentModule != null;
 
         VirtualFile moduleRoot = ProjectRootManager.getInstance(project).getFileIndex().getSourceRootForFile(selectedClass.getContainingFile().getVirtualFile());
+        assert moduleRoot != null;
+
         PsiDirectory moduleRootDir = PsiDirectoryFactory.getInstance(project).createDirectory(moduleRoot);
-        PsiDirectory packageDir = PackageUtil.findOrCreateDirectoryForPackage(project, currentModule, packageName, moduleRootDir, true);
-        if (packageDir == null) {
+        PsiDirectory targetPackageDir = PackageUtil.findOrCreateDirectoryForPackage(project, currentModule, targetPackageName, moduleRootDir, codeTemplate.alwaysPromptForPackage);
+        if (targetPackageDir == null) {
             // package is not found or created.
             return;
         }
 
-        final String targetPath = packageDir.getVirtualFile().getPath() + "/" + className + ".java";
+        final String targetPath = targetPackageDir.getVirtualFile().getPath() + "/" + className + ".java";
         final VirtualFileManager manager = VirtualFileManager.getInstance();
         final VirtualFile virtualFile = manager.refreshAndFindFileByUrl(VfsUtil.pathToUrl(targetPath));
         if (virtualFile != null && virtualFile.exists() && !userConfirmedOverride()) {
             return;
         }
+
+        // write the content to file.
 
         WriteAction.run(() -> {
             try {
@@ -223,9 +239,15 @@ public class JavaWorker {
                 }
 
                 // auto import
+                assert finalVirtualFile != null;
                 PsiFile file = PsiManager.getInstance(project).findFile(finalVirtualFile);
+                assert file != null;
                 Document document = PsiDocumentManager.getInstance(project).getCachedDocument(file);
-                PsiDocumentManager.getInstance(project).commitDocument(document);
+
+                if (document != null) {
+                    PsiDocumentManager.getInstance(project).commitDocument(document);
+                }
+
                 if (file instanceof PsiJavaFile) {
                     JavaCodeStyleManager.getInstance(project).shortenClassReferences(file);
                 }

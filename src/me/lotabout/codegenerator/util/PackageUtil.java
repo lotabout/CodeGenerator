@@ -9,8 +9,6 @@ import com.intellij.openapi.module.ModuleUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.impl.ProjectRootUtil;
 import com.intellij.openapi.roots.ModulePackageIndex;
-import com.intellij.openapi.roots.ProjectFileIndex;
-import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
@@ -23,20 +21,18 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 // customize my package Util based on Intellij's built-in Package Util
 public class PackageUtil {
-    private static final Logger LOG = Logger.getInstance("com.intellij.ide.util.PackageUtil");
+    private static final Logger LOG = Logger.getInstance("me.lotabout.codegenerator.util.PackageUtil");
 
     @Nullable
     public static PsiDirectory findOrCreateDirectoryForPackage(@NotNull Project project,
             @Nullable Module module,
             String packageName,
             @Nullable PsiDirectory baseDir,
-            boolean askUserToCreate) throws IncorrectOperationException {
-        return findOrCreateDirectoryForPackage(project, module, packageName, baseDir, askUserToCreate, false);
+            boolean alwaysPrompt) throws IncorrectOperationException {
+        return findOrCreateDirectoryForPackage(project, module, packageName, baseDir, true, alwaysPrompt);
     }
 
     @Nullable
@@ -45,9 +41,9 @@ public class PackageUtil {
             String packageName,
             PsiDirectory baseDir,
             boolean askUserToCreate,
-            boolean filterSourceDirsForBaseTestDirectory) throws IncorrectOperationException {
+            boolean alwaysPrompt) throws IncorrectOperationException {
         PsiDirectory psiDirectory = null;
-        if (!packageName.isEmpty()) {
+        if (!alwaysPrompt && !packageName.isEmpty()) {
             PsiPackage rootPackage = findLongestExistingPackage(module, packageName);
             rootPackage = rootPackage == null ? findLongestExistingPackage(project, packageName) : rootPackage;
 
@@ -59,10 +55,8 @@ public class PackageUtil {
                     postfixToShow = File.separatorChar + postfixToShow;
                 }
                 PsiDirectory[] moduleDirectories = getPackageDirectoriesInModule(rootPackage, module);
-                if (filterSourceDirsForBaseTestDirectory) {
-                    moduleDirectories = filterSourceDirectories(baseDir, project, moduleDirectories);
-                }
-                psiDirectory = DirectoryChooserUtil.selectDirectory(project, moduleDirectories, baseDir, postfixToShow);
+                PsiDirectory initDir = findDirectory(moduleDirectories, baseDir);
+                psiDirectory = DirectoryChooserUtil.selectDirectory(project, moduleDirectories, initDir, postfixToShow);
                 if (psiDirectory == null) return null;
             }
         }
@@ -118,20 +112,6 @@ public class PackageUtil {
             restOfName = cutLeftPart(restOfName);
         }
         return psiDirectory;
-    }
-
-    private static PsiDirectory[] filterSourceDirectories(PsiDirectory baseDir, Project project, PsiDirectory[] moduleDirectories) {
-        final ProjectFileIndex fileIndex = ProjectRootManager.getInstance(project).getFileIndex();
-        if (fileIndex.isInTestSourceContent(baseDir.getVirtualFile())) {
-            List<PsiDirectory> result = new ArrayList<>();
-            for (PsiDirectory moduleDirectory : moduleDirectories) {
-                if (fileIndex.isInTestSourceContent(moduleDirectory.getVirtualFile())) {
-                    result.add(moduleDirectory);
-                }
-            }
-            moduleDirectories = result.toArray(new PsiDirectory[result.size()]);
-        }
-        return moduleDirectories;
     }
 
     private static PsiDirectory[] getPackageDirectoriesInModule(PsiPackage rootPackage, Module module) {
