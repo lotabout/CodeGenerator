@@ -8,10 +8,10 @@
 ##
 ## Variables Provided (Class Mode)
 ## -------------------------------
-## Class mode means you want to create new class(file), CodeGenerator let you select
-## `ClassNum` related classes.
+## Class mode means you want to create new classes(file).
 ##
-## - ClassName: String     The name spcify by `ClassNameVm`
+## - ClassName: String     The name spcified by `Target Class Name`
+## - PackageName: String   The package name specified by `Target Class Name`
 ## - class0: ClassEntry    The class that the action is triggered upon
 ##   - raw: PsiClass
 ##   - String packageName
@@ -38,7 +38,8 @@
 ##   - isExtends(String): bool
 ##   - matchName(String): bool
 ##
-## - class1: ClassEntry    The first selected class
+## - class1: ClassEntry    The first selected class, where `1` is the postfix
+##                         you specify in pipeline
 ##   ...
 ##
 ## - MemberEntry (FieldEntry/MethodEntry common properties)
@@ -103,9 +104,6 @@
 ## - fields: List<FieldEntry>   All selected fields
 ## - methods: List<MethodEntry> All selected methods
 ## - members: List<MemberEntry> selected fields+methods
-## - class: ClassElement        For compatibility only, prefer to use class0 instead
-## - classname: String          For compatibility only, the class name of current class
-## - FQClassname: String        For compatibility only, Full Qualified Class Name
 ##
 ## Utilities
 ## ---------
@@ -119,6 +117,12 @@
 ## - PsiJavaPsiFacade: Class     Java specific utility to search classes
 ## - GlobalSearchScope: Class    class to create search scopes, used by above utilities
 ## - EntryFactory: Class         EntryFactory.of(...) to turn PsiXXX to XXXEntry.
+##
+## Other feature
+## -------------
+## - Auto import.      If the generated code contains full qualified name, Code Generator will try to
+##                     import the packages automatically and shorten the name.
+##                     For example `java.util.List<>` -> `List<>`
 ##
 ## References
 ## ----------
