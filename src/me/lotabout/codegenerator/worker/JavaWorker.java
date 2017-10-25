@@ -11,8 +11,11 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
+import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleUtilCore;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.JavaProjectRootsUtil;
+import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.ui.DialogBuilder;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VfsUtil;
@@ -21,12 +24,15 @@ import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.psi.*;
 import com.intellij.psi.codeStyle.CodeStyleManager;
 import com.intellij.psi.codeStyle.JavaCodeStyleManager;
+import com.intellij.psi.impl.file.PsiDirectoryFactory;
 import com.intellij.refactoring.PackageWrapper;
 import com.intellij.refactoring.move.moveClassesOrPackages.MoveClassesOrPackagesUtil;
 import com.intellij.util.IncorrectOperationException;
 import me.lotabout.codegenerator.ConflictResolutionPolicy;
 import me.lotabout.codegenerator.config.CodeTemplate;
 import me.lotabout.codegenerator.util.GenerationUtil;
+import me.lotabout.codegenerator.util.PackageUtil;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.java.generate.config.DuplicationPolicy;
 import org.jetbrains.java.generate.exception.GenerateCodeException;
 
@@ -181,16 +187,22 @@ public class JavaWorker {
         return ConflictResolutionPolicy.DUPLICATE;
     }
 
-    private void writeToFile(PsiClass clazz, String className, String content) {
-        Project project = clazz.getProject();
-        String packageName = ((PsiJavaFile)clazz.getContainingFile()).getPackageName();
-        VirtualFile sourceRoot = findSourceRoot(packageName, clazz);
-        if (sourceRoot == null) {
+    private void writeToFile(@NotNull PsiClass selectedClass, String className, String content) {
+        Project project = selectedClass.getProject();
+        String packageName = ((PsiJavaFile)selectedClass.getContainingFile()).getPackageName();
+
+        Module currentModule = ModuleUtilCore.findModuleForPsiElement(selectedClass);
+        assert currentModule != null;
+
+        VirtualFile moduleRoot = ProjectRootManager.getInstance(project).getFileIndex().getSourceRootForFile(selectedClass.getContainingFile().getVirtualFile());
+        PsiDirectory moduleRootDir = PsiDirectoryFactory.getInstance(project).createDirectory(moduleRoot);
+        PsiDirectory packageDir = PackageUtil.findOrCreateDirectoryForPackage(project, currentModule, packageName, moduleRootDir, true);
+        if (packageDir == null) {
+            // package is not found or created.
             return;
         }
 
-        final String sourcePath = sourceRoot.getPath() + "/" + packageName.replace(".", "/");
-        final String targetPath = sourcePath + "/" + className + ".java";
+        final String targetPath = packageDir.getVirtualFile().getPath() + "/" + className + ".java";
         final VirtualFileManager manager = VirtualFileManager.getInstance();
         final VirtualFile virtualFile = manager.refreshAndFindFileByUrl(VfsUtil.pathToUrl(targetPath));
         if (virtualFile != null && virtualFile.exists() && !userConfirmedOverride()) {
@@ -215,7 +227,7 @@ public class JavaWorker {
                 Document document = PsiDocumentManager.getInstance(project).getCachedDocument(file);
                 PsiDocumentManager.getInstance(project).commitDocument(document);
                 if (file instanceof PsiJavaFile) {
-                    JavaCodeStyleManager.getInstance(clazz.getProject()).shortenClassReferences(file);
+                    JavaCodeStyleManager.getInstance(project).shortenClassReferences(file);
                 }
 
                 ApplicationManager.getApplication()
@@ -223,25 +235,10 @@ public class JavaWorker {
 
             } catch (Exception e) {
                 e.printStackTrace();
-                GenerationUtil.handleException(clazz.getProject(), e);
+                GenerationUtil.handleException(project, e);
             }
         });
 
-    }
-
-
-    private VirtualFile findSourceRoot(String packageName, PsiClass clazz) {
-        Project project = clazz.getProject();
-        final PackageWrapper targetPackage = new PackageWrapper(PsiManager.getInstance(project), packageName);
-        List<VirtualFile> suitableRoots = JavaProjectRootsUtil.getSuitableDestinationSourceRoots(project);
-        if (suitableRoots.size() > 1) {
-            return MoveClassesOrPackagesUtil.chooseSourceRoot(targetPackage, suitableRoots,
-                    clazz.getContainingFile().getContainingDirectory());
-
-        } else if (suitableRoots.size() == 1) {
-            return suitableRoots.get(0);
-        }
-        return null;
     }
 
     private boolean userConfirmedOverride() {
