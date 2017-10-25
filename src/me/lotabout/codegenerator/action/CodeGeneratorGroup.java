@@ -2,6 +2,7 @@ package me.lotabout.codegenerator.action;
 
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.components.ServiceManager;
+import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiClass;
@@ -25,7 +26,7 @@ public class CodeGeneratorGroup extends ActionGroup implements DumbAware {
 
     @Override
     public boolean hideIfNoVisibleChildren() {
-        return true;
+        return false;
     }
 
     @NotNull @Override public AnAction[] getChildren(@Nullable AnActionEvent anActionEvent) {
@@ -39,15 +40,27 @@ public class CodeGeneratorGroup extends ActionGroup implements DumbAware {
         }
 
         PsiFile file = anActionEvent.getDataContext().getData(DataKeys.PSI_FILE);
-        PsiElement element = file.findElementAt(anActionEvent.getDataContext().getData(LangDataKeys.CARET).getOffset());
-        PsiClass clazz = PsiTreeUtil.getParentOfType(element, PsiClass.class, false);
-        if (clazz == null) {
+        if (file == null) {
             return AnAction.EMPTY_ARRAY;
+        }
+
+        Caret caret = anActionEvent.getDataContext().getData(LangDataKeys.CARET);
+        boolean isProjectView = caret == null;
+
+        if (!isProjectView) {
+            // EditorPopup menu
+            PsiElement element = file.findElementAt(caret.getOffset());
+            PsiClass clazz = PsiTreeUtil.getParentOfType(element, PsiClass.class, false);
+            if (clazz == null) {
+                // not inside a class
+                return AnAction.EMPTY_ARRAY;
+            }
         }
 
 
         String fileName = file.getName();
         final List<AnAction> children = settings.getCodeTemplates().stream()
+                .filter(t -> !isProjectView || (t.type.equals("class") && isProjectView))
                 .filter(t -> t.enabled && fileName.matches(t.fileNamePattern))
                 .map(CodeGeneratorGroup::getOrCreateAction)
                 .collect(Collectors.toList());

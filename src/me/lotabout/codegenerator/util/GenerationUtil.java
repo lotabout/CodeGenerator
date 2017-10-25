@@ -95,8 +95,8 @@ public class GenerationUtil {
     }
 
     public static String velocityEvaluate(
-            @NotNull PsiClass clazz,
-            Map<String, Object> contextMap,
+            @NotNull Project project,
+            @NotNull Map<String, Object> contextMap,
             Map<String, Object> outputContext,
             String templateMacro) throws GenerateCodeException {
         if (templateMacro == null) {
@@ -107,10 +107,8 @@ public class GenerationUtil {
         try {
             VelocityContext vc = new VelocityContext();
 
-            final Project project = clazz.getProject();
             vc.put("settings", CodeStyleSettingsManager.getSettings(project));
             vc.put("project", project);
-            vc.put("java_version", PsiAdapter.getJavaVersion(clazz));
             vc.put("helper", GenerationHelper.class);
             vc.put("StringUtil", StringUtil.class);
             vc.put("NameUtil", NameUtil.class);
@@ -128,7 +126,7 @@ public class GenerationUtil {
             // velocity
             VelocityEngine velocity = VelocityFactory.getVelocityEngine();
             logger.debug("Executing velocity +++ START +++");
-            velocity.evaluate(vc, sw, clazz.getName(), templateMacro);
+            velocity.evaluate(vc, sw, GenerationUtil.class.getName(), templateMacro);
             logger.debug("Executing velocity +++ END +++");
 
             if (outputContext != null) {

@@ -47,8 +47,10 @@
   <actions>
     <!-- Add your actions here -->
     <group id="me.lotabout.codegenerator.action.CodeGeneratorMenu" class="me.lotabout.codegenerator.action.CodeGeneratorGroup" text="CodeGenerator"
-           description="" popup="true">
-      <add-to-group group-id="GenerateGroup" anchor="after" relative-to-action="JavaGenerateGroup2"/>
+           description="Code Generator" popup="true">
+      <add-to-group group-id="EditorPopupMenu2" anchor="after" relative-to-action="GenerateGroup"/>
+      <add-to-group group-id="ProjectViewPopupMenu" anchor="after" relative-to-action="ProjectViewPopupMenuRefactoringGroup"/>
+      <!--<add-to-group group-id="GenerateGroup" anchor="after" relative-to-action="JavaGenerateGroup2"/>-->
     </group>
   </actions>
 
