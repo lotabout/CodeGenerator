@@ -8,14 +8,10 @@ import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import me.lotabout.codegenerator.config.CodeTemplate;
 import me.lotabout.codegenerator.config.CodeTemplateList;
-import me.lotabout.codegenerator.config.MemberSelectionConfig;
-import me.lotabout.codegenerator.config.PipelineStep;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -72,7 +68,7 @@ public class CodeGeneratorSettings implements PersistentStateComponent<CodeGener
         } catch (Exception e) {
             LOGGER.error("loadDefaultTemplates failed", e);
         }
-        return Collections.emptyList();
+        return templates;
     }
 
     private List<CodeTemplate> loadTemplates(String templateFileName) throws IOException {
