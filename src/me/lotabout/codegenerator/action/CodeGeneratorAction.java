@@ -142,6 +142,13 @@ public class CodeGeneratorAction extends AnAction {
         }
         contextMap.put("class0", EntryFactory.of(clazz));
 
+        if (editor != null) {
+            int offset = editor.getCaretModel().getOffset();
+            PsiElement context = file.findElementAt(offset);
+            PsiMethod parentMethod = PsiTreeUtil.getParentOfType(context, PsiMethod.class, false);
+            contextMap.put("parentMethod", EntryFactory.of(parentMethod));
+        }
+
         logger.debug("Select member/class through pipeline");
         for (PipelineStep step: codeTemplate.pipeline) {
             if (!step.enabled()) continue;

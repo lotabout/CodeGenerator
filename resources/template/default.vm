@@ -104,6 +104,7 @@
 ## - fields: List<FieldEntry>   All selected fields
 ## - methods: List<MethodEntry> All selected methods
 ## - members: List<MemberEntry> selected fields+methods
+## - parentMethod: MethodEntry  The nearest method that surround the current cursor
 ##
 ## Utilities
 ## ---------
