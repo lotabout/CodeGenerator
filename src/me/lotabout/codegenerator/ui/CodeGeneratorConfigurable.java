@@ -29,6 +29,12 @@ public class CodeGeneratorConfigurable implements SearchableConfigurable {
         return "CodeGenerator";
     }
 
+    @Nullable
+    @Override
+    public String getHelpTopic() {
+        return null;
+    }
+
     @Nullable @Override public JComponent createComponent() {
         if (config == null) {
             config = new CodeGeneratorConfig(settings);
@@ -63,5 +69,10 @@ public class CodeGeneratorConfigurable implements SearchableConfigurable {
 
         settings.setCodeTemplates(templates);
         config.refresh(templates);
+    }
+
+    @Override
+    public void reset() {
+
     }
 }

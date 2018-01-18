@@ -5,7 +5,6 @@ import com.intellij.codeInsight.generation.GenerationInfo;
 import com.intellij.codeInsight.generation.PsiGenerationInfo;
 import com.intellij.codeInsight.hint.HintManager;
 import com.intellij.ide.highlighter.JavaFileType;
-import com.intellij.openapi.application.WriteAction;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Editor;
@@ -96,7 +95,7 @@ public class JavaBodyWorker {
                 case AT_THE_END_OF_A_CLASS:
                     offset = parentClass.getTextRange().getEndOffset() - 1;
                 }
-                GenerateMembersUtil.insertMembersAtOffset(parentClass, offset, generationInfoList);
+                GenerateMembersUtil.insertMembersAtOffset(parentClass.getContainingFile(), offset, generationInfoList);
                 // auto import
                 JavaCodeStyleManager.getInstance(parentClass.getProject()).shortenClassReferences(parentClass.getContainingFile());
             } catch (Exception e) {
