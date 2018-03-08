@@ -1,6 +1,8 @@
 package me.lotabout.codegenerator.config;
 
 import com.intellij.openapi.util.io.FileUtil;
+import com.intellij.util.xmlb.annotations.AbstractCollection;
+
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.jetbrains.java.generate.config.DuplicationPolicy;
@@ -30,6 +32,7 @@ public class CodeTemplate {
             @XmlElement(name="classSelection", type=ClassSelectionConfig.class)
     })
     @XmlElementWrapper
+    @AbstractCollection(elementTypes = {MemberSelectionConfig.class, ClassSelectionConfig.class})
     public List<PipelineStep> pipeline = new ArrayList<>();
 
     public InsertWhere insertNewMethodOption = InsertWhere.AT_CARET;

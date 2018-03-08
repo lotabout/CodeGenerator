@@ -1,7 +1,7 @@
 <idea-plugin>
   <id>me.lotabout.codegenerator</id>
   <name>Code Generator</name>
-  <version>1.3.2</version>
+  <version>1.3.3</version>
   <vendor email="lotabout@gmail.com" url="https://lotabout.me">Jinzhou Zhang</vendor>
 
   <description><![CDATA[
@@ -20,6 +20,7 @@
 
   <change-notes><![CDATA[
   <ul>
+  <li>version 1.3.3 <p>fix: pipeline settings could not be saved.</p></li>
   <li>version 1.3.2 <p>support idea 2016.3 and after</p></li>
   <li>version 1.3.1 <p>move Code Generator Menu to Generate menu</p></li>
   <li>version 1.3 <p>support insert at caret. Fix bugs</p></li>
