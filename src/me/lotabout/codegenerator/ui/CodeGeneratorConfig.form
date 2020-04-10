@@ -64,9 +64,8 @@
                     <properties>
                       <borderPainted value="false"/>
                       <contentAreaFilled value="true"/>
-                      <icon value="toolbarDecorator/add.png"/>
-                      <opaque value="true"/>
-                      <text value=""/>
+                      <opaque value="false"/>
+                      <text value="Add"/>
                       <toolTipText value="Add a new template"/>
                       <visible value="true"/>
                     </properties>
@@ -77,9 +76,9 @@
                       <borderPainted value="false"/>
                       <enabled value="false"/>
                       <hideActionText value="false"/>
-                      <icon value="toolbarDecorator/remove.png"/>
                       <opaque value="false"/>
-                      <text value=""/>
+                      <text value="Remove"/>
+                      <toolTipText value="Remove template"/>
                     </properties>
                   </component>
                   <hspacer id="9474e">

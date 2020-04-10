@@ -199,17 +199,6 @@ public class GenerationUtil {
                 .collect(Collectors.toList());
     }
 
-    static List<ClassEntry> getInnerClasses(PsiClass clazz) {
-        return Arrays.stream(clazz.getInnerClasses())
-                .map(EntryFactory::of)
-                .collect(Collectors.toList());
-    }
-    static List<ClassEntry> getAllInnerClasses(PsiClass clazz) {
-        return Arrays.stream(clazz.getAllInnerClasses())
-                .map(EntryFactory::of)
-                .collect(Collectors.toList());
-    }
-
     static List<String> getImportList(PsiJavaFile javaFile) {
         PsiImportList importList = javaFile.getImportList();
         if (importList == null) {

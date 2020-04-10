@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-@State(name = "CodeGeneratorSettings", storages = {@Storage(id = "app-default", file = "$APP_CONFIG$/CodeGenerator-settings.xml")})
+@State(name = "CodeGeneratorSettings", storages = {@Storage("$APP_CONFIG$/CodeGenerator-settings.xml")})
 public class CodeGeneratorSettings implements PersistentStateComponent<CodeGeneratorSettings> {
 
     private static final Logger LOGGER = Logger.getInstance(CodeGeneratorSettings.class);

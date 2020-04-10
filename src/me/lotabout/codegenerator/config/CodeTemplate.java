@@ -1,8 +1,8 @@
 package me.lotabout.codegenerator.config;
 
 import com.intellij.openapi.util.io.FileUtil;
-import com.intellij.util.xmlb.annotations.AbstractCollection;
 
+import com.intellij.util.xmlb.annotations.AbstractCollection;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.jetbrains.java.generate.config.DuplicationPolicy;
@@ -122,4 +122,6 @@ public class CodeTemplate {
                 .append(alwaysPromptForPackage)
                 .toHashCode();
     }
+
+
 }

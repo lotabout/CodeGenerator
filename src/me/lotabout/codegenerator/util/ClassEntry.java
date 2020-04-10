@@ -1,9 +1,8 @@
 package me.lotabout.codegenerator.util;
 
-import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiClassOwner;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiJavaFile;
+import com.intellij.psi.*;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 import org.jetbrains.java.generate.element.ClassElement;
 
 import java.util.ArrayList;
@@ -19,8 +18,6 @@ public class ClassEntry {
     private List<FieldEntry> allFields = new ArrayList<>();
     private List<MethodEntry> methods = new ArrayList<>();
     private List<MethodEntry> allMethods = new ArrayList<>();
-    private List<ClassEntry> innerClasses = new ArrayList<>();
-    private List<ClassEntry> allInnerClasses = new ArrayList<>();
     private List<MemberEntry> members = new ArrayList<>();
     private List<MemberEntry> allMembers = new ArrayList<>();
     private List<String> typeParamList;
@@ -36,8 +33,6 @@ public class ClassEntry {
         entry.addAllFields(GenerationUtil.getAllFields(clazz));
         entry.addMethod(GenerationUtil.getMethods(clazz));
         entry.addAllMethods(GenerationUtil.getAllMethods(clazz));
-        entry.setInnerClasses(GenerationUtil.getInnerClasses(clazz));
-        entry.setAllInnerClasses(GenerationUtil.getAllInnerClasses(clazz));
         entry.setTypeParamList(GenerationUtil.getClassTypeParameters(clazz));
         return entry;
     }
@@ -74,10 +69,6 @@ public class ClassEntry {
         this.importList = importList;
     }
 
-    public List<FieldEntry> getFields() {
-        return fields;
-    }
-
     public void addFields(List<FieldEntry> fields) {
         this.fields.addAll(fields);
         this.members.addAll(fields);
@@ -111,7 +102,9 @@ public class ClassEntry {
     }
 
     public List<ClassEntry> getInnerClasses() {
-        return innerClasses;
+        return Arrays.stream(raw.getInnerClasses())
+                .map(EntryFactory::of)
+                .collect(Collectors.toList());
     }
 
     public List<MemberEntry> getMembers() {
@@ -122,16 +115,11 @@ public class ClassEntry {
         return allMembers;
     }
 
-    public void setInnerClasses(List<ClassEntry> innerClasses) {
-        this.innerClasses = innerClasses;
-    }
-
     public List<ClassEntry> getAllInnerClasses() {
-        return allInnerClasses;
-    }
-
-    public void setAllInnerClasses(List<ClassEntry> allInnerClasses) {
-        this.allInnerClasses = allInnerClasses;
+        // lazily turn all inner classes into class entry
+        return Arrays.stream(raw.getAllInnerClasses())
+                .map(EntryFactory::of)
+                .collect(Collectors.toList());
     }
 
     public List<String> getTypeParamList() {
@@ -249,11 +237,11 @@ public class ClassEntry {
                 ", allFields=" + allFields +
                 ", methods=" + methods +
                 ", allMethods=" + allMethods +
-                ", innerClasses=" + innerClasses +
-                ", allInnerClasses=" + allInnerClasses +
                 ", members=" + members +
                 ", allMembers=" + allMembers +
                 ", typeParamList=" + typeParamList +
                 '}';
     }
+
+
 }

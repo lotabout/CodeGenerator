@@ -2,7 +2,7 @@
 <codeTemplateList>
     <templates>
         <templates version="1.3">
-            <id>1f752c8b-3601-42d1-a9e2-43c2e714f822</id>
+            <id>58a3b5d1-3621-43b8-9c17-e725ceaedbdd</id>
             <name>Getter and Setter</name>
             <fileNamePattern>.*\.java$</fileNamePattern>
             <type>body</type>
@@ -26,6 +26,7 @@ return $field.name;
 #if($field.modifierStatic)
 static ##
 #end
+#set($paramName = $helper.getParamName($field.element, $project))
 void ${setter}($field.type $paramName) {
 #if ($field.name == $paramName)
     #if (!$field.modifierStatic)
@@ -79,6 +80,7 @@ $availableMembers.add($field)
             <whenDuplicatesOption>ASK</whenDuplicatesOption>
             <jumpToMethod>true</jumpToMethod>
             <classNameVm>$class0.name</classNameVm>
+            <alwaysPromptForPackage>false</alwaysPromptForPackage>
         </templates>
     </templates>
 </codeTemplateList>

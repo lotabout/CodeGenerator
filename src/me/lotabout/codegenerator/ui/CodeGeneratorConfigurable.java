@@ -43,6 +43,10 @@ public class CodeGeneratorConfigurable implements SearchableConfigurable {
     }
 
     @Override public boolean isModified() {
+        if (config == null) {
+            return false;
+        }
+
         List<CodeTemplate> templates = config.getTabTemplates();
         if (settings.getCodeTemplates().size() != templates.size()) {
             return true;

@@ -5,11 +5,10 @@ import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.ui.Messages;
+import java.util.concurrent.CompletableFuture;
 import me.lotabout.codegenerator.CodeGeneratorSettings;
 import me.lotabout.codegenerator.config.CodeTemplate;
 import me.lotabout.codegenerator.config.CodeTemplateList;
-import org.jetbrains.concurrency.AsyncPromise;
-import org.jetbrains.concurrency.Promise;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -108,7 +107,7 @@ public class CodeGeneratorConfig {
         });
 
         importButton.addActionListener(e -> {
-            readFromFile().done(xml -> {
+            readFromFile().thenAccept(xml -> {
                 try {
                     List<CodeTemplate> templates = CodeTemplateList.fromXML(xml);
                     List<CodeTemplate> currentTemplates = getTabTemplates();
@@ -160,13 +159,11 @@ public class CodeGeneratorConfig {
         });
     }
 
-    private Promise<String> readFromFile() {
+    private CompletableFuture<String> readFromFile() {
         final FileChooserDescriptor descriptor = FileChooserDescriptorFactory.createSingleFileDescriptor("xml");
         descriptor.setTitle("Choose File to Import");
-        final AsyncPromise<String> result = new AsyncPromise<>();
-        FileChooser.chooseFile(descriptor, null, mainPane, null, virtualFile -> {
-            result.setResult(FileDocumentManager.getInstance().getDocument(virtualFile).getText());
-        });
+        final CompletableFuture<String> result = new CompletableFuture<>();
+        FileChooser.chooseFile(descriptor, null, mainPane, null, virtualFile -> result.complete(FileDocumentManager.getInstance().getDocument(virtualFile).getText()));
         return result;
     }
 
