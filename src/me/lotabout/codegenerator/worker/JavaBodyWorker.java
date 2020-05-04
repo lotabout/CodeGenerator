@@ -76,7 +76,9 @@ public class JavaBodyWorker {
                 return;
             case REPLACE:
             case REPLACE_ALL:
-                membersToDelete.add(existingMember);
+                if (existingMember != null) {
+                    membersToDelete.add(existingMember);
+                }
                 break;
             }
             generationInfoList.add(new PsiGenerationInfo<>(member, false));
