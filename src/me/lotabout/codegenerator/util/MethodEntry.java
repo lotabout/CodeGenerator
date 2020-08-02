@@ -13,8 +13,8 @@ import java.util.stream.Collectors;
  * Wrapper around MethodElement
  */
 public class MethodEntry implements MemberEntry<PsiMethod> {
-    PsiMethod raw;
-    MethodElement element;
+    private final PsiMethod raw;
+    private final MethodElement element;
 
     public MethodEntry(PsiMethod field, MethodElement element) {
         this.raw = field;

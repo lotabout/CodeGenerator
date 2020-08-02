@@ -37,6 +37,34 @@ public class ClassEntry {
         return entry;
     }
 
+    public List<FieldEntry> getFields() {
+        return fields;
+    }
+
+    public void setFields(List<FieldEntry> fields) {
+        this.fields = fields;
+    }
+
+    public void setAllFields(List<FieldEntry> allFields) {
+        this.allFields = allFields;
+    }
+
+    public void setMethods(List<MethodEntry> methods) {
+        this.methods = methods;
+    }
+
+    public void setAllMethods(List<MethodEntry> allMethods) {
+        this.allMethods = allMethods;
+    }
+
+    public void setMembers(List<MemberEntry> members) {
+        this.members = members;
+    }
+
+    public void setAllMembers(List<MemberEntry> allMembers) {
+        this.allMembers = allMembers;
+    }
+
     public PsiClass getRaw() {
         return raw;
     }

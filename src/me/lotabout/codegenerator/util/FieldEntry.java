@@ -13,8 +13,8 @@ import java.util.stream.Collectors;
  * Wrapper around FieldElement
  */
 public class FieldEntry implements MemberEntry<PsiField> {
-    private PsiField raw;
-    private FieldElement element;
+    private final PsiField raw;
+    private final FieldElement element;
 
     public FieldEntry(PsiField field, FieldElement element) {
         this.raw = field;
