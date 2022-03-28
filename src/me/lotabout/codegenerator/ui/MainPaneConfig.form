@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="me.lotabout.codegenerator.ui.MainPaneConfig">
+  <grid id="27dc6" binding="mainPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
+    <constraints>
+      <xy x="20" y="36" width="870" height="492"/>
+    </constraints>
+    <properties>
+      <opaque value="true"/>
+    </properties>
+    <border type="empty"/>
+    <children>
+      <tabbedpane id="64ee9" binding="tabbedPane">
+        <constraints border-constraint="Center"/>
+        <properties/>
+        <border type="none"/>
+        <children/>
+      </tabbedpane>
+    </children>
+  </grid>
+  <buttonGroups>
+    <group name="buttonGroupMemberExists">
+      <member id="7e649"/>
+      <member id="828f6"/>
+      <member id="44a4e"/>
+    </group>
+    <group name="buttonGroupAtInsert">
+      <member id="a4388"/>
+      <member id="1fe99"/>
+    </group>
+  </buttonGroups>
+</form>

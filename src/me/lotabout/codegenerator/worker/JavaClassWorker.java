@@ -1,7 +1,6 @@
 package me.lotabout.codegenerator.worker;
 
 import com.intellij.ide.highlighter.JavaFileType;
-import com.intellij.ide.util.DirectoryUtil;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.diagnostic.Logger;
@@ -9,7 +8,6 @@ import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtilCore;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.project.ProjectUtil;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VfsUtil;
@@ -22,20 +20,20 @@ import com.intellij.psi.impl.PsiManagerImpl;
 import com.intellij.psi.impl.file.PsiDirectoryFactory;
 import com.intellij.psi.impl.file.PsiDirectoryImpl;
 import me.lotabout.codegenerator.config.CodeTemplate;
+import me.lotabout.codegenerator.config.include.Include;
 import me.lotabout.codegenerator.util.GenerationUtil;
 import me.lotabout.codegenerator.util.PackageUtil;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
-import java.net.URI;
-import java.nio.file.Path;
+import java.util.List;
 import java.util.Map;
 
 public class JavaClassWorker {
     private static final Logger logger = Logger.getInstance(JavaClassWorker.class);
 
-    public static void execute(@NotNull CodeTemplate codeTemplate, @NotNull PsiJavaFile selectedFile, @NotNull
+    public static void execute(@NotNull CodeTemplate codeTemplate, @NotNull List<Include> includes, @NotNull PsiJavaFile selectedFile, @NotNull
             Map<String, Object> context) {
         try {
             final Project project = selectedFile.getProject();
@@ -44,7 +42,7 @@ public class JavaClassWorker {
 
             final String className;
             final String packageName;
-            final String FQClass = GenerationUtil.velocityEvaluate(project, context, context, codeTemplate.classNameVm);
+            final String FQClass = GenerationUtil.velocityEvaluate(project, context, context, codeTemplate.classNameVm, includes);
             if (logger.isDebugEnabled()) logger.debug("FQClass generated\n" + FQClass);
 
             int index = FQClass.lastIndexOf(".");
@@ -61,7 +59,7 @@ public class JavaClassWorker {
 
             // generate the content of the class
 
-            final String content = GenerationUtil.velocityEvaluate(project, context, null, codeTemplate.template);
+            final String content = GenerationUtil.velocityEvaluate(project, context, null, codeTemplate.template, includes);
             if (logger.isDebugEnabled()) logger.debug("Method body generated from Velocity:\n" + content);
 
             final String selectedPackage = selectedFile.getPackageName();

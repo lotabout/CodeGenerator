@@ -13,6 +13,8 @@ import com.intellij.psi.codeStyle.CodeStyleSettingsManager;
 import com.intellij.psi.codeStyle.NameUtil;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.search.PsiShortNamesCache;
+import me.lotabout.codegenerator.config.include.Include;
+import org.apache.commons.lang.StringUtils;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.jetbrains.annotations.NotNull;
@@ -21,7 +23,6 @@ import org.jetbrains.java.generate.element.ElementComparator;
 import org.jetbrains.java.generate.element.GenerationHelper;
 import org.jetbrains.java.generate.exception.GenerateCodeException;
 import org.jetbrains.java.generate.exception.PluginException;
-import org.jetbrains.java.generate.psi.PsiAdapter;
 import org.jetbrains.java.generate.velocity.VelocityFactory;
 
 import java.io.StringWriter;
@@ -98,8 +99,9 @@ public class GenerationUtil {
             @NotNull Project project,
             @NotNull Map<String, Object> contextMap,
             Map<String, Object> outputContext,
-            String templateMacro) throws GenerateCodeException {
-        if (templateMacro == null) {
+            String template,
+            List<Include> includes) throws GenerateCodeException {
+        if (template == null) {
             return null;
         }
 
@@ -121,30 +123,54 @@ public class GenerationUtil {
                 vc.put(paramName, contextMap.get(paramName));
             }
 
-            if (logger.isDebugEnabled()) logger.debug("Velocity Macro:\n" + templateMacro);
+            template = replaceParseExpressions(template, includes);
+
+            if (logger.isDebugEnabled()) logger.debug("Velocity Template:\n" + template);
 
             // velocity
             VelocityEngine velocity = VelocityFactory.getVelocityEngine();
             logger.debug("Executing velocity +++ START +++");
-            velocity.evaluate(vc, sw, GenerationUtil.class.getName(), templateMacro);
+            velocity.evaluate(vc, sw, GenerationUtil.class.getName(), template);
             logger.debug("Executing velocity +++ END +++");
 
             if (outputContext != null) {
                 for (Object key : vc.getKeys()) {
                     if (key instanceof String) {
-                    outputContext.put((String) key, vc.get((String) key));
+                        outputContext.put((String) key, vc.get((String) key));
                     }
                 }
             }
-        }
-        catch (ProcessCanceledException e) {
+        } catch (ProcessCanceledException e) {
             throw e;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new GenerateCodeException("Error in Velocity code generator", e);
         }
 
         return StringUtil.convertLineSeparators(sw.getBuffer().toString());
+    }
+
+    @NotNull
+    private static String replaceParseExpressions(String template, List<Include> includes) {
+        template = template.lines()//
+                .map(line -> replaceParseExpression(line, includes))//
+                .collect(Collectors.joining());
+        return template;
+    }
+
+    private static String replaceParseExpression(String line, List<Include> includes) {
+        if (line.trim().startsWith("#parse")) {
+            var includeName = line.trim().replace("#parse(", "")
+                    .replace(")", "")
+                    .replaceAll("\"", "");
+            var includeContent = includes.stream()
+                    .filter(m -> m.getName().equals(includeName))
+                    .map(Include::getContent)
+                    .findFirst();
+            if (includeContent.isPresent()) {
+                return System.getProperty("line.separator") + includeContent.get();
+            }
+        }
+        return System.getProperty("line.separator") + line;
     }
 
 
@@ -179,9 +205,10 @@ public class GenerationUtil {
 
     static List<FieldEntry> getFields(PsiClass clazz) {
         return Arrays.stream(clazz.getFields())
-                    .map(f -> EntryFactory.of(f, false))
-                    .collect(Collectors.toList());
+                .map(f -> EntryFactory.of(f, false))
+                .collect(Collectors.toList());
     }
+
     static List<FieldEntry> getAllFields(PsiClass clazz) {
         return Arrays.stream(clazz.getAllFields())
                 .map(f -> EntryFactory.of(f, false))
@@ -193,6 +220,7 @@ public class GenerationUtil {
                 .map(EntryFactory::of)
                 .collect(Collectors.toList());
     }
+
     static List<MethodEntry> getAllMethods(PsiClass clazz) {
         return Arrays.stream(clazz.getAllMethods())
                 .map(EntryFactory::of)

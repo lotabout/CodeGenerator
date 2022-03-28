@@ -130,7 +130,7 @@ public class FieldEntry implements MemberEntry<PsiField> {
     }
 
     public String getTypeName() {
-        return element.getTypeName();
+        return element.getTypeName().replace(">", "");
     }
 
     public String getTypeQualifiedName() {

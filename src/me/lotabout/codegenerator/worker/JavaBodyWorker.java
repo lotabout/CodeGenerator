@@ -17,6 +17,7 @@ import com.intellij.psi.codeStyle.JavaCodeStyleManager;
 import com.intellij.util.IncorrectOperationException;
 import me.lotabout.codegenerator.ConflictResolutionPolicy;
 import me.lotabout.codegenerator.config.CodeTemplate;
+import me.lotabout.codegenerator.config.include.Include;
 import me.lotabout.codegenerator.util.GenerationUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.java.generate.config.DuplicationPolicy;
@@ -29,20 +30,20 @@ import java.util.Map;
 public class JavaBodyWorker {
     private static final Logger logger = Logger.getInstance(JavaBodyWorker.class);
 
-    public static void execute(@NotNull CodeTemplate codeTemplate, @NotNull PsiClass parentClass,
-            @NotNull Editor editor, @NotNull Map<String, Object> context) {
+    public static void execute(@NotNull CodeTemplate codeTemplate, List<Include> includes, @NotNull PsiClass parentClass,
+                               @NotNull Editor editor, @NotNull Map<String, Object> context) {
         final Project project = parentClass.getProject();
-        String body = GenerationUtil.velocityEvaluate(project, context, null, codeTemplate.template);
+        String body = GenerationUtil.velocityEvaluate(project, context, null, codeTemplate.template, includes);
         if (logger.isDebugEnabled()) logger.debug("Method body generated from Velocity:\n" + body);
 
         final PsiClass fakeClass;
         try {
             final PsiFile element = PsiFileFactory
                     .getInstance(parentClass.getProject()).createFileFromText("filename", JavaFileType.INSTANCE, "class X {" + body + "}");
-            fakeClass = (PsiClass)element.getLastChild();
+            fakeClass = (PsiClass) element.getLastChild();
             CodeStyleManager.getInstance(parentClass.getProject()).reformat(fakeClass);
         } catch (IncorrectOperationException ignore) {
-            HintManager.getInstance().showErrorHint(editor, "fail to generate code from template" );
+            HintManager.getInstance().showErrorHint(editor, "fail to generate code from template");
             return;
         }
 
@@ -56,7 +57,7 @@ public class JavaBodyWorker {
 
         boolean notAskAgain = false;
         ConflictResolutionPolicy policy = ConflictResolutionPolicy.DUPLICATE;
-        for (PsiMember member: allMembers) {
+        for (PsiMember member : allMembers) {
             PsiMember existingMember = null;
             if (member instanceof PsiField) {
                 existingMember = parentClass.findFieldByName(member.getName(), false);
@@ -72,14 +73,14 @@ public class JavaBodyWorker {
             }
 
             switch (policy) {
-            case CANCEL:
-                return;
-            case REPLACE:
-            case REPLACE_ALL:
-                if (existingMember != null) {
-                    membersToDelete.add(existingMember);
-                }
-                break;
+                case CANCEL:
+                    return;
+                case REPLACE:
+                case REPLACE_ALL:
+                    if (existingMember != null) {
+                        membersToDelete.add(existingMember);
+                    }
+                    break;
             }
             generationInfoList.add(new PsiGenerationInfo<>(member, false));
         }
@@ -91,11 +92,11 @@ public class JavaBodyWorker {
 
                 int offset = 0;
                 switch (codeTemplate.insertNewMethodOption) {
-                case AT_CARET:
-                    offset = editor.getCaretModel().getOffset();
-                    break;
-                case AT_THE_END_OF_A_CLASS:
-                    offset = parentClass.getTextRange().getEndOffset() - 1;
+                    case AT_CARET:
+                        offset = editor.getCaretModel().getOffset();
+                        break;
+                    case AT_THE_END_OF_A_CLASS:
+                        offset = parentClass.getTextRange().getEndOffset() - 1;
                 }
                 GenerateMembersUtil.insertMembersAtOffset(parentClass.getContainingFile(), offset, generationInfoList);
                 // auto import
@@ -117,24 +118,24 @@ public class JavaBodyWorker {
 
             int exit = Messages.showDialog("Replace existing member: " + member.getName() + "?",
                     "Member Already Exists",
-                    new String[] {"Yes for All", "Yes", "Cancel", "No", "No for all"},
+                    new String[]{"Yes for All", "Yes", "Cancel", "No", "No for all"},
                     1, 3,
                     Messages.getQuestionIcon(),
                     null);
 
             switch (exit) {
-            case 0:
-                return ConflictResolutionPolicy.REPLACE_ALL;
-            case 1:
-                return ConflictResolutionPolicy.REPLACE;
-            case 2:
-                return ConflictResolutionPolicy.CANCEL;
-            case 3:
-                return ConflictResolutionPolicy.DUPLICATE;
-            case 4:
-                return ConflictResolutionPolicy.DUPLICATE_ALL;
-            default:
-                return ConflictResolutionPolicy.DUPLICATE;
+                case 0:
+                    return ConflictResolutionPolicy.REPLACE_ALL;
+                case 1:
+                    return ConflictResolutionPolicy.REPLACE;
+                case 2:
+                    return ConflictResolutionPolicy.CANCEL;
+                case 3:
+                    return ConflictResolutionPolicy.DUPLICATE;
+                case 4:
+                    return ConflictResolutionPolicy.DUPLICATE_ALL;
+                default:
+                    return ConflictResolutionPolicy.DUPLICATE;
             }
         } else if (dupPolicy == DuplicationPolicy.REPLACE) {
             return ConflictResolutionPolicy.REPLACE;
