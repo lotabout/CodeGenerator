@@ -153,7 +153,7 @@ public class GenerationUtil {
     private static String replaceParseExpressions(String template, List<Include> includes) {
         template = template.lines()//
                 .map(line -> replaceParseExpression(line, includes))//
-                .collect(Collectors.joining());
+                .collect(Collectors.joining(System.getProperty("line.separator")));
         return template;
     }
 
@@ -167,10 +167,10 @@ public class GenerationUtil {
                     .map(Include::getContent)
                     .findFirst();
             if (includeContent.isPresent()) {
-                return System.getProperty("line.separator") + includeContent.get();
+                return includeContent.get();
             }
         }
-        return System.getProperty("line.separator") + line;
+        return line;
     }
 
 
