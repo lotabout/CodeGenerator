@@ -14,9 +14,7 @@ import com.intellij.psi.codeStyle.NameUtil;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.search.PsiShortNamesCache;
 import me.lotabout.codegenerator.config.include.Include;
-import org.apache.commons.lang.StringUtils;
 import org.apache.velocity.VelocityContext;
-import org.apache.velocity.app.VelocityEngine;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.generate.element.ElementComparator;
@@ -25,6 +23,7 @@ import org.jetbrains.java.generate.exception.GenerateCodeException;
 import org.jetbrains.java.generate.exception.PluginException;
 import org.jetbrains.java.generate.velocity.VelocityFactory;
 
+import javax.annotation.Nonnull;
 import java.io.StringWriter;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -40,15 +39,15 @@ public class GenerationUtil {
      * @return the combined list
      */
     public static PsiElementClassMember[] combineToClassMemberList(PsiField[] filteredFields, PsiMethod[] filteredMethods) {
-        PsiElementClassMember[] members = new PsiElementClassMember[filteredFields.length + filteredMethods.length];
+        var members = new PsiElementClassMember[filteredFields.length + filteredMethods.length];
 
         // first add fields
-        for (int i = 0; i < filteredFields.length; i++) {
+        for (var i = 0; i < filteredFields.length; i++) {
             members[i] = new PsiFieldMember(filteredFields[i]);
         }
 
         // then add methods
-        for (int i = 0; i < filteredMethods.length; i++) {
+        for (var i = 0; i < filteredMethods.length; i++) {
             members[filteredFields.length + i] = new PsiMethodMember(filteredMethods[i]);
         }
 
@@ -61,7 +60,7 @@ public class GenerationUtil {
         }
         List<PsiMember> psiMemberList = new ArrayList<>();
 
-        for (PsiElementClassMember classMember : classMemberList) {
+        for (var classMember : classMemberList) {
             psiMemberList.add(classMember.getElement());
         }
 
@@ -86,7 +85,7 @@ public class GenerationUtil {
 
         // element information (both fields and methods)
         logger.debug("Velocity Context - adding members (fields and methods)");
-        List<MemberEntry> elements = EntryUtils.getOnlyAsFieldAndMethodElements(members, notNullMembers, false);
+        var elements = EntryUtils.getOnlyAsFieldAndMethodElements(members, notNullMembers, false);
         // sort elements if enabled and not using chooser dialog
         if (sortElements != 0) {
             elements.sort(new ElementComparator(sortElements));
@@ -105,9 +104,9 @@ public class GenerationUtil {
             return null;
         }
 
-        StringWriter sw = new StringWriter();
+        var sw = new StringWriter();
         try {
-            VelocityContext vc = new VelocityContext();
+            var vc = new VelocityContext();
 
             vc.put("settings", CodeStyleSettingsManager.getSettings(project));
             vc.put("project", project);
@@ -119,22 +118,22 @@ public class GenerationUtil {
             vc.put("GlobalSearchScope", GlobalSearchScope.class);
             vc.put("EntryFactory", EntryFactory.class);
 
-            for (String paramName : contextMap.keySet()) {
+            for (var paramName : contextMap.keySet()) {
                 vc.put(paramName, contextMap.get(paramName));
             }
 
-            template = replaceParseExpressions(template, includes);
-
+            var includeLookups = getParsedIncludeLookupItems(includes);
+            template = replaceParseExpressions(template, includeLookups);
             if (logger.isDebugEnabled()) logger.debug("Velocity Template:\n" + template);
 
             // velocity
-            VelocityEngine velocity = VelocityFactory.getVelocityEngine();
+            var velocity = VelocityFactory.getVelocityEngine();
             logger.debug("Executing velocity +++ START +++");
             velocity.evaluate(vc, sw, GenerationUtil.class.getName(), template);
             logger.debug("Executing velocity +++ END +++");
 
             if (outputContext != null) {
-                for (Object key : vc.getKeys()) {
+                for (var key : vc.getKeys()) {
                     if (key instanceof String) {
                         outputContext.put((String) key, vc.get((String) key));
                     }
@@ -150,21 +149,32 @@ public class GenerationUtil {
     }
 
     @NotNull
-    private static String replaceParseExpressions(String template, List<Include> includes) {
+    private static List<IncludeLookupItem> getParsedIncludeLookupItems(List<Include> includes) {
+        final var includeLookups = includes.stream()
+                .map(include -> new IncludeLookupItem(include.getName(), include.getContent()))
+                .collect(Collectors.toList());
+
+        return includeLookups.stream()
+                .map(i -> new IncludeLookupItem(i.getName(), replaceParseExpressions(i.getContent(), includeLookups)))
+                .collect(Collectors.toList());
+    }
+
+    @NotNull
+    private static String replaceParseExpressions(@Nonnull String template, @Nonnull List<IncludeLookupItem> includeLookupItems) {
         template = template.lines()//
-                .map(line -> replaceParseExpression(line, includes))//
+                .map(line -> replaceParseExpression(line, includeLookupItems))//
                 .collect(Collectors.joining(System.getProperty("line.separator")));
         return template;
     }
 
-    private static String replaceParseExpression(String line, List<Include> includes) {
+    private static String replaceParseExpression(String line, List<IncludeLookupItem> includeLookupItems) {
         if (line.trim().startsWith("#parse")) {
             var includeName = line.trim().replace("#parse(", "")
                     .replace(")", "")
                     .replaceAll("\"", "");
-            var includeContent = includes.stream()
+            var includeContent = includeLookupItems.stream()
                     .filter(m -> m.getName().equals(includeName))
-                    .map(Include::getContent)
+                    .map(IncludeLookupItem::getContent)
                     .findFirst();
             if (includeContent.isPresent()) {
                 return includeContent.get();
@@ -228,7 +238,7 @@ public class GenerationUtil {
     }
 
     static List<String> getImportList(PsiJavaFile javaFile) {
-        PsiImportList importList = javaFile.getImportList();
+        var importList = javaFile.getImportList();
         if (importList == null) {
             return new ArrayList<>();
         }
@@ -239,6 +249,28 @@ public class GenerationUtil {
 
     static List<String> getClassTypeParameters(PsiClass psiClass) {
         return Arrays.stream(psiClass.getTypeParameters()).map(PsiNamedElement::getName).collect(Collectors.toList());
+    }
+
+    static final class IncludeLookupItem {
+        @Nonnull
+        private final String name;
+        @NotNull
+        private final String content;
+
+        IncludeLookupItem(@Nonnull String name, @NotNull String content) {
+            this.name = name;
+            this.content = content;
+        }
+
+        @Nonnull
+        public String getName() {
+            return name;
+        }
+
+        @NotNull
+        public String getContent() {
+            return content;
+        }
     }
 
 }
