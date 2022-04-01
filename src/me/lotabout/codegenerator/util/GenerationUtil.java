@@ -122,8 +122,7 @@ public class GenerationUtil {
                 vc.put(paramName, contextMap.get(paramName));
             }
 
-            var includeLookups = getParsedIncludeLookupItems(includes);
-            template = replaceParseExpressions(template, includeLookups);
+            template = updateTemplateWithIncludes(template, includes);
             if (logger.isDebugEnabled()) logger.debug("Velocity Template:\n" + template);
 
             // velocity
@@ -149,13 +148,24 @@ public class GenerationUtil {
     }
 
     @NotNull
+    private static String updateTemplateWithIncludes(String template, List<Include> includes) {
+        var includeLookups = getParsedIncludeLookupItems(includes);
+        var defaultImportParseExpression = includeLookups.stream()
+                .filter(IncludeLookupItem::isDefaultInclude)
+                .map(i -> String.format("#parse(%s)", i.getName()))
+                .collect(Collectors.joining(System.getProperty("line.separator")));
+        var templateWithDefaultImports = defaultImportParseExpression + System.getProperty("line.separator") + template;
+        return replaceParseExpressions(templateWithDefaultImports, includeLookups);
+    }
+
+    @NotNull
     private static List<IncludeLookupItem> getParsedIncludeLookupItems(List<Include> includes) {
         final var includeLookups = includes.stream()
-                .map(include -> new IncludeLookupItem(include.getName(), include.getContent()))
+                .map(include -> new IncludeLookupItem(include.getName(), include.getContent(), include.isDefaultInclude()))
                 .collect(Collectors.toList());
 
         return includeLookups.stream()
-                .map(i -> new IncludeLookupItem(i.getName(), replaceParseExpressions(i.getContent(), includeLookups)))
+                .map(i -> new IncludeLookupItem(i.getName(), replaceParseExpressions(i.getContent(), includeLookups), i.isDefaultInclude()))
                 .collect(Collectors.toList());
     }
 
@@ -256,10 +266,12 @@ public class GenerationUtil {
         private final String name;
         @NotNull
         private final String content;
+        private boolean defaultInclude;
 
-        IncludeLookupItem(@Nonnull String name, @NotNull String content) {
+        IncludeLookupItem(@Nonnull String name, @NotNull String content, boolean defaultInclude) {
             this.name = name;
             this.content = content;
+            this.defaultInclude = defaultInclude;
         }
 
         @Nonnull
@@ -270,6 +282,10 @@ public class GenerationUtil {
         @NotNull
         public String getContent() {
             return content;
+        }
+
+        public boolean isDefaultInclude() {
+            return defaultInclude;
         }
     }
 

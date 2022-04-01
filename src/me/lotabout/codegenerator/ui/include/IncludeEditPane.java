@@ -14,12 +14,14 @@ public class IncludeEditPane {
     private JTextField templateIdText;
     private JTextField templateNameText;
     private JPanel editorPane;
+    private JCheckBox defaultInclude;
     private Editor editor;
 
     public IncludeEditPane(Include include) {
         templateIdText.setText(include.getId());
-        templateNameText.setText(include.name);
-        addVmEditor(include.content);
+        templateNameText.setText(include.getName());
+        defaultInclude.setSelected(include.isDefaultInclude());
+        addVmEditor(include.getContent());
     }
 
 
@@ -58,8 +60,9 @@ public class IncludeEditPane {
 
     public Include getInclude() {
         var include = new Include(this.id());
-        include.name = this.name();
-        include.content = this.content();
+        include.setName(this.name());
+        include.setContent(this.content());
+        include.setDefaultInclude(defaultInclude.isSelected());
         return include;
     }
 }

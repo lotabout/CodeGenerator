@@ -1,15 +1,11 @@
 <idea-plugin>
     <id>me.lotabout.codegenerator</id>
     <name>Code Generator</name>
-    <version>1.5.1</version>
+    <version>1.5.2</version>
     <vendor email="lotabout@gmail.com" url="https://lotabout.me">Jinzhou Zhang</vendor>
 
     <description><![CDATA[
-  <p>Original plugin from Jinzhou Zhang, see <a href="https://github.com/lotabout/CodeGenerator">Jinzhou Zhang-Code Generator</a>
-  <p> Added following changes by Ramazan Girgin
-  <ul>
-  <li>Intellij 2021.3 support</p></li>
-  </ul>
+
   <p>Please backup your configurations before update!!!</p>
 
   <p>This plugin allows user to create customized velocity templates like <code>toString</code> or <code>builder</code></p>
@@ -27,6 +23,7 @@
 
     <change-notes><![CDATA[
   <ul>
+  <li>version 1.5.2 Default loaded include files - to add complex logic to use for className generation</li>
   <li>version 1.5.1 Sub include parsing</li>
   <li>version 1.5.0 Intellij 2021.3 support</p></li>
   <li>version 1.5.0 Adds isAnnotatedWith method for field and method entities</p></li>
