@@ -40,6 +40,8 @@ public class TemplateEditPane {
     private JButton addClassButton;
     private JTextField classNameVmText;
     private JCheckBox alwaysPromptForPackageCheckBox;
+    private JTextField defaultTargetPackageText;
+    private JTextField defaultTargetModuleText;
     private Editor editor;
     private List<SelectionPane> pipeline = new ArrayList<>();
 
@@ -53,6 +55,8 @@ public class TemplateEditPane {
         templateTypeCombo.setSelectedItem(codeTemplate.type);
         jumpToMethodCheckBox.setSelected(codeTemplate.jumpToMethod);
         classNameVmText.setText(codeTemplate.classNameVm);
+        defaultTargetPackageText.setText(codeTemplate.defaultTargetPackage);
+        defaultTargetModuleText.setText(codeTemplate.defaultTargetModule);
         alwaysPromptForPackageCheckBox.setSelected(codeTemplate.alwaysPromptForPackage);
 
         askRadioButton.setSelected(false);
@@ -195,9 +199,18 @@ public class TemplateEditPane {
         return classNameVmText.getText();
     }
 
+    public String defaultTargetPackage() {
+        return defaultTargetPackageText.getText();
+    }
+
+    public String defaultTargetModule() {
+        return defaultTargetModuleText.getText();
+    }
+
     public boolean alwaysPromptForPackage() {
         return this.alwaysPromptForPackageCheckBox.isSelected();
     }
+
     public String toString() {
         return this.name();
     }
@@ -214,6 +227,8 @@ public class TemplateEditPane {
         template.whenDuplicatesOption = this.duplicationPolicy();
         template.pipeline = pipeline.stream().map(PipelineStepConfig::getConfig).collect(Collectors.toList());
         template.classNameVm = this.classNameVm();
+        template.defaultTargetPackage = this.defaultTargetPackage();
+        template.defaultTargetModule = this.defaultTargetModule();
         template.alwaysPromptForPackage = this.alwaysPromptForPackage();
 
         return template;

@@ -8,6 +8,7 @@ import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import me.lotabout.codegenerator.config.CodeTemplate;
 import me.lotabout.codegenerator.config.CodeTemplateList;
+import me.lotabout.codegenerator.config.include.Include;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
@@ -20,9 +21,21 @@ public class CodeGeneratorSettings implements PersistentStateComponent<CodeGener
 
     private static final Logger LOGGER = Logger.getInstance(CodeGeneratorSettings.class);
     private List<CodeTemplate> codeTemplates;
+    private List<Include> includes;
 
     public CodeGeneratorSettings() {
 
+    }
+
+    public List<Include> getIncludes() {
+        if (includes == null) {
+            includes = new ArrayList<>();
+        }
+        return includes;
+    }
+
+    public void setIncludes(List<Include> includes) {
+        this.includes = includes;
     }
 
     public CodeGeneratorSettings setCodeTemplates(List<CodeTemplate> codeTemplates) {
@@ -31,14 +44,17 @@ public class CodeGeneratorSettings implements PersistentStateComponent<CodeGener
     }
 
 
-    @Nullable @Override public CodeGeneratorSettings getState() {
+    @Nullable
+    @Override
+    public CodeGeneratorSettings getState() {
         if (codeTemplates == null) {
             codeTemplates = loadDefaultTemplates();
         }
         return this;
     }
 
-    @Override public void loadState(CodeGeneratorSettings codeGeneratorSettings) {
+    @Override
+    public void loadState(CodeGeneratorSettings codeGeneratorSettings) {
         XmlSerializerUtil.copyBean(codeGeneratorSettings, this);
     }
 
@@ -51,7 +67,13 @@ public class CodeGeneratorSettings implements PersistentStateComponent<CodeGener
 
     public Optional<CodeTemplate> getCodeTemplate(String templateId) {
         return codeTemplates.stream()
-                .filter(t -> t!= null && t.getId().equals(templateId))
+                .filter(t -> t != null && t.getId().equals(templateId))
+                .findFirst();
+    }
+
+    public Optional<Include> getInclude(String includeId) {
+        return includes.stream()
+                .filter(t -> t != null && t.getId().equals(includeId))
                 .findFirst();
     }
 

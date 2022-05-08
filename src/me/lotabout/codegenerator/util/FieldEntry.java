@@ -3,6 +3,12 @@ package me.lotabout.codegenerator.util;
 import com.intellij.psi.PsiField;
 import org.jetbrains.java.generate.element.FieldElement;
 
+import javax.annotation.Nonnull;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
 /**
  * Wrapper around FieldElement
  */
@@ -124,11 +130,15 @@ public class FieldEntry implements MemberEntry<PsiField> {
     }
 
     public String getTypeName() {
-        return element.getTypeName();
+        return element.getTypeName().replace(">", "");
     }
 
     public String getTypeQualifiedName() {
         return element.getTypeQualifiedName();
+    }
+
+    public boolean isAnnotatedWith(@Nonnull String qualifiedName) {
+        return AnnotationUtil.isAnnotatedWith(raw, qualifiedName);
     }
 
     public String getType() {

@@ -40,6 +40,8 @@ public class CodeTemplate {
     public boolean jumpToMethod = true; // jump cursor to toString method
     public String classNameVm = "${class0.qualifiedName}Test";
     public boolean alwaysPromptForPackage = false;
+    public String defaultTargetPackage;
+    public String defaultTargetModule;
 
     public CodeTemplate(UUID id) {
         this.id = id;
@@ -102,6 +104,8 @@ public class CodeTemplate {
                 .append(insertNewMethodOption, template1.insertNewMethodOption)
                 .append(whenDuplicatesOption, template1.whenDuplicatesOption)
                 .append(classNameVm, template1.classNameVm)
+                .append(defaultTargetPackage, template1.defaultTargetPackage)
+                .append(defaultTargetModule, template1.defaultTargetModule)
                 .isEquals();
     }
 
@@ -120,6 +124,8 @@ public class CodeTemplate {
                 .append(jumpToMethod)
                 .append(classNameVm)
                 .append(alwaysPromptForPackage)
+                .append(defaultTargetPackage)
+                .append(defaultTargetModule)
                 .toHashCode();
     }
 

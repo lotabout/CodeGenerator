@@ -13,17 +13,19 @@ import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.codeStyle.JavaCodeStyleManager;
 import com.intellij.psi.util.PsiTreeUtil;
 import me.lotabout.codegenerator.config.CodeTemplate;
+import me.lotabout.codegenerator.config.include.Include;
 import me.lotabout.codegenerator.util.GenerationUtil;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
 import java.util.Map;
 
 public class JavaCaretWorker {
     private static final Logger logger = Logger.getInstance(JavaCaretWorker.class);
 
-    public static void execute(@NotNull CodeTemplate codeTemplate, @NotNull PsiJavaFile file, @NotNull Editor editor, @NotNull Map<String, Object> context) {
+    public static void execute(@NotNull CodeTemplate codeTemplate, List<Include> includes, @NotNull PsiJavaFile file, @NotNull Editor editor, @NotNull Map<String, Object> context) {
         final Project project = file.getProject();
-        String content = GenerationUtil.velocityEvaluate(project, context, null, codeTemplate.template);
+        String content = GenerationUtil.velocityEvaluate(project, context, null, codeTemplate.template, includes);
         if (logger.isDebugEnabled())
             logger.debug("Method body generated from Velocity:\n" + content);
 

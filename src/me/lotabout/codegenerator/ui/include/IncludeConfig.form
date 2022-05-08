@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="me.lotabout.codegenerator.ui.CodeGeneratorConfig">
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="me.lotabout.codegenerator.ui.include.IncludeConfig">
   <grid id="27dc6" binding="mainPane" layout-manager="GridLayoutManager" row-count="1" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="0" left="0" bottom="0" right="0"/>
     <constraints>
@@ -70,7 +70,7 @@
                       <visible value="true"/>
                     </properties>
                   </component>
-                  <component id="62cd0" class="javax.swing.JButton" binding="deleteTemplateButton" default-binding="true">
+                  <component id="62cd0" class="javax.swing.JButton" binding="deleteButton" default-binding="true">
                     <constraints/>
                     <properties>
                       <borderPainted value="false"/>
@@ -79,18 +79,6 @@
                       <opaque value="false"/>
                       <text value="Remove"/>
                       <toolTipText value="Remove template"/>
-                    </properties>
-                  </component>
-                  <component id="3da5d" class="javax.swing.JButton" binding="duplicateTemplateButton">
-                    <constraints/>
-                    <properties>
-                      <actionCommand value="Duplicate"/>
-                      <borderPainted value="false"/>
-                      <enabled value="false"/>
-                      <hideActionText value="false"/>
-                      <opaque value="false"/>
-                      <text value="Duplicate"/>
-                      <toolTipText value="Duplicate template"/>
                     </properties>
                   </component>
                   <hspacer id="9474e">
@@ -111,7 +99,7 @@
                 </properties>
                 <border type="empty"/>
                 <children>
-                  <component id="c15f5" class="javax.swing.JList" binding="templateList">
+                  <component id="c15f5" class="javax.swing.JList" binding="includeList">
                     <constraints/>
                     <properties>
                       <layoutOrientation value="0"/>
