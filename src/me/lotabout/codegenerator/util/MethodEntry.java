@@ -3,12 +3,6 @@ package me.lotabout.codegenerator.util;
 import com.intellij.psi.PsiMethod;
 import org.jetbrains.java.generate.element.MethodElement;
 
-import javax.annotation.Nonnull;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
 /**
  * Wrapper around MethodElement
  */
@@ -171,10 +165,6 @@ public class MethodEntry implements MemberEntry<PsiMethod> {
 
     public String getTypeQualifiedName() {
         return element.getTypeQualifiedName();
-    }
-
-    public boolean isAnnotatedWith(@Nonnull String qualifiedName) {
-        return AnnotationUtil.isAnnotatedWith(raw, qualifiedName);
     }
 
     public String getType() {

@@ -1,11 +1,10 @@
 <idea-plugin>
-    <id>me.lotabout.codegenerator</id>
-    <name>Code Generator</name>
-    <version>1.5.2</version>
-    <vendor email="lotabout@gmail.com" url="https://lotabout.me">Jinzhou Zhang</vendor>
+  <id>me.lotabout.codegenerator</id>
+  <name>Code Generator</name>
+  <version>1.4.1</version>
+  <vendor email="lotabout@gmail.com" url="https://lotabout.me">Jinzhou Zhang</vendor>
 
-    <description><![CDATA[
-
+  <description><![CDATA[
   <p>Please backup your configurations before update!!!</p>
 
   <p>This plugin allows user to create customized velocity templates like <code>toString</code> or <code>builder</code></p>
@@ -21,15 +20,8 @@
   <p>See <a href="https://github.com/lotabout/CodeGenerator/blob/master/README.md">README</a> for more</p>
     ]]></description>
 
-    <change-notes><![CDATA[
+  <change-notes><![CDATA[
   <ul>
-  <li>version 1.5.2 Default loaded include files - to add complex logic to use for className generation</li>
-  <li>version 1.5.1 Sub include parsing</li>
-  <li>version 1.5.0 Intellij 2021.3 support</p></li>
-  <li>version 1.5.0 Adds isAnnotatedWith method for field and method entities</p></li>
-  <li>version 1.5.0 Adds default target module path and default target package name for class generation</p></li>
-  <li>version 1.5.0 Macro support - Adds include support to define common shared macros</p></li>
-  <li>version 1.5.0 Adds copy template functionality</p></li>
   <li>version 1.4.1 <p>Fix "Replace existing" policy when no existing member is found</p></li>
   <li>version 1.4.0 <p>compatible with 2020.1</p></li>
   <li>version 1.3.3 <p>fix: pipeline settings could not be saved.</p></li>
@@ -41,40 +33,38 @@
   <li>version 1.0 <p>First release</p></li>
   </ul>
     ]]>
-    </change-notes>
+  </change-notes>
 
-    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
-    <idea-version since-build="213.0"/>
+  <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
+  <idea-version since-build="201.0"/>
 
-    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
-         on how to target different products -->
-    <!-- uncomment to enable plugin in all products
-    <depends>com.intellij.modules.lang</depends>
-    -->
+  <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
+       on how to target different products -->
+  <!-- uncomment to enable plugin in all products
+  <depends>com.intellij.modules.lang</depends>
+  -->
 
-    <extensions defaultExtensionNs="com.intellij">
-        <!-- Add your extensions here -->
-        <applicationService serviceInterface="me.lotabout.codegenerator.CodeGeneratorSettings"
-                            serviceImplementation="me.lotabout.codegenerator.CodeGeneratorSettings"/>
+  <extensions defaultExtensionNs="com.intellij">
+    <!-- Add your extensions here -->
+    <applicationService serviceInterface="me.lotabout.codegenerator.CodeGeneratorSettings"
+                        serviceImplementation="me.lotabout.codegenerator.CodeGeneratorSettings"/>
 
-        <applicationConfigurable instance="me.lotabout.codegenerator.ui.CodeGeneratorConfigurable"/>
-    </extensions>
+    <applicationConfigurable instance="me.lotabout.codegenerator.ui.CodeGeneratorConfigurable"/>
+  </extensions>
 
-    <actions>
-        <!-- Add your actions here -->
-        <group id="me.lotabout.codegenerator.action.CodeGeneratorMenu"
-               class="me.lotabout.codegenerator.action.CodeGeneratorGroup" text="CodeGenerator"
-               description="Code Generator" popup="true">
-            <add-to-group group-id="ProjectViewPopupMenu" anchor="after"
-                          relative-to-action="ProjectViewPopupMenuRefactoringGroup"/>
-            <add-to-group group-id="GenerateGroup" anchor="after" relative-to-action="JavaGenerateGroup2"/>
-        </group>
-    </actions>
+  <actions>
+    <!-- Add your actions here -->
+    <group id="me.lotabout.codegenerator.action.CodeGeneratorMenu" class="me.lotabout.codegenerator.action.CodeGeneratorGroup" text="CodeGenerator"
+           description="Code Generator" popup="true">
+        <add-to-group group-id="ProjectViewPopupMenu" anchor="after" relative-to-action="ProjectViewPopupMenuRefactoringGroup"/>
+        <add-to-group group-id="GenerateGroup" anchor="after" relative-to-action="JavaGenerateGroup2"/>
+    </group>
+  </actions>
 
-    <application-components>
-        <component>
-            <implementation-class>me.lotabout.codegenerator.CodeGenerator</implementation-class>
-        </component>
-    </application-components>
+  <application-components>
+    <component>
+      <implementation-class>me.lotabout.codegenerator.CodeGenerator</implementation-class>
+    </component>
+  </application-components>
 
 </idea-plugin>

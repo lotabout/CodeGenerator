@@ -12,7 +12,6 @@ import com.intellij.openapi.roots.ModulePackageIndex;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
-import com.intellij.psi.impl.file.PsiDirectoryFactory;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.util.ActionRunner;
 import com.intellij.util.IncorrectOperationException;
@@ -22,7 +21,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 
 // customize my package Util based on Intellij's built-in Package Util
 public class PackageUtil {
@@ -30,29 +28,20 @@ public class PackageUtil {
 
     @Nullable
     public static PsiDirectory findOrCreateDirectoryForPackage(@NotNull Project project,
-                                                               @Nullable Module module,
-                                                               String packageName,
-                                                               @Nullable PsiDirectory baseDir,
-                                                               boolean alwaysPrompt) throws IncorrectOperationException {
+            @Nullable Module module,
+            String packageName,
+            @Nullable PsiDirectory baseDir,
+            boolean alwaysPrompt) throws IncorrectOperationException {
         return findOrCreateDirectoryForPackage(project, module, packageName, baseDir, true, alwaysPrompt);
     }
 
     @Nullable
-    public static PsiDirectory findSourceDirectoryByModuleName(@NotNull Project project, @Nullable String moduleName) {
-        return Arrays.stream(ProjectRootUtil.getSourceRootDirectories(project))
-                .filter(psiDirectory -> psiDirectory.getVirtualFile().getPath().contains(moduleName))
-                .findFirst()
-                .orElse(null);
-    }
-
-
-    @Nullable
     public static PsiDirectory findOrCreateDirectoryForPackage(@NotNull Project project,
-                                                               @Nullable Module module,
-                                                               String packageName,
-                                                               PsiDirectory baseDir,
-                                                               boolean askUserToCreate,
-                                                               boolean alwaysPrompt) throws IncorrectOperationException {
+            @Nullable Module module,
+            String packageName,
+            PsiDirectory baseDir,
+            boolean askUserToCreate,
+            boolean alwaysPrompt) throws IncorrectOperationException {
         PsiDirectory psiDirectory = null;
         if (!alwaysPrompt && !packageName.isEmpty()) {
             PsiPackage rootPackage = findLongestExistingPackage(module, packageName);
@@ -106,14 +95,18 @@ public class PackageUtil {
                             return psiDirectory1.createSubdirectory(name);
                         }
                     });
-                } catch (IncorrectOperationException e) {
+                }
+                catch (IncorrectOperationException e) {
                     throw e;
-                } catch (IOException e) {
+                }
+                catch (IOException e) {
                     throw new IncorrectOperationException(e);
-                } catch (Exception e) {
+                }
+                catch (Exception e) {
                     LOG.error(e);
                 }
-            } else {
+            }
+            else {
                 psiDirectory = foundExistingDirectory;
             }
             restOfName = cutLeftPart(restOfName);
@@ -134,7 +127,8 @@ public class PackageUtil {
             int lastDotIndex = nameToMatch.lastIndexOf('.');
             if (lastDotIndex >= 0) {
                 nameToMatch = nameToMatch.substring(0, lastDotIndex);
-            } else {
+            }
+            else {
                 return null;
             }
         }
@@ -177,7 +171,8 @@ public class PackageUtil {
             int lastDotIndex = nameToMatch.lastIndexOf('.');
             if (lastDotIndex >= 0) {
                 nameToMatch = nameToMatch.substring(0, lastDotIndex);
-            } else {
+            }
+            else {
                 return null;
             }
         }

@@ -81,18 +81,6 @@
                       <toolTipText value="Remove template"/>
                     </properties>
                   </component>
-                  <component id="3da5d" class="javax.swing.JButton" binding="duplicateTemplateButton">
-                    <constraints/>
-                    <properties>
-                      <actionCommand value="Duplicate"/>
-                      <borderPainted value="false"/>
-                      <enabled value="false"/>
-                      <hideActionText value="false"/>
-                      <opaque value="false"/>
-                      <text value="Duplicate"/>
-                      <toolTipText value="Duplicate template"/>
-                    </properties>
-                  </component>
                   <hspacer id="9474e">
                     <constraints/>
                   </hspacer>

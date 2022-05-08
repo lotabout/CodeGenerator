@@ -106,25 +106,25 @@ public class CodeGeneratorAction extends AnAction {
         }
 
         switch (codeTemplate.type) {
-            case "class":
-                JavaClassWorker.execute(codeTemplate, settings.getIncludes(), javaFile, contextMap);
-                break;
-            case "body":
-                assert editor != null;
-                PsiClass clazz = getSubjectClass(editor, javaFile);
-                if (clazz == null) {
-                    HintManager.getInstance().showErrorHint(editor, "no parent class found for current cursor position");
-                    return;
-                }
+        case "class":
+            JavaClassWorker.execute(codeTemplate, javaFile, contextMap);
+            break;
+        case "body":
+            assert editor != null;
+            PsiClass clazz = getSubjectClass(editor, javaFile);
+            if (clazz == null) {
+                HintManager.getInstance().showErrorHint(editor, "no parent class found for current cursor position");
+                return;
+            }
 
-                JavaBodyWorker.execute(codeTemplate, settings.getIncludes(), clazz, editor, contextMap);
-                break;
-            case "caret":
-                assert editor != null;
-                JavaCaretWorker.execute(codeTemplate, settings.getIncludes(), javaFile, editor, contextMap);
-                break;
-            default:
-                throw new IllegalStateException("template type is not recognized: " + codeTemplate.type);
+            JavaBodyWorker.execute(codeTemplate, clazz, editor, contextMap);
+            break;
+        case "caret":
+            assert editor != null;
+            JavaCaretWorker.execute(codeTemplate, javaFile, editor, contextMap);
+            break;
+        default:
+            throw new IllegalStateException("template type is not recognized: " + codeTemplate.type);
         }
     }
 
@@ -150,25 +150,25 @@ public class CodeGeneratorAction extends AnAction {
         }
 
         logger.debug("Select member/class through pipeline");
-        for (PipelineStep step : codeTemplate.pipeline) {
+        for (PipelineStep step: codeTemplate.pipeline) {
             if (!step.enabled()) continue;
             switch (step.type()) {
-                case "class-selection":
-                    PsiClass selectedClass = selectClass(file, (ClassSelectionConfig) step, contextMap);
-                    if (selectedClass == null) return null;
-                    contextMap.put("class" + step.postfix(), EntryFactory.of(selectedClass));
-                    break;
-                case "member-selection":
-                    List<PsiMember> selectedMembers = selectMember(file, (MemberSelectionConfig) step, contextMap);
-                    if (selectedMembers == null) return null;
-                    GenerationUtil.insertMembersToContext(selectedMembers,
-                            Collections.emptyList(),
-                            contextMap,
-                            step.postfix(),
-                            ((MemberSelectionConfig) step).sortElements);
-                    break;
-                default:
-                    throw new IllegalStateException("step type not recognized: " + step.type());
+            case "class-selection":
+                PsiClass selectedClass = selectClass(file, (ClassSelectionConfig)step, contextMap);
+                if (selectedClass == null) return null;
+                contextMap.put("class"+step.postfix(), EntryFactory.of(selectedClass));
+                break;
+            case "member-selection":
+                List<PsiMember> selectedMembers = selectMember(file, (MemberSelectionConfig)step, contextMap);
+                if (selectedMembers == null) return null;
+                GenerationUtil.insertMembersToContext(selectedMembers,
+                        Collections.emptyList(),
+                        contextMap,
+                        step.postfix(),
+                        ((MemberSelectionConfig)step).sortElements);
+                break;
+            default:
+                throw new IllegalStateException("step type not recognized: " + step.type());
             }
         }
 
@@ -196,7 +196,7 @@ public class CodeGeneratorAction extends AnAction {
         String initialClassNameTemplate = config.initialClass;
         Project project = file.getProject();
         try {
-            String className = GenerationUtil.velocityEvaluate(project, contextMap, contextMap, initialClassNameTemplate, settings.getIncludes());
+            String className = GenerationUtil.velocityEvaluate(project, contextMap, contextMap, initialClassNameTemplate);
             if (logger.isDebugEnabled()) logger.debug("Initial class name for class selection is" + className);
 
             PsiClass initialClass = null;
@@ -229,7 +229,7 @@ public class CodeGeneratorAction extends AnAction {
         final Project project = file.getProject();
 
         if (logger.isDebugEnabled()) logger.debug("start to select members by template: ", config.providerTemplate);
-        GenerationUtil.velocityEvaluate(project, contextMap, contextMap, config.providerTemplate,settings.getIncludes());
+        GenerationUtil.velocityEvaluate(project, contextMap, contextMap, config.providerTemplate);
 
         // members should be MemberEntry[] or PsiMember[]
         List availableMembers = Collections.emptyList();
@@ -255,9 +255,7 @@ public class CodeGeneratorAction extends AnAction {
 
         final MemberChooser<PsiElementClassMember> chooser =
                 new MemberChooser<PsiElementClassMember>(dialogMembers, config.allowEmptySelection, config.allowMultiSelection, project, PsiUtil.isLanguageLevel5OrHigher(file), new JPanel(new BorderLayout())) {
-                    @Nullable
-                    @Override
-                    protected String getHelpId() {
+                    @Nullable @Override protected String getHelpId() {
                         return "editing.altInsert.codegenerator";
                     }
                 };
@@ -286,10 +284,9 @@ public class CodeGeneratorAction extends AnAction {
                     }
                 }).filter(member -> {
                     if (member instanceof PsiField) {
-                        return !pattern.fieldMatches((PsiField) member);
-                    }
-                    if (config.enableMethods && member instanceof PsiMethod) {
-                        return !pattern.methodMatches((PsiMethod) member);
+                        return !pattern.fieldMatches((PsiField)member);
+                    } if (config.enableMethods && member instanceof PsiMethod) {
+                        return !pattern.methodMatches((PsiMethod)member);
                     } else {
                         return false;
                     }
@@ -301,9 +298,9 @@ public class CodeGeneratorAction extends AnAction {
                 .filter(m -> (m instanceof PsiField) || (m instanceof PsiMethod))
                 .map(m -> {
                     if (m instanceof PsiField) {
-                        return new PsiFieldMember((PsiField) m);
+                        return new PsiFieldMember((PsiField)m);
                     } else if (m instanceof PsiMethod) {
-                        return new PsiMethodMember((PsiMethod) m);
+                        return new PsiMethodMember((PsiMethod)m);
                     } else {
                         return null;
                     }
@@ -334,18 +331,17 @@ public class CodeGeneratorAction extends AnAction {
         final String fileName = file.getName();
         final String className = fileName.replace(".java", "");
         final String packageName = file.getVirtualFile().getPath()
-                .substring(moduleRoot.getPath().length() + 1)
-                .replace(File.separator + fileName, "")
+                .substring(moduleRoot.getPath().length()+1)
+                .replace(File.separator+ fileName, "")
                 .replaceAll(File.separator, ".");
 
         try {
             final PsiFile element = PsiFileFactory.getInstance(project)
                     .createFileFromText("filename", JavaFileType.INSTANCE,
                             "package " + packageName + ";\n" +
-                                    "class " + className + "{}");
-            return (PsiClass) element.getLastChild();
-        } catch (IncorrectOperationException ignore) {
-        }
+                            "class " + className + "{}");
+            return (PsiClass)element.getLastChild();
+        } catch (IncorrectOperationException ignore) { }
         return null;
     }
 }
