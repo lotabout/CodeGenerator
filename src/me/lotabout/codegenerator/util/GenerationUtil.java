@@ -23,7 +23,6 @@ import org.jetbrains.java.generate.exception.GenerateCodeException;
 import org.jetbrains.java.generate.exception.PluginException;
 import org.jetbrains.java.generate.velocity.VelocityFactory;
 
-import javax.annotation.Nonnull;
 import java.io.StringWriter;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -170,7 +169,7 @@ public class GenerationUtil {
     }
 
     @NotNull
-    private static String replaceParseExpressions(@Nonnull String template, @Nonnull List<IncludeLookupItem> includeLookupItems) {
+    private static String replaceParseExpressions(@NotNull String template, @NotNull List<IncludeLookupItem> includeLookupItems) {
         template = template.lines()//
                 .map(line -> replaceParseExpression(line, includeLookupItems))//
                 .collect(Collectors.joining(System.getProperty("line.separator")));
@@ -262,19 +261,19 @@ public class GenerationUtil {
     }
 
     static final class IncludeLookupItem {
-        @Nonnull
+        @NotNull
         private final String name;
         @NotNull
         private final String content;
         private boolean defaultInclude;
 
-        IncludeLookupItem(@Nonnull String name, @NotNull String content, boolean defaultInclude) {
+        IncludeLookupItem(@NotNull String name, @NotNull String content, boolean defaultInclude) {
             this.name = name;
             this.content = content;
             this.defaultInclude = defaultInclude;
         }
 
-        @Nonnull
+        @NotNull
         public String getName() {
             return name;
         }

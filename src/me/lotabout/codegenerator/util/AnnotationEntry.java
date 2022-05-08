@@ -1,8 +1,6 @@
 package me.lotabout.codegenerator.util;
 
 import com.intellij.psi.PsiAnnotation;
-
-
 import org.jetbrains.annotations.NotNull;
 
 public class AnnotationEntry {

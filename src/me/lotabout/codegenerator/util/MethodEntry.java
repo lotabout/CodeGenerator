@@ -1,9 +1,9 @@
 package me.lotabout.codegenerator.util;
 
 import com.intellij.psi.PsiMethod;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.java.generate.element.MethodElement;
 
-import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -173,7 +173,7 @@ public class MethodEntry implements MemberEntry<PsiMethod> {
         return element.getTypeQualifiedName();
     }
 
-    public boolean isAnnotatedWith(@Nonnull String qualifiedName) {
+    public boolean isAnnotatedWith(@NotNull String qualifiedName) {
         return AnnotationUtil.isAnnotatedWith(raw, qualifiedName);
     }
 

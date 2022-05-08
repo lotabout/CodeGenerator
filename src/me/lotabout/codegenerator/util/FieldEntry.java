@@ -1,9 +1,9 @@
 package me.lotabout.codegenerator.util;
 
 import com.intellij.psi.PsiField;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.java.generate.element.FieldElement;
 
-import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -137,7 +137,7 @@ public class FieldEntry implements MemberEntry<PsiField> {
         return element.getTypeQualifiedName();
     }
 
-    public boolean isAnnotatedWith(@Nonnull String qualifiedName) {
+    public boolean isAnnotatedWith(@NotNull String qualifiedName) {
         return AnnotationUtil.isAnnotatedWith(raw, qualifiedName);
     }
 
