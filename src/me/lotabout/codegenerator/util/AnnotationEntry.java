@@ -2,13 +2,14 @@ package me.lotabout.codegenerator.util;
 
 import com.intellij.psi.PsiAnnotation;
 
-import javax.annotation.Nonnull;
+
+import org.jetbrains.annotations.NotNull;
 
 public class AnnotationEntry {
     private final String qualifiedName;
     private final PsiAnnotation psiAnnotation;
 
-    public AnnotationEntry(@Nonnull PsiAnnotation annotation) {
+    public AnnotationEntry(@NotNull PsiAnnotation annotation) {
         this.psiAnnotation = annotation;
         this.qualifiedName = annotation.getQualifiedName();
     }
@@ -23,9 +24,6 @@ public class AnnotationEntry {
 
     @Override
     public String toString() {
-        return "AnnotationEntry{" +
-                "qualifiedName='" + qualifiedName + '\'' +
-                ", psiAnnotation=" + psiAnnotation +
-                '}';
+        return "AnnotationEntry{" + "qualifiedName='" + qualifiedName + '\'' + ", psiAnnotation=" + psiAnnotation + '}';
     }
 }
