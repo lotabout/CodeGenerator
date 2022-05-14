@@ -1,0 +1,56 @@
+## Tutorial for writing your Include templates
+##
+## Include template is used for defining shared code templates which can be used by multiple code generation templates.
+## When include template is defined, it could be included in code generator template with the expression #parse("INCLUDE_NAME")
+## it is similar to velocity template engine parse support https://velocity.apache.org/engine/1.7/user-guide.html#parse
+## All variables available for default code generator template are also available for include files. Please see default code generator template for variables.
+## Include Templates can be used for following purposes;
+## - Defining shared variables which will be used in multiple code generator templates
+## for example; it could be used for recalculating the target class name
+## -------------
+## #if($class0.name.startsWith("XYZ"))
+##     #set($newClassName = "$class0.name.replace('XYZ','')")
+##   #elseif($class0.name.startsWith("ABC"))
+##     #set($newClassName = "$class0.name.replace('ABC','')")
+##   #elseif($class0.name.startsWith("DTY"))
+##     #set($newClassName = "$class0.name.replace('DTY','')")
+##   #else
+##    #set($newName = "$class0.name")
+##   #end
+## -------------
+## $newClassName variable can be used in any code generator template when include is parsed in target code generation template.
+##
+## - Defining shared variables which will be used in multiple code generator templates
+##
+## - Defining macros which will be used in multiple code generator templates. See https://velocity.apache.org/engine/1.7/user-guide.html#velocimacros
+## for example; it could be used for defining addGetters macro definition
+## ------------- inlude template with the name "INCLUDE_NAME" -----
+## #macro(addGetters)
+##  #foreach($classMember in $classMembers)
+##    #set($name = $StringUtil.capitalizeWithJavaBeanConvention($StringUtil.sanitizeJavaIdentifier($helper.getPropertyName($classMember.element, $project))))
+##    #if ($classMember.boolean && $classMember.primitive)
+##      #set($getter = "is${name}")
+##    #else
+##      #set($getter = "get${name}")
+##    #end
+##    public $classMember.type ${getter}() {
+##      return $classMember.name;
+##    }
+##   #end
+## #end
+## -------------
+## And it could be used in target code generation template
+## #parse("INCLUDE_NAME")
+## #addGetters()
+##
+## Include template can be also parsed in another include template
+##
+## Steps to use include template
+## 1- Define new include template
+## 2- Parse include template in target code generation template with #parse("INCLUDE_NAME") expression.
+## Include template code will be injected into code generation template and from that point variables, macros which are defined in include template will be accessible in code generation template file.
+## References
+## ----------
+## - Velocity syntax: http://velocity.apache.org/engine/1.7/user-guide.html
+## - Velocity parse: https://velocity.apache.org/engine/1.7/user-guide.html#parse
+## - Velocity macros: https://velocity.apache.org/engine/1.7/user-guide.html#velocimacros
