@@ -331,7 +331,7 @@ public class CodeGeneratorAction extends AnAction {
         final String packageName = file.getVirtualFile().getPath()
                 .substring(moduleRoot.getPath().length() + 1)
                 .replace(File.separator + fileName, "")
-                .replaceAll(File.separator, ".");
+                .replace(File.separator, ".");
 
         try {
             final PsiFile element = PsiFileFactory.getInstance(project)
