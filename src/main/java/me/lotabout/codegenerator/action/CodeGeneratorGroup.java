@@ -1,7 +1,7 @@
 package me.lotabout.codegenerator.action;
 
 import com.intellij.openapi.actionSystem.*;
-import com.intellij.openapi.components.ServiceManager;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
@@ -21,36 +21,31 @@ public class CodeGeneratorGroup extends ActionGroup implements DumbAware {
     private CodeGeneratorSettings settings;
 
     public CodeGeneratorGroup() {
-        settings = ServiceManager.getService(CodeGeneratorSettings.class);
+        settings = ApplicationManager.getApplication().getService(CodeGeneratorSettings.class);
     }
 
-    @Override
-    public boolean hideIfNoVisibleChildren() {
-        return false;
-    }
-
-    @NotNull @Override public AnAction[] getChildren(@Nullable AnActionEvent anActionEvent) {
+    @NotNull @Override public AnAction[] getChildren(@Nullable final AnActionEvent anActionEvent) {
         if (anActionEvent == null) {
             return AnAction.EMPTY_ARRAY;
         }
 
-        Project project = PlatformDataKeys.PROJECT.getData(anActionEvent.getDataContext());
+        final Project project = PlatformDataKeys.PROJECT.getData(anActionEvent.getDataContext());
         if (project == null) {
             return AnAction.EMPTY_ARRAY;
         }
 
-        PsiFile file = anActionEvent.getDataContext().getData(DataKeys.PSI_FILE);
+        final PsiFile file = anActionEvent.getDataContext().getData(LangDataKeys.PSI_FILE);
         if (file == null) {
             return AnAction.EMPTY_ARRAY;
         }
 
-        Caret caret = anActionEvent.getDataContext().getData(LangDataKeys.CARET);
-        boolean isProjectView = caret == null;
+        final Caret caret = anActionEvent.getDataContext().getData(LangDataKeys.CARET);
+        final boolean isProjectView = caret == null;
 
         if (!isProjectView) {
             // EditorPopup menu
-            PsiElement element = file.findElementAt(caret.getOffset());
-            PsiClass clazz = PsiTreeUtil.getParentOfType(element, PsiClass.class, false);
+            final PsiElement element = file.findElementAt(caret.getOffset());
+            final PsiClass clazz = PsiTreeUtil.getParentOfType(element, PsiClass.class, false);
             if (clazz == null) {
                 // not inside a class
                 return AnAction.EMPTY_ARRAY;
@@ -58,7 +53,7 @@ public class CodeGeneratorGroup extends ActionGroup implements DumbAware {
         }
 
 
-        String fileName = file.getName();
+        final String fileName = file.getName();
         final List<AnAction> children = settings.getCodeTemplates().stream()
                 .filter(t -> !isProjectView || (t.type.equals("class") && isProjectView))
                 .filter(t -> t.enabled && fileName.matches(t.fileNamePattern))
@@ -68,7 +63,7 @@ public class CodeGeneratorGroup extends ActionGroup implements DumbAware {
         return children.toArray(new AnAction[children.size()]);
     }
 
-    private static AnAction getOrCreateAction(CodeTemplate template) {
+    private static AnAction getOrCreateAction(final CodeTemplate template) {
         final String actionId = "CodeMaker.Menu.Action." + template.getId();
         AnAction action = ActionManager.getInstance().getAction(actionId);
         if (action == null) {

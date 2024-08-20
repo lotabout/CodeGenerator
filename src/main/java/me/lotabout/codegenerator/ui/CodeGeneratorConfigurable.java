@@ -1,5 +1,6 @@
 package me.lotabout.codegenerator.ui;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.SearchableConfigurable;
@@ -18,7 +19,7 @@ public class CodeGeneratorConfigurable implements SearchableConfigurable {
     private MainPaneConfig mainPaneConfig;
 
     public CodeGeneratorConfigurable() {
-        this.settings = ServiceManager.getService(CodeGeneratorSettings.class);
+        this.settings = ApplicationManager.getApplication().getService(CodeGeneratorSettings.class);
     }
 
     @NotNull
@@ -67,13 +68,13 @@ public class CodeGeneratorConfigurable implements SearchableConfigurable {
             return false;
         }
 
-        var templates = codeGeneratorConfig.getTabTemplates();
+        final var templates = codeGeneratorConfig.getTabTemplates();
         if (settings.getCodeTemplates().size() != templates.size()) {
             return true;
         }
 
-        for (var template : templates) {
-            var codeTemplate = settings.getCodeTemplate(template.getId());
+        for (final var template : templates) {
+            final var codeTemplate = settings.getCodeTemplate(template.getId());
             if (codeTemplate.isEmpty() || !codeTemplate.get().equals(template)) {
                 return true;
             }
@@ -87,13 +88,13 @@ public class CodeGeneratorConfigurable implements SearchableConfigurable {
             return false;
         }
 
-        var includes = includeConfig.getIncludes();
+        final var includes = includeConfig.getIncludes();
         if (settings.getIncludes().size() != includes.size()) {
             return true;
         }
 
-        for (var include : includes) {
-            var includesSetting = settings.getInclude(include.getId());
+        for (final var include : includes) {
+            final var includesSetting = settings.getInclude(include.getId());
             if (includesSetting.isEmpty() || !includesSetting.get().equals(include)) {
                 return true;
             }
@@ -104,8 +105,8 @@ public class CodeGeneratorConfigurable implements SearchableConfigurable {
 
     @Override
     public void apply() throws ConfigurationException {
-        var templates = codeGeneratorConfig.getTabTemplates();
-        for (var template : templates) {
+        final var templates = codeGeneratorConfig.getTabTemplates();
+        for (final var template : templates) {
             if (!template.isValid()) {
                 throw new ConfigurationException(
                         "Not property can be empty and classNumber should be a number");

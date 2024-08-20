@@ -8,13 +8,6 @@ public class CodeGenerator implements ApplicationComponent {
     }
 
     @Override
-    public void initComponent() {}
-
-    @Override
-    public void disposeComponent() {
-    }
-
-    @Override
     @NotNull
     public String getComponentName() {
         return "me.lotabout.codegenerator.CodeGenerator";

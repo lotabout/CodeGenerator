@@ -1,5 +1,6 @@
 package me.lotabout.codegenerator.util;
 
+import com.intellij.application.options.CodeStyle;
 import com.intellij.codeInsight.generation.PsiElementClassMember;
 import com.intellij.codeInsight.generation.PsiFieldMember;
 import com.intellij.codeInsight.generation.PsiMethodMember;
@@ -37,8 +38,8 @@ public class GenerationUtil {
      * @param filteredMethods methods to be included in the dialog
      * @return the combined list
      */
-    public static PsiElementClassMember[] combineToClassMemberList(PsiField[] filteredFields, PsiMethod[] filteredMethods) {
-        var members = new PsiElementClassMember[filteredFields.length + filteredMethods.length];
+    public static PsiElementClassMember[] combineToClassMemberList(final PsiField[] filteredFields, final PsiMethod[] filteredMethods) {
+        final var members = new PsiElementClassMember[filteredFields.length + filteredMethods.length];
 
         // first add fields
         for (var i = 0; i < filteredFields.length; i++) {
@@ -53,20 +54,20 @@ public class GenerationUtil {
         return members;
     }
 
-    public static List<PsiMember> convertClassMembersToPsiMembers(@Nullable List<PsiElementClassMember> classMemberList) {
+    public static List<PsiMember> convertClassMembersToPsiMembers(@Nullable final List<PsiElementClassMember> classMemberList) {
         if (classMemberList == null || classMemberList.isEmpty()) {
             return Collections.emptyList();
         }
-        List<PsiMember> psiMemberList = new ArrayList<>();
+        final List<PsiMember> psiMemberList = new ArrayList<>();
 
-        for (var classMember : classMemberList) {
+        for (final var classMember : classMemberList) {
             psiMemberList.add(classMember.getElement());
         }
 
         return psiMemberList;
     }
 
-    public static void insertMembersToContext(List<PsiMember> members, List<PsiMember> notNullMembers, Map<String, Object> context, String postfix, int sortElements) {
+    public static void insertMembersToContext(final List<PsiMember> members, final List<PsiMember> notNullMembers, final Map<String, Object> context, final String postfix, final int sortElements) {
         logger.debug("insertMembersToContext - adding fields");
         // field information
         final List fieldElements = EntryUtils.getOnlyAsFieldEntries(members, notNullMembers, false);
@@ -84,7 +85,7 @@ public class GenerationUtil {
 
         // element information (both fields and methods)
         logger.debug("Velocity Context - adding members (fields and methods)");
-        var elements = EntryUtils.getOnlyAsFieldAndMethodElements(members, notNullMembers, false);
+        final var elements = EntryUtils.getOnlyAsFieldAndMethodElements(members, notNullMembers, false);
         // sort elements if enabled and not using chooser dialog
         if (sortElements != 0) {
             elements.sort(new ElementComparator(sortElements));
@@ -94,20 +95,20 @@ public class GenerationUtil {
     }
 
     public static String velocityEvaluate(
-            @NotNull Project project,
-            @NotNull Map<String, Object> contextMap,
-            Map<String, Object> outputContext,
+            @NotNull final Project project,
+            @NotNull final Map<String, Object> contextMap,
+            final Map<String, Object> outputContext,
             String template,
-            List<Include> includes) throws GenerateCodeException {
+            final List<Include> includes) throws GenerateCodeException {
         if (template == null) {
             return null;
         }
 
-        var sw = new StringWriter();
+        final var sw = new StringWriter();
         try {
-            var vc = new VelocityContext();
+            final var vc = new VelocityContext();
 
-            vc.put("settings", CodeStyleSettingsManager.getSettings(project));
+            vc.put("settings", CodeStyle.getSettings(project));
             vc.put("project", project);
             vc.put("helper", GenerationHelper.class);
             vc.put("StringUtil", StringUtil.class);
@@ -117,7 +118,7 @@ public class GenerationUtil {
             vc.put("GlobalSearchScope", GlobalSearchScope.class);
             vc.put("EntryFactory", EntryFactory.class);
 
-            for (var paramName : contextMap.keySet()) {
+            for (final var paramName : contextMap.keySet()) {
                 vc.put(paramName, contextMap.get(paramName));
             }
 
@@ -125,21 +126,21 @@ public class GenerationUtil {
             if (logger.isDebugEnabled()) logger.debug("Velocity Template:\n" + template);
 
             // velocity
-            var velocity = VelocityFactory.getVelocityEngine();
+            final var velocity = VelocityFactory.getVelocityEngine();
             logger.debug("Executing velocity +++ START +++");
             velocity.evaluate(vc, sw, GenerationUtil.class.getName(), template);
             logger.debug("Executing velocity +++ END +++");
 
             if (outputContext != null) {
-                for (var key : vc.getKeys()) {
+                for (final var key : vc.getKeys()) {
                     if (key instanceof String) {
                         outputContext.put((String) key, vc.get((String) key));
                     }
                 }
             }
-        } catch (ProcessCanceledException e) {
+        } catch (final ProcessCanceledException e) {
             throw e;
-        } catch (Exception e) {
+        } catch (final Exception e) {
             throw new GenerateCodeException("Error in Velocity code generator", e);
         }
 
@@ -147,18 +148,18 @@ public class GenerationUtil {
     }
 
     @NotNull
-    private static String updateTemplateWithIncludes(String template, List<Include> includes) {
-        var includeLookups = getParsedIncludeLookupItems(includes);
-        var defaultImportParseExpression = includeLookups.stream()
-                .filter(IncludeLookupItem::isDefaultInclude)
-                .map(i -> String.format("#parse(%s)", i.getName()))
-                .collect(Collectors.joining(System.getProperty("line.separator")));
-        var templateWithDefaultImports = defaultImportParseExpression + System.getProperty("line.separator") + template;
+    private static String updateTemplateWithIncludes(final String template, final List<Include> includes) {
+        final var includeLookups = getParsedIncludeLookupItems(includes);
+        final var defaultImportParseExpression = includeLookups.stream()
+                                                               .filter(IncludeLookupItem::isDefaultInclude)
+                                                               .map(i -> String.format("#parse(%s)", i.getName()))
+                                                               .collect(Collectors.joining(System.getProperty("line.separator")));
+        final var templateWithDefaultImports = defaultImportParseExpression + System.getProperty("line.separator") + template;
         return replaceParseExpressions(templateWithDefaultImports, includeLookups);
     }
 
     @NotNull
-    private static List<IncludeLookupItem> getParsedIncludeLookupItems(List<Include> includes) {
+    private static List<IncludeLookupItem> getParsedIncludeLookupItems(final List<Include> includes) {
         final var includeLookups = includes.stream()
                 .map(include -> new IncludeLookupItem(include.getName(), include.getContent(), include.isDefaultInclude()))
                 .collect(Collectors.toList());
@@ -169,22 +170,22 @@ public class GenerationUtil {
     }
 
     @NotNull
-    private static String replaceParseExpressions(@NotNull String template, @NotNull List<IncludeLookupItem> includeLookupItems) {
+    private static String replaceParseExpressions(@NotNull String template, @NotNull final List<IncludeLookupItem> includeLookupItems) {
         template = template.lines()//
                 .map(line -> replaceParseExpression(line, includeLookupItems))//
                 .collect(Collectors.joining(System.getProperty("line.separator")));
         return template;
     }
 
-    private static String replaceParseExpression(String line, List<IncludeLookupItem> includeLookupItems) {
+    private static String replaceParseExpression(final String line, final List<IncludeLookupItem> includeLookupItems) {
         if (line.trim().startsWith("#parse")) {
-            var includeName = line.trim().replace("#parse(", "")
-                    .replace(")", "")
-                    .replaceAll("\"", "");
-            var includeContent = includeLookupItems.stream()
-                    .filter(m -> m.getName().equals(includeName))
-                    .map(IncludeLookupItem::getContent)
-                    .findFirst();
+            final var includeName = line.trim().replace("#parse(", "")
+                                        .replace(")", "")
+                                        .replaceAll("\"", "");
+            final var includeContent = includeLookupItems.stream()
+                                                         .filter(m -> m.getName().equals(includeName))
+                                                         .map(IncludeLookupItem::getContent)
+                                                         .findFirst();
             if (includeContent.isPresent()) {
                 return includeContent.get();
             }
@@ -200,7 +201,7 @@ public class GenerationUtil {
      * @param e       the caused exception.
      * @throws RuntimeException is thrown for severe exceptions
      */
-    public static void handleException(Project project, Exception e) throws RuntimeException {
+    public static void handleException(final Project project, final Exception e) throws RuntimeException {
         logger.info(e);
 
         if (e instanceof GenerateCodeException) {
@@ -222,32 +223,32 @@ public class GenerationUtil {
         }
     }
 
-    static List<FieldEntry> getFields(PsiClass clazz) {
+    static List<FieldEntry> getFields(final PsiClass clazz) {
         return Arrays.stream(clazz.getFields())
                 .map(f -> EntryFactory.of(f, false))
                 .collect(Collectors.toList());
     }
 
-    static List<FieldEntry> getAllFields(PsiClass clazz) {
+    static List<FieldEntry> getAllFields(final PsiClass clazz) {
         return Arrays.stream(clazz.getAllFields())
                 .map(f -> EntryFactory.of(f, false))
                 .collect(Collectors.toList());
     }
 
-    static List<MethodEntry> getMethods(PsiClass clazz) {
+    static List<MethodEntry> getMethods(final PsiClass clazz) {
         return Arrays.stream(clazz.getMethods())
                 .map(EntryFactory::of)
                 .collect(Collectors.toList());
     }
 
-    static List<MethodEntry> getAllMethods(PsiClass clazz) {
+    static List<MethodEntry> getAllMethods(final PsiClass clazz) {
         return Arrays.stream(clazz.getAllMethods())
                 .map(EntryFactory::of)
                 .collect(Collectors.toList());
     }
 
-    static List<String> getImportList(PsiJavaFile javaFile) {
-        var importList = javaFile.getImportList();
+    static List<String> getImportList(final PsiJavaFile javaFile) {
+        final var importList = javaFile.getImportList();
         if (importList == null) {
             return new ArrayList<>();
         }
@@ -256,7 +257,7 @@ public class GenerationUtil {
                 .collect(Collectors.toList());
     }
 
-    static List<String> getClassTypeParameters(PsiClass psiClass) {
+    static List<String> getClassTypeParameters(final PsiClass psiClass) {
         return Arrays.stream(psiClass.getTypeParameters()).map(PsiNamedElement::getName).collect(Collectors.toList());
     }
 
@@ -267,7 +268,7 @@ public class GenerationUtil {
         private final String content;
         private boolean defaultInclude;
 
-        IncludeLookupItem(@NotNull String name, @NotNull String content, boolean defaultInclude) {
+        IncludeLookupItem(@NotNull final String name, @NotNull final String content, final boolean defaultInclude) {
             this.name = name;
             this.content = content;
             this.defaultInclude = defaultInclude;

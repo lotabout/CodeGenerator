@@ -10,9 +10,9 @@ import com.intellij.ide.util.TreeClassChooser;
 import com.intellij.ide.util.TreeClassChooserFactory;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.DataKeys;
+import com.intellij.openapi.actionSystem.LangDataKeys;
 import com.intellij.openapi.actionSystem.Presentation;
-import com.intellij.openapi.components.ServiceManager;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
@@ -61,13 +61,8 @@ public class CodeGeneratorAction extends AnAction {
         getTemplatePresentation().setDescription("description");
         getTemplatePresentation().setText(templateName, false);
 
-        this.settings = ServiceManager.getService(CodeGeneratorSettings.class);;
+        this.settings = ApplicationManager.getApplication().getService(CodeGeneratorSettings.class);;
         this.templateKey = templateKey;
-    }
-
-    @Override
-    public boolean startInTransaction() {
-        return true;
     }
 
     @Override
@@ -79,7 +74,7 @@ public class CodeGeneratorAction extends AnAction {
             presentation.setEnabled(false);
         }
 
-        final PsiFile file = e.getDataContext().getData(DataKeys.PSI_FILE);
+        final PsiFile file = e.getDataContext().getData(LangDataKeys.PSI_FILE);
         if (file == null || !(file instanceof PsiJavaFile)) {
             presentation.setEnabled(false);
         }
@@ -92,12 +87,12 @@ public class CodeGeneratorAction extends AnAction {
         final Project project = e.getProject();
         assert project != null;
 
-        final PsiFile file = e.getDataContext().getData(DataKeys.PSI_FILE);
+        final PsiFile file = e.getDataContext().getData(LangDataKeys.PSI_FILE);
         assert file != null && file instanceof PsiJavaFile;
 
         final PsiJavaFile javaFile = (PsiJavaFile)file;
 
-        final Editor editor = e.getDataContext().getData(DataKeys.EDITOR);
+        final Editor editor = e.getDataContext().getData(LangDataKeys.EDITOR);
 
         final Map<String, Object> contextMap = executePipeline(codeTemplate, javaFile, editor);
         if (contextMap == null) {
