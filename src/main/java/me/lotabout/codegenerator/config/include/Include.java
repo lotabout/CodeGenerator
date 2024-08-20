@@ -1,8 +1,8 @@
 package me.lotabout.codegenerator.config.include;
 
 import com.intellij.openapi.util.io.FileUtil;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import javax.xml.bind.annotation.*;
 import java.io.IOException;
@@ -19,11 +19,11 @@ public class Include {
     public String content = DEFAULT_TEMPLATE;
     public boolean defaultInclude;
 
-    public Include(UUID id) {
+    public Include(final UUID id) {
         this.id = id;
     }
 
-    public Include(String id) {
+    public Include(final String id) {
         this.id = UUID.fromString(id);
     }
 
@@ -47,15 +47,15 @@ public class Include {
         return content;
     }
 
-    public void setId(UUID id) {
+    public void setId(final UUID id) {
         this.id = id;
     }
 
-    public void setName(String name) {
+    public void setName(final String name) {
         this.name = name;
     }
 
-    public void setContent(String content) {
+    public void setContent(final String content) {
         this.content = content;
     }
 
@@ -63,7 +63,7 @@ public class Include {
         return defaultInclude;
     }
 
-    public void setDefaultInclude(boolean defaultInclude) {
+    public void setDefaultInclude(final boolean defaultInclude) {
         this.defaultInclude = defaultInclude;
     }
 
@@ -73,7 +73,7 @@ public class Include {
         String default_template;
         try {
             default_template = FileUtil.loadTextAndClose(Include.class.getResourceAsStream("/template/default-include.vm"));
-        } catch (IOException e) {
+        } catch (final IOException e) {
             default_template = "";
             e.printStackTrace();
         }
@@ -81,12 +81,12 @@ public class Include {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) return true;
 
         if (o == null || getClass() != o.getClass()) return false;
 
-        var include1 = (Include) o;
+        final var include1 = (Include) o;
 
         return new EqualsBuilder().append(id, include1.id)//
                 .append(name, include1.name)//

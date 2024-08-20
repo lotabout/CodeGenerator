@@ -23,7 +23,7 @@ import me.lotabout.codegenerator.config.CodeTemplate;
 import me.lotabout.codegenerator.config.include.Include;
 import me.lotabout.codegenerator.util.GenerationUtil;
 import me.lotabout.codegenerator.util.PackageUtil;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -33,8 +33,7 @@ import java.util.Map;
 public class JavaClassWorker {
     private static final Logger logger = Logger.getInstance(JavaClassWorker.class);
 
-    public static void execute(@NotNull CodeTemplate codeTemplate, @NotNull List<Include> includes, @NotNull PsiJavaFile selectedFile, @NotNull
-            Map<String, Object> context) {
+    public static void execute(@NotNull final CodeTemplate codeTemplate, @NotNull final List<Include> includes, @NotNull final PsiJavaFile selectedFile, @NotNull final Map<String, Object> context) {
         try {
             final Project project = selectedFile.getProject();
 
@@ -45,7 +44,7 @@ public class JavaClassWorker {
             final String FQClass = GenerationUtil.velocityEvaluate(project, context, context, codeTemplate.classNameVm, includes);
             if (logger.isDebugEnabled()) logger.debug("FQClass generated\n" + FQClass);
 
-            int index = FQClass.lastIndexOf(".");
+            final int index = FQClass.lastIndexOf(".");
             if (index >= 0) {
                 packageName = FQClass.substring(0, index);
                 className = FQClass.substring(index + 1);
@@ -92,7 +91,7 @@ public class JavaClassWorker {
             final String targetPath;
             final String targetDirectory;
             if (StringUtils.isNotBlank(codeTemplate.defaultTargetPackage)) {
-                String subDirectoryPath = codeTemplate.defaultTargetPackage.replace(".", File.separator);
+                final String subDirectoryPath = codeTemplate.defaultTargetPackage.replace(".", File.separator);
                 targetDirectory = targetPackageDir.getVirtualFile().getPath() + File.separator + subDirectoryPath;
                 targetPath = targetDirectory + File.separator + targetFileName;
             } else {
@@ -120,17 +119,17 @@ public class JavaClassWorker {
                     }
 
                     targetPsiDirectory.add(targetFile);
-                    PsiFile addedFile = targetPsiDirectory.findFile(targetFile.getName());
+                    final PsiFile addedFile = targetPsiDirectory.findFile(targetFile.getName());
 
                     // open the file in editor
                     ApplicationManager.getApplication()
                             .invokeLater(() -> FileEditorManager.getInstance(project).openFile(addedFile.getVirtualFile(), true, true));
-                } catch (Exception e) {
+                } catch (final Exception e) {
                     e.printStackTrace();
                     GenerationUtil.handleException(project, e);
                 }
             });
-        }catch (Exception e){
+        }catch (final Exception e){
             e.printStackTrace();
         }
     }

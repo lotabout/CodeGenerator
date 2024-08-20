@@ -3,8 +3,8 @@ package me.lotabout.codegenerator.config;
 import com.intellij.openapi.util.io.FileUtil;
 
 import com.intellij.util.xmlb.annotations.AbstractCollection;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.jetbrains.java.generate.config.DuplicationPolicy;
 import org.jetbrains.java.generate.config.InsertWhere;
 
@@ -43,10 +43,10 @@ public class CodeTemplate {
     public String defaultTargetPackage;
     public String defaultTargetModule;
 
-    public CodeTemplate(UUID id) {
+    public CodeTemplate(final UUID id) {
         this.id = id;
     }
-    public CodeTemplate(String id) {
+    public CodeTemplate(final String id) {
         this.id = UUID.fromString(id);
     }
 
@@ -74,21 +74,21 @@ public class CodeTemplate {
         String default_template;
         try {
             default_template = FileUtil.loadTextAndClose(CodeTemplate.class.getResourceAsStream("/template/default.vm"));
-        } catch (IOException e) {
+        } catch (final IOException e) {
             default_template = "";
             e.printStackTrace();
         }
         DEFAULT_TEMPLATE = default_template;
     }
 
-    @Override public boolean equals(Object o) {
+    @Override public boolean equals(final Object o) {
         if (this == o)
             return true;
 
         if (o == null || getClass() != o.getClass())
             return false;
 
-        CodeTemplate template1 = (CodeTemplate)o;
+        final CodeTemplate template1 = (CodeTemplate)o;
 
         return new EqualsBuilder()
                 .append(enabled, template1.enabled)

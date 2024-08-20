@@ -36,7 +36,7 @@ import me.lotabout.codegenerator.util.MemberEntry;
 import me.lotabout.codegenerator.worker.JavaBodyWorker;
 import me.lotabout.codegenerator.worker.JavaCaretWorker;
 import me.lotabout.codegenerator.worker.JavaClassWorker;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.generate.config.Config;
@@ -57,7 +57,7 @@ public class CodeGeneratorAction extends AnAction {
     private final String templateKey;
     private final CodeGeneratorSettings settings;
 
-    public CodeGeneratorAction(String templateKey, String templateName) {
+    public CodeGeneratorAction(final String templateKey, final String templateName) {
         getTemplatePresentation().setDescription("description");
         getTemplatePresentation().setText(templateName, false);
 
@@ -71,15 +71,15 @@ public class CodeGeneratorAction extends AnAction {
     }
 
     @Override
-    public void update(AnActionEvent e) {
+    public void update(final AnActionEvent e) {
         // Code Generation action could run without editor
-        Presentation presentation = e.getPresentation();
-        Project project = e.getProject();
+        final Presentation presentation = e.getPresentation();
+        final Project project = e.getProject();
         if (project == null) {
             presentation.setEnabled(false);
         }
 
-        PsiFile file = e.getDataContext().getData(DataKeys.PSI_FILE);
+        final PsiFile file = e.getDataContext().getData(DataKeys.PSI_FILE);
         if (file == null || !(file instanceof PsiJavaFile)) {
             presentation.setEnabled(false);
         }
@@ -87,19 +87,19 @@ public class CodeGeneratorAction extends AnAction {
         presentation.setEnabled(true);
     }
 
-    @Override public void actionPerformed(AnActionEvent e) {
+    @Override public void actionPerformed(final AnActionEvent e) {
         final CodeTemplate codeTemplate = settings.getCodeTemplate(templateKey).orElseThrow(IllegalStateException::new);
-        Project project = e.getProject();
+        final Project project = e.getProject();
         assert project != null;
 
-        PsiFile file = e.getDataContext().getData(DataKeys.PSI_FILE);
+        final PsiFile file = e.getDataContext().getData(DataKeys.PSI_FILE);
         assert file != null && file instanceof PsiJavaFile;
 
-        PsiJavaFile javaFile = (PsiJavaFile)file;
+        final PsiJavaFile javaFile = (PsiJavaFile)file;
 
-        Editor editor = e.getDataContext().getData(DataKeys.EDITOR);
+        final Editor editor = e.getDataContext().getData(DataKeys.EDITOR);
 
-        Map<String, Object> contextMap = executePipeline(codeTemplate, javaFile, editor);
+        final Map<String, Object> contextMap = executePipeline(codeTemplate, javaFile, editor);
         if (contextMap == null) {
             // early return from pipeline
             return;
@@ -111,7 +111,7 @@ public class CodeGeneratorAction extends AnAction {
                 break;
             case "body":
                 assert editor != null;
-                PsiClass clazz = getSubjectClass(editor, javaFile);
+                final PsiClass clazz = getSubjectClass(editor, javaFile);
                 if (clazz == null) {
                     HintManager.getInstance().showErrorHint(editor, "no parent class found for current cursor position");
                     return;
@@ -128,14 +128,14 @@ public class CodeGeneratorAction extends AnAction {
         }
     }
 
-    private Map<String, Object> executePipeline(@NotNull CodeTemplate codeTemplate, @NotNull final PsiJavaFile file, final Editor editor) {
+    private Map<String, Object> executePipeline(@NotNull final CodeTemplate codeTemplate, @NotNull final PsiJavaFile file, final Editor editor) {
         final Project project = file.getProject();
         logger.debug("+++ executePipeline - START +++");
         if (logger.isDebugEnabled()) {
             logger.debug("Current project " + project.getName());
         }
 
-        Map<String, Object> contextMap = new HashMap<>();
+        final Map<String, Object> contextMap = new HashMap<>();
         PsiClass clazz = getSubjectClass(editor, file);
         if (clazz == null) {
             clazz = buildFakeClassForEmptyFile(file);
@@ -143,23 +143,23 @@ public class CodeGeneratorAction extends AnAction {
         contextMap.put("class0", EntryFactory.of(clazz));
 
         if (editor != null) {
-            int offset = editor.getCaretModel().getOffset();
-            PsiElement context = file.findElementAt(offset);
-            PsiMethod parentMethod = PsiTreeUtil.getParentOfType(context, PsiMethod.class, false);
+            final int offset = editor.getCaretModel().getOffset();
+            final PsiElement context = file.findElementAt(offset);
+            final PsiMethod parentMethod = PsiTreeUtil.getParentOfType(context, PsiMethod.class, false);
             contextMap.put("parentMethod", EntryFactory.of(parentMethod));
         }
 
         logger.debug("Select member/class through pipeline");
-        for (PipelineStep step : codeTemplate.pipeline) {
+        for (final PipelineStep step : codeTemplate.pipeline) {
             if (!step.enabled()) continue;
             switch (step.type()) {
                 case "class-selection":
-                    PsiClass selectedClass = selectClass(file, (ClassSelectionConfig) step, contextMap);
+                    final PsiClass selectedClass = selectClass(file, (ClassSelectionConfig) step, contextMap);
                     if (selectedClass == null) return null;
                     contextMap.put("class" + step.postfix(), EntryFactory.of(selectedClass));
                     break;
                 case "member-selection":
-                    List<PsiMember> selectedMembers = selectMember(file, (MemberSelectionConfig) step, contextMap);
+                    final List<PsiMember> selectedMembers = selectMember(file, (MemberSelectionConfig) step, contextMap);
                     if (selectedMembers == null) return null;
                     GenerationUtil.insertMembersToContext(selectedMembers,
                             Collections.emptyList(),
@@ -176,11 +176,11 @@ public class CodeGeneratorAction extends AnAction {
     }
 
     @Nullable
-    private static PsiClass getSubjectClass(Editor editor, @NotNull final PsiJavaFile file) {
+    private static PsiClass getSubjectClass(final Editor editor, @NotNull final PsiJavaFile file) {
         PsiClass clazz = null;
         if (editor != null) {
-            int offset = editor.getCaretModel().getOffset();
-            PsiElement context = file.findElementAt(offset);
+            final int offset = editor.getCaretModel().getOffset();
+            final PsiElement context = file.findElementAt(offset);
             if (context == null)
                 return null;
 
@@ -192,11 +192,11 @@ public class CodeGeneratorAction extends AnAction {
         return clazz;
     }
 
-    private PsiClass selectClass(@NotNull PsiJavaFile file, ClassSelectionConfig config, Map<String, Object> contextMap) {
-        String initialClassNameTemplate = config.initialClass;
-        Project project = file.getProject();
+    private PsiClass selectClass(@NotNull final PsiJavaFile file, final ClassSelectionConfig config, final Map<String, Object> contextMap) {
+        final String initialClassNameTemplate = config.initialClass;
+        final Project project = file.getProject();
         try {
-            String className = GenerationUtil.velocityEvaluate(project, contextMap, contextMap, initialClassNameTemplate, settings.getIncludes());
+            final String className = GenerationUtil.velocityEvaluate(project, contextMap, contextMap, initialClassNameTemplate, settings.getIncludes());
             if (logger.isDebugEnabled()) logger.debug("Initial class name for class selection is" + className);
 
             PsiClass initialClass = null;
@@ -209,21 +209,21 @@ public class CodeGeneratorAction extends AnAction {
                 initialClass = file.getClasses().length > 0 ? file.getClasses()[0] : null;
             }
 
-            TreeClassChooser chooser = TreeClassChooserFactory.getInstance(project)
-                    .createProjectScopeChooser("Select a class", initialClass);
+            final TreeClassChooser chooser = TreeClassChooserFactory.getInstance(project)
+                                                                    .createProjectScopeChooser("Select a class", initialClass);
             chooser.showDialog();
 
             if (chooser.getSelected() == null) {
                 return null;
             }
             return chooser.getSelected();
-        } catch (GenerateCodeException e) {
+        } catch (final GenerateCodeException e) {
             Messages.showMessageDialog(project, e.getMessage(), "Generate Failed", null);
         }
         return null;
     }
 
-    private List<PsiMember> selectMember(@NotNull PsiJavaFile file, MemberSelectionConfig config, Map<String, Object> contextMap) {
+    private List<PsiMember> selectMember(@NotNull final PsiJavaFile file, final MemberSelectionConfig config, final Map<String, Object> contextMap) {
         final String AVAILABLE_MEMBERS = "availableMembers";
         final String SELECTED_MEMBERS = "selectedMembers";
         final Project project = file.getProject();
@@ -244,8 +244,8 @@ public class CodeGeneratorAction extends AnAction {
         contextMap.remove(SELECTED_MEMBERS);
 
         // filter the members by configuration
-        PsiElementClassMember[] dialogMembers = buildClassMember(filterMembers(availableMembers, config));
-        PsiElementClassMember[] membersSelected = buildClassMember(filterMembers(selectedMembers, config));
+        final PsiElementClassMember[] dialogMembers = buildClassMember(filterMembers(availableMembers, config));
+        final PsiElementClassMember[] membersSelected = buildClassMember(filterMembers(selectedMembers, config));
 
         if (!config.allowEmptySelection && dialogMembers.length <= 0) {
             Messages.showMessageDialog(project, "No members are provided to select from.\nAnd template doesn't allow empty selection",
@@ -273,8 +273,8 @@ public class CodeGeneratorAction extends AnAction {
         return GenerationUtil.convertClassMembersToPsiMembers(chooser.getSelectedElements());
     }
 
-    private static List<PsiMember> filterMembers(List<Object> members, final MemberSelectionConfig config) {
-        FilterPattern pattern = generatorConfig2Config(config).getFilterPattern();
+    private static List<PsiMember> filterMembers(final List<Object> members, final MemberSelectionConfig config) {
+        final FilterPattern pattern = generatorConfig2Config(config).getFilterPattern();
         return members.stream()
                 .map(member -> {
                     if (member instanceof PsiMember) {
@@ -296,10 +296,10 @@ public class CodeGeneratorAction extends AnAction {
                 }).collect(Collectors.toList());
     }
 
-    private static PsiElementClassMember[] buildClassMember(List<PsiMember> members) {
-        List<PsiElementClassMember> ret = members.stream()
-                .filter(m -> (m instanceof PsiField) || (m instanceof PsiMethod))
-                .map(m -> {
+    private static PsiElementClassMember[] buildClassMember(final List<PsiMember> members) {
+        final List<PsiElementClassMember> ret = members.stream()
+                                                       .filter(m -> (m instanceof PsiField) || (m instanceof PsiMethod))
+                                                       .map(m -> {
                     if (m instanceof PsiField) {
                         return new PsiFieldMember((PsiField) m);
                     } else if (m instanceof PsiMethod) {
@@ -312,8 +312,8 @@ public class CodeGeneratorAction extends AnAction {
         return ret.toArray(new PsiElementClassMember[ret.size()]);
     }
 
-    private static Config generatorConfig2Config(MemberSelectionConfig selectionConfig) {
-        Config config = new Config();
+    private static Config generatorConfig2Config(final MemberSelectionConfig selectionConfig) {
+        final Config config = new Config();
         config.useFullyQualifiedName = false;
         config.filterConstantField = selectionConfig.filterConstantField;
         config.filterEnumField = selectionConfig.filterEnumField;
@@ -328,7 +328,7 @@ public class CodeGeneratorAction extends AnAction {
         return config;
     }
 
-    private static PsiClass buildFakeClassForEmptyFile(@NotNull PsiJavaFile file) {
+    private static PsiClass buildFakeClassForEmptyFile(@NotNull final PsiJavaFile file) {
         final Project project = file.getProject();
         final VirtualFile moduleRoot = ProjectRootManager.getInstance(project).getFileIndex().getSourceRootForFile(file.getVirtualFile());
         final String fileName = file.getName();
@@ -344,7 +344,7 @@ public class CodeGeneratorAction extends AnAction {
                             "package " + packageName + ";\n" +
                                     "class " + className + "{}");
             return (PsiClass) element.getLastChild();
-        } catch (IncorrectOperationException ignore) {
+        } catch (final IncorrectOperationException ignore) {
         }
         return null;
     }
