@@ -25,6 +25,7 @@ import com.intellij.ide.highlighter.JavaFileType;
 import com.intellij.ide.util.MemberChooser;
 import com.intellij.ide.util.TreeClassChooser;
 import com.intellij.ide.util.TreeClassChooserFactory;
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.LangDataKeys;
@@ -79,6 +80,11 @@ public class CodeGeneratorAction extends AnAction {
     }
 
     @Override
+    public @NotNull ActionUpdateThread getActionUpdateThread() {
+        return super.getActionUpdateThread();
+    }
+
+    @Override
     public void update(final AnActionEvent e) {
         // Code Generation action could run without editor
         final Presentation presentation = e.getPresentation();
@@ -95,9 +101,11 @@ public class CodeGeneratorAction extends AnAction {
         presentation.setEnabled(true);
     }
 
-    @Override public void actionPerformed(final AnActionEvent e) {
-        final CodeTemplate codeTemplate = settings.getCodeTemplate(templateKey)
-                                                  .orElseThrow(IllegalStateException::new);
+    @Override
+    public void actionPerformed(final AnActionEvent e) {
+        final CodeTemplate codeTemplate = settings
+            .getCodeTemplate(templateKey)
+            .orElseThrow(IllegalStateException::new);
         final Project project = e.getProject();
         assert project != null;
 
@@ -125,7 +133,6 @@ public class CodeGeneratorAction extends AnAction {
                     HintManager.getInstance().showErrorHint(editor, "no parent class found for current cursor position");
                     return;
                 }
-
                 JavaBodyWorker.execute(codeTemplate, settings.getIncludes(), clazz, editor, contextMap);
                 break;
             case "caret":

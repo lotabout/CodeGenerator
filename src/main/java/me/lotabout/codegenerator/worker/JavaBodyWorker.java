@@ -68,7 +68,7 @@ public class JavaBodyWorker {
         allMembers.addAll(Arrays.asList(fakeClass.getMethods()));
         allMembers.addAll(Arrays.asList(fakeClass.getInnerClasses()));
 
-        boolean notAskAgain = false;
+        boolean askAgain = true;
         ConflictResolutionPolicy policy = ConflictResolutionPolicy.DUPLICATE;
         for (final PsiMember member : allMembers) {
             PsiMember existingMember = null;
@@ -79,13 +79,11 @@ public class JavaBodyWorker {
             } else if (member instanceof PsiClass) {
                 existingMember = parentClass.findInnerClassByName(member.getName(), false);
             }
-
-            if (!notAskAgain) {
+            if (askAgain) {
                 policy = handleExistedMember(codeTemplate, member, existingMember);
-                notAskAgain = (policy == ConflictResolutionPolicy.DUPLICATE_ALL)
-                    || (policy == ConflictResolutionPolicy.REPLACE_ALL);
+                askAgain = (policy != ConflictResolutionPolicy.DUPLICATE_ALL)
+                    && (policy != ConflictResolutionPolicy.REPLACE_ALL);
             }
-
             switch (policy) {
                 case CANCEL:
                     return;
