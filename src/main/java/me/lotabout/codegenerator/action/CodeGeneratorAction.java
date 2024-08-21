@@ -300,7 +300,7 @@ public class CodeGeneratorAction extends AnAction {
                     if (member instanceof PsiMember) {
                         return (PsiMember) member;
                     } else if (member instanceof MemberEntry) {
-                        return (((MemberEntry) member).getRaw());
+                        return (((MemberEntry<?>) member).getRaw());
                     } else {
                         return null;
                     }
@@ -352,6 +352,9 @@ public class CodeGeneratorAction extends AnAction {
             .getInstance(project)
             .getFileIndex()
             .getSourceRootForFile(file.getVirtualFile());
+        if (moduleRoot == null) {
+            return null;
+        }
         final String fileName = file.getName();
         final String className = fileName.replace(".java", "");
         final String packageName = file
