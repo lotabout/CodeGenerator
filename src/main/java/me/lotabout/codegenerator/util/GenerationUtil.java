@@ -66,16 +66,14 @@ public class GenerationUtil {
         return members;
     }
 
-    public static List<PsiMember> convertClassMembersToPsiMembers(@Nullable final List<PsiElementClassMember> classMemberList) {
+    public static List<PsiMember> convertClassMembersToPsiMembers(@Nullable final List<PsiElementClassMember<?>> classMemberList) {
         if (classMemberList == null || classMemberList.isEmpty()) {
             return Collections.emptyList();
         }
         final List<PsiMember> psiMemberList = new ArrayList<>();
-
         for (final var classMember : classMemberList) {
             psiMemberList.add(classMember.getElement());
         }
-
         return psiMemberList;
     }
 

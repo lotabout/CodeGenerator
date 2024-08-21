@@ -64,6 +64,7 @@ import me.lotabout.codegenerator.worker.JavaBodyWorker;
 import me.lotabout.codegenerator.worker.JavaCaretWorker;
 import me.lotabout.codegenerator.worker.JavaClassWorker;
 
+import static me.lotabout.codegenerator.util.GenerationUtil.convertClassMembersToPsiMembers;
 import static me.lotabout.codegenerator.util.GenerationUtil.velocityEvaluate;
 
 public class CodeGeneratorAction extends AnAction {
@@ -254,20 +255,20 @@ public class CodeGeneratorAction extends AnAction {
         velocityEvaluate(project, contextMap, contextMap, config.providerTemplate,settings.getIncludes());
 
         // members should be MemberEntry[] or PsiMember[]
-        List availableMembers = Collections.emptyList();
-        List selectedMembers = Collections.emptyList();
+        List<?> availableMembers = Collections.emptyList();
+        List<?> selectedMembers = Collections.emptyList();
         if (contextMap.containsKey(AVAILABLE_MEMBERS)) {
-            availableMembers = (List) contextMap.get(AVAILABLE_MEMBERS);
-            selectedMembers = (List) contextMap.get(SELECTED_MEMBERS);
-            selectedMembers = selectedMembers == null ? availableMembers : selectedMembers;
+            availableMembers = (List<?>) contextMap.get(AVAILABLE_MEMBERS);
+            selectedMembers = (List<?>) contextMap.get(SELECTED_MEMBERS);
+            selectedMembers = (selectedMembers == null ? availableMembers : selectedMembers);
         }
 
         contextMap.remove(AVAILABLE_MEMBERS);
         contextMap.remove(SELECTED_MEMBERS);
 
         // filter the members by configuration
-        final PsiElementClassMember[] dialogMembers = buildClassMember(filterMembers(availableMembers, config));
-        final PsiElementClassMember[] membersSelected = buildClassMember(filterMembers(selectedMembers, config));
+        final PsiElementClassMember<?>[] dialogMembers = buildClassMember(filterMembers(availableMembers, config));
+        final PsiElementClassMember<?>[] membersSelected = buildClassMember(filterMembers(selectedMembers, config));
 
         if (!config.allowEmptySelection && dialogMembers.length <= 0) {
             Messages.showMessageDialog(project,
@@ -276,7 +277,7 @@ public class CodeGeneratorAction extends AnAction {
             return null;
         }
 
-        final MemberChooser<PsiElementClassMember> chooser =
+        final MemberChooser<PsiElementClassMember<?>> chooser =
                 new MemberChooser<>(dialogMembers, config.allowEmptySelection,
                         config.allowMultiSelection, project,
                         PsiUtil.isLanguageLevel5OrHigher(file),
@@ -295,11 +296,10 @@ public class CodeGeneratorAction extends AnAction {
         if (DialogWrapper.OK_EXIT_CODE != chooser.getExitCode()) {
             return null; // indicate exit
         }
-
-        return GenerationUtil.convertClassMembersToPsiMembers(chooser.getSelectedElements());
+        return convertClassMembersToPsiMembers(chooser.getSelectedElements());
     }
 
-    private static List<PsiMember> filterMembers(final List<Object> members,
+    private static List<PsiMember> filterMembers(final List<?> members,
             final MemberSelectionConfig config) {
         final FilterPattern pattern = generatorConfig2Config(config).getFilterPattern();
         return members.stream()
@@ -323,8 +323,7 @@ public class CodeGeneratorAction extends AnAction {
                 }).collect(Collectors.toList());
     }
 
-    private static PsiElementClassMember[] buildClassMember(final List<PsiMember> members) {
-
+    private static PsiElementClassMember<?>[] buildClassMember(final List<PsiMember> members) {
       return members
           .stream()
           .filter(m -> (m instanceof PsiField) || (m instanceof PsiMethod))
