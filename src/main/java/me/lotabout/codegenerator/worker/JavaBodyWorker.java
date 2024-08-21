@@ -46,7 +46,7 @@ public class JavaBodyWorker {
             @NotNull final Editor editor, @NotNull final Map<String, Object> context) {
         final Project project = parentClass.getProject();
         final String body = velocityEvaluate(project, context, null, codeTemplate.template, includes);
-        if (logger.isDebugEnabled()) logger.debug("Method body generated from Velocity:\n" + body);
+        logger.debug("Method body generated from Velocity:\n", body);
 
         final PsiClass fakeClass;
         try {

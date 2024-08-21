@@ -50,19 +50,18 @@ public class GenerationUtil {
      * @param filteredMethods methods to be included in the dialog
      * @return the combined list
      */
-    public static PsiElementClassMember[] combineToClassMemberList(final PsiField[] filteredFields, final PsiMethod[] filteredMethods) {
-        final var members = new PsiElementClassMember[filteredFields.length + filteredMethods.length];
-
+    public static PsiElementClassMember<?>[] combineToClassMemberList(final PsiField[] filteredFields,
+        final PsiMethod[] filteredMethods) {
+        final PsiElementClassMember<?>[] members =
+            new PsiElementClassMember[filteredFields.length + filteredMethods.length];
         // first add fields
         for (var i = 0; i < filteredFields.length; i++) {
             members[i] = new PsiFieldMember(filteredFields[i]);
         }
-
         // then add methods
         for (var i = 0; i < filteredMethods.length; i++) {
             members[filteredFields.length + i] = new PsiMethodMember(filteredMethods[i]);
         }
-
         return members;
     }
 
@@ -82,7 +81,7 @@ public class GenerationUtil {
             final String postfix, final int sortElements) {
         logger.debug("insertMembersToContext - adding fields");
         // field information
-        final List fieldElements = EntryUtils.getOnlyAsFieldEntries(members, notNullMembers, false);
+        final List<FieldEntry> fieldElements = EntryUtils.getOnlyAsFieldEntries(members, notNullMembers, false);
         context.put("fields" + postfix, fieldElements);
         context.put("fields", fieldElements);
         if (fieldElements.size() == 1) {
@@ -135,7 +134,7 @@ public class GenerationUtil {
             }
 
             template = updateTemplateWithIncludes(template, includes);
-            if (logger.isDebugEnabled()) logger.debug("Velocity Template:\n" + template);
+            logger.debug("Velocity Template:\n", template);
 
             // velocity
             final var velocity = VelocityFactory.getVelocityEngine();
@@ -145,8 +144,8 @@ public class GenerationUtil {
 
             if (outputContext != null) {
                 for (final var key : vc.getKeys()) {
-                    if (key instanceof String) {
-                        outputContext.put((String) key, vc.get((String) key));
+                    if (key != null) {
+                        outputContext.put(key, vc.get(key));
                     }
                 }
             }
@@ -162,11 +161,12 @@ public class GenerationUtil {
     @NotNull
     private static String updateTemplateWithIncludes(final String template, final List<Include> includes) {
         final var includeLookups = getParsedIncludeLookupItems(includes);
-        final var defaultImportParseExpression = includeLookups.stream()
-                                                               .filter(IncludeLookupItem::isDefaultInclude)
-                                                               .map(i -> String.format("#parse(%s)", i.getName()))
-                                                               .collect(Collectors.joining(System.getProperty("line.separator")));
-        final var templateWithDefaultImports = defaultImportParseExpression + System.getProperty("line.separator") + template;
+        final var defaultImportParseExpression = includeLookups
+            .stream()
+            .filter(IncludeLookupItem::isDefaultInclude)
+            .map(i -> String.format("#parse(%s)", i.getName()))
+            .collect(Collectors.joining(System.lineSeparator()));
+        final var templateWithDefaultImports = defaultImportParseExpression + System.lineSeparator() + template;
         return replaceParseExpressions(templateWithDefaultImports, includeLookups);
     }
 
@@ -185,7 +185,7 @@ public class GenerationUtil {
     private static String replaceParseExpressions(@NotNull String template, @NotNull final List<IncludeLookupItem> includeLookupItems) {
         template = template.lines()//
                 .map(line -> replaceParseExpression(line, includeLookupItems))//
-                .collect(Collectors.joining(System.getProperty("line.separator")));
+                .collect(Collectors.joining(System.lineSeparator()));
         return template;
     }
 
@@ -284,7 +284,7 @@ public class GenerationUtil {
         private final String name;
         @NotNull
         private final String content;
-        private boolean defaultInclude;
+        private final boolean defaultInclude;
 
         IncludeLookupItem(@NotNull final String name, @NotNull final String content, final boolean defaultInclude) {
             this.name = name;
