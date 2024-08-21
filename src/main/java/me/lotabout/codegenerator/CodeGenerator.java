@@ -1,7 +1,8 @@
 package me.lotabout.codegenerator;
 
-import com.intellij.openapi.components.ApplicationComponent;
 import org.jetbrains.annotations.NotNull;
+
+import com.intellij.openapi.components.ApplicationComponent;
 
 public class CodeGenerator implements ApplicationComponent {
     public CodeGenerator() {
@@ -10,6 +11,6 @@ public class CodeGenerator implements ApplicationComponent {
     @Override
     @NotNull
     public String getComponentName() {
-        return "me.lotabout.codegenerator.CodeGenerator";
+        return CodeGenerator.class.getCanonicalName();
     }
 }
