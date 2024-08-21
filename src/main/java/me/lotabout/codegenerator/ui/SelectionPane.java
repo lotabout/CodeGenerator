@@ -1,11 +1,17 @@
 package me.lotabout.codegenerator.ui;
 
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
+
 import com.intellij.openapi.ui.Messages;
+
 import me.lotabout.codegenerator.config.ClassSelectionConfig;
 import me.lotabout.codegenerator.config.MemberSelectionConfig;
 import me.lotabout.codegenerator.config.PipelineStep;
-
-import javax.swing.*;
 
 public class SelectionPane implements PipelineStepConfig {
     private JTextField postfixText;
@@ -14,14 +20,14 @@ public class SelectionPane implements PipelineStepConfig {
     private JPanel topPanel;
     private JScrollPane contentPane;
 
-    private Object selectionPane;
+    private final Object selectionPane;
 
-    public SelectionPane(PipelineStep config, TemplateEditPane parent) {
+    public SelectionPane(final PipelineStep config, final TemplateEditPane parent) {
         postfixText.setText(config.postfix());
         enableStepCheckBox.setSelected(config.enabled());
 
         removeThisStepButton.addActionListener(e -> {
-            int result = Messages.showYesNoDialog("Really remove this step?", "Delete", null);
+            final int result = Messages.showYesNoDialog("Really remove this step?", "Delete", null);
             if (result == Messages.OK) {
                 parent.removePipelineStep(this);
             }
@@ -47,12 +53,12 @@ public class SelectionPane implements PipelineStepConfig {
 
     @Override public PipelineStep getConfig() {
         if (selectionPane instanceof MemberSelectionPane) {
-            PipelineStep step = ((MemberSelectionPane)selectionPane).getConfig();
+            final PipelineStep step = ((MemberSelectionPane)selectionPane).getConfig();
             step.postfix(this.postfix());
             step.enabled(this.enabled());
             return step;
         } else if (selectionPane instanceof ClassSelectionPane) {
-            PipelineStep step = ((ClassSelectionPane)selectionPane).getConfig();
+            final PipelineStep step = ((ClassSelectionPane)selectionPane).getConfig();
             step.postfix(this.postfix());
             step.enabled(this.enabled());
             return step;

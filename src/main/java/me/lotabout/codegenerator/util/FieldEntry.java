@@ -16,11 +16,12 @@ public class FieldEntry implements MemberEntry<PsiField> {
     private final PsiField raw;
     private final FieldElement element;
 
-    public FieldEntry(PsiField field, FieldElement element) {
+    public FieldEntry(final PsiField field, final FieldElement element) {
         this.raw = field;
         this.element = element;
     }
 
+    @Override
     public PsiField getRaw() {
         return raw;
     }
@@ -49,15 +50,15 @@ public class FieldEntry implements MemberEntry<PsiField> {
         return element.isEnum();
     }
 
-    public void setEnum(boolean b) {
+    public void setEnum(final boolean b) {
         element.setEnum(b);
     }
 
-    public boolean matchName(String s) throws IllegalArgumentException {
+    public boolean matchName(final String s) throws IllegalArgumentException {
         return element.matchName(s);
     }
 
-    public void setAccessor(String s) {
+    public void setAccessor(final String s) {
         element.setAccessor(s);
     }
 
@@ -73,7 +74,7 @@ public class FieldEntry implements MemberEntry<PsiField> {
         return element.isNestedArray();
     }
 
-    public void setNestedArray(boolean b) {
+    public void setNestedArray(final boolean b) {
         element.setNestedArray(b);
     }
 
@@ -137,7 +138,7 @@ public class FieldEntry implements MemberEntry<PsiField> {
         return element.getTypeQualifiedName();
     }
 
-    public boolean isAnnotatedWith(@NotNull String qualifiedName) {
+    public boolean isAnnotatedWith(@NotNull final String qualifiedName) {
         return AnnotationUtil.isAnnotatedWith(raw, qualifiedName);
     }
 
@@ -145,7 +146,7 @@ public class FieldEntry implements MemberEntry<PsiField> {
         return element.getType();
     }
 
-    public void setType(String s) {
+    public void setType(final String s) {
         element.setType(s);
     }
 
@@ -157,7 +158,7 @@ public class FieldEntry implements MemberEntry<PsiField> {
         return element.isLong();
     }
 
-    public void setLong(boolean b) {
+    public void setLong(final boolean b) {
         element.setLong(b);
     }
 
@@ -165,7 +166,7 @@ public class FieldEntry implements MemberEntry<PsiField> {
         return element.isFloat();
     }
 
-    public void setFloat(boolean b) {
+    public void setFloat(final boolean b) {
         element.setFloat(b);
     }
 
@@ -173,7 +174,7 @@ public class FieldEntry implements MemberEntry<PsiField> {
         return element.isDouble();
     }
 
-    public void setDouble(boolean b) {
+    public void setDouble(final boolean b) {
         element.setDouble(b);
     }
 
@@ -185,11 +186,11 @@ public class FieldEntry implements MemberEntry<PsiField> {
         return element.isNotNull();
     }
 
-    public void setNotNull(boolean b) {
+    public void setNotNull(final boolean b) {
         element.setNotNull(b);
     }
 
-    public void setVoid(boolean b) {
+    public void setVoid(final boolean b) {
         element.setVoid(b);
     }
 
@@ -197,7 +198,7 @@ public class FieldEntry implements MemberEntry<PsiField> {
         return element.isChar();
     }
 
-    public void setChar(boolean b) {
+    public void setChar(final boolean b) {
         element.setChar(b);
     }
 
@@ -205,7 +206,7 @@ public class FieldEntry implements MemberEntry<PsiField> {
         return element.isByte();
     }
 
-    public void setByte(boolean b) {
+    public void setByte(final boolean b) {
         element.setByte(b);
     }
 
@@ -213,15 +214,15 @@ public class FieldEntry implements MemberEntry<PsiField> {
         return element.isShort();
     }
 
-    public void setShort(boolean b) {
+    public void setShort(final boolean b) {
         element.setShort(b);
     }
 
-    public void setBoolean(boolean b) {
+    public void setBoolean(final boolean b) {
         element.setBoolean(b);
     }
 
-    public void setName(String s) {
+    public void setName(final String s) {
         element.setName(s);
     }
 

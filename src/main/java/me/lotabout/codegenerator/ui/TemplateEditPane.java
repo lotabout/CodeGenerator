@@ -1,24 +1,34 @@
 package me.lotabout.codegenerator.ui;
 
+import java.awt.Dimension;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTextField;
+
+import org.jetbrains.java.generate.config.DuplicationPolicy;
+import org.jetbrains.java.generate.config.InsertWhere;
+
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.uiDesigner.core.GridConstraints;
+
 import me.lotabout.codegenerator.config.ClassSelectionConfig;
 import me.lotabout.codegenerator.config.CodeTemplate;
 import me.lotabout.codegenerator.config.MemberSelectionConfig;
 import me.lotabout.codegenerator.config.PipelineStep;
-import org.jetbrains.java.generate.config.DuplicationPolicy;
-import org.jetbrains.java.generate.config.InsertWhere;
-
-import javax.swing.*;
-import java.awt.*;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class TemplateEditPane {
     private JPanel templateEdit;
@@ -43,9 +53,9 @@ public class TemplateEditPane {
     private JTextField defaultTargetPackageText;
     private JTextField defaultTargetModuleText;
     private Editor editor;
-    private List<SelectionPane> pipeline = new ArrayList<>();
+    private final List<SelectionPane> pipeline = new ArrayList<>();
 
-    public TemplateEditPane(CodeTemplate codeTemplate) {
+    public TemplateEditPane(final CodeTemplate codeTemplate) {
         settingsPanel.getVerticalScrollBar().setUnitIncrement(16); // scroll speed
 
         templateIdText.setText(codeTemplate.getId());
@@ -89,14 +99,14 @@ public class TemplateEditPane {
 
         codeTemplate.pipeline.forEach(this::addMemberSelection);
         addMemberButton.addActionListener(e -> {
-            int currentStep = findMaxStepPostfix(pipeline, "member");
-            MemberSelectionConfig config = new MemberSelectionConfig();
+            final int currentStep = findMaxStepPostfix(pipeline, "member");
+            final MemberSelectionConfig config = new MemberSelectionConfig();
             config.postfix = String.valueOf(currentStep + 1);
             addMemberSelection(config);
         });
         addClassButton.addActionListener(e -> {
-            int currentStep = findMaxStepPostfix(pipeline, "class");
-            ClassSelectionConfig config = new ClassSelectionConfig();
+            final int currentStep = findMaxStepPostfix(pipeline, "class");
+            final ClassSelectionConfig config = new ClassSelectionConfig();
             config.postfix = String.valueOf(currentStep + 1);
             addMemberSelection(config);
         });
@@ -104,7 +114,7 @@ public class TemplateEditPane {
         addVmEditor(codeTemplate.template);
     }
 
-    private static int findMaxStepPostfix(List<SelectionPane> pipelinePanes, String type) {
+    private static int findMaxStepPostfix(final List<SelectionPane> pipelinePanes, final String type) {
         return pipelinePanes.stream()
                 .filter(p -> p.type().equals(type))
                 .map(SelectionPane::postfix)
@@ -114,7 +124,7 @@ public class TemplateEditPane {
                 .orElse(0);
     }
 
-    private void addMemberSelection(PipelineStep step) {
+    private void addMemberSelection(final PipelineStep step) {
         if (step == null) {
             return;
         }
@@ -126,17 +136,17 @@ public class TemplateEditPane {
             title = "Class";
         }
 
-        SelectionPane pane = new SelectionPane(step, this);
+        final SelectionPane pane = new SelectionPane(step, this);
         pipeline.add(pane);
         templateTabbedPane.addTab(title, pane.getComponent());
     }
 
-    private void addVmEditor(String template) {
-        EditorFactory factory = EditorFactory.getInstance();
-        Document velocityTemplate = factory.createDocument(template);
+    private void addVmEditor(final String template) {
+        final EditorFactory factory = EditorFactory.getInstance();
+        final Document velocityTemplate = factory.createDocument(template);
         editor = factory.createEditor(velocityTemplate, null, FileTypeManager.getInstance()
                 .getFileTypeByExtension("vm"), false);
-        GridConstraints constraints = new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST,
+        final GridConstraints constraints = new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST,
                 GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_WANT_GROW,
                 GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(0, 0), null, 0, true);
 
@@ -216,7 +226,7 @@ public class TemplateEditPane {
     }
 
     public CodeTemplate getCodeTemplate() {
-        CodeTemplate template = new CodeTemplate(this.id());
+        final CodeTemplate template = new CodeTemplate(this.id());
         template.name = this.name();
         template.type = this.type();
         template.enabled = this.enabled();
@@ -234,9 +244,9 @@ public class TemplateEditPane {
         return template;
     }
 
-    public void removePipelineStep(PipelineStepConfig stepToRemove) {
-        int index = this.pipeline.indexOf(stepToRemove);
-        PipelineStepConfig step = this.pipeline.remove(index);
+    public void removePipelineStep(final SelectionPane stepToRemove) {
+        final int index = this.pipeline.indexOf(stepToRemove);
+        final PipelineStepConfig step = this.pipeline.remove(index);
         this.templateTabbedPane.remove(step.getComponent());
     }
 }

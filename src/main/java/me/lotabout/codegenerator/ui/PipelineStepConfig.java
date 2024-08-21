@@ -1,8 +1,8 @@
 package me.lotabout.codegenerator.ui;
 
-import me.lotabout.codegenerator.config.PipelineStep;
+import javax.swing.JComponent;
 
-import javax.swing.*;
+import me.lotabout.codegenerator.config.PipelineStep;
 
 public interface PipelineStepConfig {
     PipelineStep getConfig();

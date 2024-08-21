@@ -1,14 +1,5 @@
 package me.lotabout.codegenerator.ui.include;
 
-import com.intellij.openapi.fileChooser.FileChooser;
-import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
-import com.intellij.openapi.fileEditor.FileDocumentManager;
-import com.intellij.openapi.ui.Messages;
-import me.lotabout.codegenerator.CodeGeneratorSettings;
-import me.lotabout.codegenerator.config.include.Include;
-import me.lotabout.codegenerator.config.include.IncludeList;
-
-import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -18,12 +9,28 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+import javax.swing.DefaultListModel;
+import javax.swing.JButton;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+
+import com.intellij.openapi.fileChooser.FileChooser;
+import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
+import com.intellij.openapi.fileEditor.FileDocumentManager;
+import com.intellij.openapi.ui.Messages;
+
+import me.lotabout.codegenerator.CodeGeneratorSettings;
+import me.lotabout.codegenerator.config.include.Include;
+import me.lotabout.codegenerator.config.include.IncludeList;
+
 public class IncludeConfig {
     private JPanel mainPane;
     private JButton addTemplateButton;
     private JSplitPane splitPane;
     private JList<IncludeEditPane> includeList;
-    private DefaultListModel<IncludeEditPane> includeListModel;
+    private final DefaultListModel<IncludeEditPane> includeListModel;
     private JButton deleteButton;
     private JPanel splitRightPane;
     private JScrollPane scrollPane;
@@ -31,9 +38,9 @@ public class IncludeConfig {
     private JButton exportButton;
     private JButton exportAllButton;
 
-    private static String DEFAULT_EXPORT_PATH = "template.xml";
+    private static final String DEFAULT_EXPORT_PATH = "template.xml";
 
-    public IncludeConfig(CodeGeneratorSettings settings) {
+    public IncludeConfig(final CodeGeneratorSettings settings) {
         this.includeListModel = new DefaultListModel<>();
         this.includeList.setModel(includeListModel);
 
@@ -42,35 +49,35 @@ public class IncludeConfig {
                 return;
             }
 
-            var length = includeListModel.getSize();
-            var index = includeList.getSelectedIndex();
+            final var length = includeListModel.getSize();
+            final var index = includeList.getSelectedIndex();
             if (length < 0 || index < 0 || index >= length) {
                 splitPane.setRightComponent(splitRightPane);
                 deleteButton.setEnabled(false);
                 return;
             }
 
-            var pane = includeListModel.get(includeList.getSelectedIndex());
+            final var pane = includeListModel.get(includeList.getSelectedIndex());
             deleteButton.setEnabled(true);
             splitPane.setRightComponent(pane.templateEdit());
         });
 
         addTemplateButton.addActionListener(e -> {
-            var template = new Include();
+            final var template = new Include();
             template.name = "Untitled";
-            var editPane = new IncludeEditPane(template);
-            var model = (DefaultListModel<IncludeEditPane>) includeList.getModel();
+            final var editPane = new IncludeEditPane(template);
+            final var model = (DefaultListModel<IncludeEditPane>) includeList.getModel();
             model.addElement(editPane);
             includeList.setSelectedIndex(model.getSize()-1);
         });
 
         deleteButton.addActionListener(e -> {
-            var index = includeList.getSelectedIndex();
-            var size = includeListModel.getSize();
+            final var index = includeList.getSelectedIndex();
+            final var size = includeListModel.getSize();
             if (index >= 0 && index < size) {
-                var result = Messages.showYesNoDialog("Delete this template?", "Delete", null);
+                final var result = Messages.showYesNoDialog("Delete this template?", "Delete", null);
                 if (result == Messages.OK) {
-                    var lastIndex = includeList.getAnchorSelectionIndex();
+                    final var lastIndex = includeList.getAnchorSelectionIndex();
                     includeListModel.remove(index);
 
                     var nextIndex = -1;
@@ -86,31 +93,31 @@ public class IncludeConfig {
             }
         });
 
-        exportButton.addActionListener((ActionEvent e) -> {
-            var index = includeList.getSelectedIndex();
-            var includeModel = includeListModel.get(index);
-            var xml = IncludeList.toXML(includeModel.getInclude());
+        exportButton.addActionListener((final ActionEvent e) -> {
+            final var index = includeList.getSelectedIndex();
+            final var includeModel = includeListModel.get(index);
+            final var xml = IncludeList.toXML(includeModel.getInclude());
             saveToFile(xml);
         });
 
-        exportAllButton.addActionListener((ActionEvent e) -> {
-            List<Include> templates = new ArrayList<>();
+        exportAllButton.addActionListener((final ActionEvent e) -> {
+            final List<Include> templates = new ArrayList<>();
             for (var i = 0; i< includeListModel.getSize(); i++) {
                 templates.add(includeListModel.get(i).getInclude());
             }
-            var xml = IncludeList.toXML(templates);
+            final var xml = IncludeList.toXML(templates);
             saveToFile(xml);
         });
 
         importButton.addActionListener(e -> {
             readFromFile().thenAccept(xml -> {
                 try {
-                    var templates = IncludeList.fromXML(xml);
-                    var currentTemplates = getIncludes();
+                    final var templates = IncludeList.fromXML(xml);
+                    final var currentTemplates = getIncludes();
                     currentTemplates.addAll(templates);
                     refresh(currentTemplates);
                     Messages.showMessageDialog("Import finished!", "Import", null);
-                } catch (Exception ex) {
+                } catch (final Exception ex) {
                     ex.printStackTrace();
                     Messages.showMessageDialog("Fail to import\n"+ex.getMessage(), "Import Error", null);
                 }
@@ -120,26 +127,26 @@ public class IncludeConfig {
         resetTabPane(settings.getIncludes());
     }
 
-    public void refresh(List<Include> templates) {
+    public void refresh(final List<Include> templates) {
         includeListModel.removeAllElements();
         resetTabPane(templates);
     }
 
-    private void saveToFile(String content) {
+    private void saveToFile(final String content) {
         final var descriptor = FileChooserDescriptorFactory.createSingleLocalFileDescriptor();
         descriptor.setTitle("Choose Directory to Export");
         descriptor.setDescription("save to directory/"+DEFAULT_EXPORT_PATH + " or the file to overwrite");
         FileChooser.chooseFile(descriptor, null, mainPane, null, virtualFile -> {
-            String targetPath;
+            final String targetPath;
             if (virtualFile.isDirectory()) {
                 targetPath = virtualFile.getPath() + '/' + DEFAULT_EXPORT_PATH;
             } else {
                 targetPath = virtualFile.getPath();
             }
 
-            var path = Paths.get(targetPath);
+            final var path = Paths.get(targetPath);
             if (virtualFile.isDirectory() && Files.exists(path)) {
-                var result = Messages.showYesNoDialog("Overwrite the file?\n" + path, "Overwrite", null);
+                final var result = Messages.showYesNoDialog("Overwrite the file?\n" + path, "Overwrite", null);
                 if (result != Messages.OK) {
                     return;
                 }
@@ -148,7 +155,7 @@ public class IncludeConfig {
             try {
                 Files.write(path, content.getBytes(), StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
                 Messages.showMessageDialog("Exported to \n"+path, "Export Successful", null);
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 e.printStackTrace();
                 Messages.showMessageDialog("Error occurred\n"+e.getMessage(), "Export Error", null);
             }
@@ -163,10 +170,10 @@ public class IncludeConfig {
         return result;
     }
 
-    private void resetTabPane(List<Include> includes) {
+    private void resetTabPane(final List<Include> includes) {
         includes.forEach(include -> {
             if (include == null) return;
-            var editPane = new IncludeEditPane(include);
+            final var editPane = new IncludeEditPane(include);
             includeListModel.addElement(editPane);
         });
 
@@ -175,9 +182,9 @@ public class IncludeConfig {
     }
 
     public List<Include> getIncludes() {
-        List<Include> ret = new ArrayList<>();
+        final List<Include> ret = new ArrayList<>();
         for (var i = 0; i< includeListModel.getSize(); i++) {
-            var value = includeListModel.get(i);
+            final var value = includeListModel.get(i);
             ret.add(value.getInclude());
         }
 

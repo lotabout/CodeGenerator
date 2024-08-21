@@ -34,7 +34,7 @@ public class MemberSelectionConfig implements PipelineStep {
     }
 
     @Override
-    public void postfix(String postfix) {
+    public void postfix(final String postfix) {
         this.postfix = postfix;
     }
 
@@ -44,16 +44,16 @@ public class MemberSelectionConfig implements PipelineStep {
     }
 
     @Override
-    public void enabled(boolean enabled) {
+    public void enabled(final boolean enabled) {
         this.enabled = enabled;
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        MemberSelectionConfig that = (MemberSelectionConfig) o;
+        final MemberSelectionConfig that = (MemberSelectionConfig) o;
 
         if (filterConstantField != that.filterConstantField) return false;
         if (filterEnumField != that.filterEnumField) return false;

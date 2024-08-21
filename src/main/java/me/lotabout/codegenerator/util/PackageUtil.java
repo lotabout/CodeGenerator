@@ -1,5 +1,11 @@
 package me.lotabout.codegenerator.util;
 
+import java.io.File;
+import java.util.Arrays;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import com.intellij.ide.IdeBundle;
 import com.intellij.ide.util.DirectoryChooserUtil;
 import com.intellij.openapi.application.ApplicationManager;
@@ -11,36 +17,31 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.impl.ProjectRootUtil;
 import com.intellij.openapi.roots.ModulePackageIndex;
 import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.util.ThrowableComputable;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.*;
-import com.intellij.psi.impl.file.PsiDirectoryFactory;
+import com.intellij.psi.JavaDirectoryService;
+import com.intellij.psi.JavaPsiFacade;
+import com.intellij.psi.PsiDirectory;
+import com.intellij.psi.PsiManager;
+import com.intellij.psi.PsiPackage;
 import com.intellij.psi.search.GlobalSearchScope;
-import com.intellij.util.ActionRunner;
 import com.intellij.util.IncorrectOperationException;
 import com.intellij.util.Query;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
 
 // customize my package Util based on Intellij's built-in Package Util
 public class PackageUtil {
-    private static final Logger LOG = Logger.getInstance("me.lotabout.codegenerator.util.PackageUtil");
+    private static final Logger LOG = Logger.getInstance(PackageUtil.class);
 
     @Nullable
     public static PsiDirectory findOrCreateDirectoryForPackage(@NotNull final Project project,
-                                                               @Nullable final Module module,
-                                                               final String packageName,
-                                                               @Nullable final PsiDirectory baseDir,
-                                                               final boolean alwaysPrompt) throws IncorrectOperationException {
+            @Nullable final Module module, final String packageName,
+            @Nullable final PsiDirectory baseDir, final boolean alwaysPrompt)
+            throws IncorrectOperationException {
         return findOrCreateDirectoryForPackage(project, module, packageName, baseDir, true, alwaysPrompt);
     }
 
     @Nullable
-    public static PsiDirectory findSourceDirectoryByModuleName(@NotNull final Project project, @Nullable final String moduleName) {
+    public static PsiDirectory findSourceDirectoryByModuleName(@NotNull final Project project,
+            @Nullable final String moduleName) {
         return Arrays.stream(ProjectRootUtil.getSourceRootDirectories(project))
                 .filter(psiDirectory -> psiDirectory.getVirtualFile().getPath().contains(moduleName))
                 .findFirst()
@@ -50,11 +51,9 @@ public class PackageUtil {
 
     @Nullable
     public static PsiDirectory findOrCreateDirectoryForPackage(@NotNull final Project project,
-                                                               @Nullable final Module module,
-                                                               String packageName,
-                                                               final PsiDirectory baseDir,
-                                                               final boolean askUserToCreate,
-                                                               final boolean alwaysPrompt) throws IncorrectOperationException {
+            @Nullable final Module module, String packageName, final PsiDirectory baseDir,
+            final boolean askUserToCreate, final boolean alwaysPrompt)
+            throws IncorrectOperationException {
         PsiDirectory psiDirectory = null;
         if (!alwaysPrompt && !packageName.isEmpty()) {
             PsiPackage rootPackage = findLongestExistingPackage(module, packageName);
@@ -64,7 +63,7 @@ public class PackageUtil {
                 final int beginIndex = rootPackage.getQualifiedName().length() + 1;
                 packageName = beginIndex < packageName.length() ? packageName.substring(beginIndex) : "";
                 String postfixToShow = packageName.replace('.', File.separatorChar);
-                if (packageName.length() > 0) {
+                if (!packageName.isEmpty()) {
                     postfixToShow = File.separatorChar + postfixToShow;
                 }
                 final PsiDirectory[] moduleDirectories = getPackageDirectoriesInModule(rootPackage, module);
@@ -84,7 +83,7 @@ public class PackageUtil {
 
         String restOfName = packageName;
         boolean askedToCreate = false;
-        while (restOfName.length() > 0) {
+        while (!restOfName.isEmpty()) {
             final String name = getLeftPart(restOfName);
             final PsiDirectory foundExistingDirectory = psiDirectory.findSubdirectory(name);
             if (foundExistingDirectory == null) {
@@ -146,7 +145,8 @@ public class PackageUtil {
         return false;
     }
 
-    private static PsiDirectory getWritableModuleDirectory(@NotNull final Query<VirtualFile> vFiles, @NotNull final Module module, final PsiManager manager) {
+    private static PsiDirectory getWritableModuleDirectory(@NotNull final Query<VirtualFile> vFiles,
+        @NotNull final Module module, final PsiManager manager) {
         for (final VirtualFile vFile : vFiles) {
             if (ModuleUtil.findModuleForFile(vFile, module.getProject()) != module) continue;
             final PsiDirectory directory = manager.findDirectory(vFile);
@@ -166,7 +166,9 @@ public class PackageUtil {
 
         String nameToMatch = packageName;
         while (true) {
-            final Query<VirtualFile> vFiles = ModulePackageIndex.getInstance(module).getDirsByPackageName(nameToMatch, false);
+            final Query<VirtualFile> vFiles = ModulePackageIndex
+                .getInstance(module)
+                .getDirsByPackageName(nameToMatch, false);
             final PsiDirectory directory = getWritableModuleDirectory(vFiles, module, manager);
             if (directory != null) return JavaDirectoryService.getInstance().getPackage(directory);
 

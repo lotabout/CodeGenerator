@@ -1,20 +1,13 @@
 package me.lotabout.codegenerator.util;
 
-import com.intellij.application.options.CodeStyle;
-import com.intellij.codeInsight.generation.PsiElementClassMember;
-import com.intellij.codeInsight.generation.PsiFieldMember;
-import com.intellij.codeInsight.generation.PsiMethodMember;
-import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.progress.ProcessCanceledException;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.psi.*;
-import com.intellij.psi.codeStyle.CodeStyleSettingsManager;
-import com.intellij.psi.codeStyle.NameUtil;
-import com.intellij.psi.search.GlobalSearchScope;
-import com.intellij.psi.search.PsiShortNamesCache;
-import me.lotabout.codegenerator.config.include.Include;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import org.apache.velocity.VelocityContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -24,12 +17,31 @@ import org.jetbrains.java.generate.exception.GenerateCodeException;
 import org.jetbrains.java.generate.exception.PluginException;
 import org.jetbrains.java.generate.velocity.VelocityFactory;
 
-import java.io.StringWriter;
-import java.util.*;
-import java.util.stream.Collectors;
+import com.intellij.application.options.CodeStyle;
+import com.intellij.codeInsight.generation.PsiElementClassMember;
+import com.intellij.codeInsight.generation.PsiFieldMember;
+import com.intellij.codeInsight.generation.PsiMethodMember;
+import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.progress.ProcessCanceledException;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.util.text.StringUtil;
+import com.intellij.psi.JavaPsiFacade;
+import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiField;
+import com.intellij.psi.PsiImportStatement;
+import com.intellij.psi.PsiJavaFile;
+import com.intellij.psi.PsiMember;
+import com.intellij.psi.PsiMethod;
+import com.intellij.psi.PsiNamedElement;
+import com.intellij.psi.codeStyle.NameUtil;
+import com.intellij.psi.search.GlobalSearchScope;
+import com.intellij.psi.search.PsiShortNamesCache;
+
+import me.lotabout.codegenerator.config.include.Include;
 
 public class GenerationUtil {
-    private static final Logger logger = Logger.getInstance("#" + GenerationUtil.class.getName());
+    private static final Logger logger = Logger.getInstance(GenerationUtil.class);
 
     /**
      * Combines the two lists into one list of members.
@@ -67,7 +79,9 @@ public class GenerationUtil {
         return psiMemberList;
     }
 
-    public static void insertMembersToContext(final List<PsiMember> members, final List<PsiMember> notNullMembers, final Map<String, Object> context, final String postfix, final int sortElements) {
+    public static void insertMembersToContext(final List<PsiMember> members,
+            final List<PsiMember> notNullMembers, final Map<String, Object> context,
+            final String postfix, final int sortElements) {
         logger.debug("insertMembersToContext - adding fields");
         // field information
         final List fieldElements = EntryUtils.getOnlyAsFieldEntries(members, notNullMembers, false);
@@ -80,8 +94,8 @@ public class GenerationUtil {
 
         // method information
         logger.debug("insertMembersToContext - adding members");
-        context.put("methods" + postfix, EntryUtils.getOnlyAsMethodEntrys(members));
-        context.put("methods", EntryUtils.getOnlyAsMethodEntrys(members));
+        context.put("methods" + postfix, EntryUtils.getOnlyAsMethodEntries(members));
+        context.put("methods", EntryUtils.getOnlyAsMethodEntries(members));
 
         // element information (both fields and methods)
         logger.debug("Velocity Context - adding members (fields and methods)");
@@ -207,18 +221,24 @@ public class GenerationUtil {
         if (e instanceof GenerateCodeException) {
             // code generation error - display velocity error in error dialog so user can identify problem quicker
             Messages.showMessageDialog(project,
-                    "Velocity error generating code - see IDEA log for more details (stacktrace should be in idea.log):\n" +
-                            e.getMessage(), "Warning", Messages.getWarningIcon());
+                "Velocity error generating code - see IDEA log for more details (stacktrace should be in idea.log):\n" +
+                e.getMessage(), "Warning", Messages.getWarningIcon());
         } else if (e instanceof PluginException) {
             // plugin related error - could be recoverable.
-            Messages.showMessageDialog(project, "A PluginException was thrown while performing the action - see IDEA log for details (stacktrace should be in idea.log):\n" + e.getMessage(), "Warning", Messages.getWarningIcon());
+            Messages.showMessageDialog(project,
+                "A PluginException was thrown while performing the action - see IDEA log for details (stacktrace should be in idea.log):\n"
+                    + e.getMessage(), "Warning", Messages.getWarningIcon());
         } else if (e instanceof RuntimeException) {
             // unknown error (such as NPE) - not recoverable
-            Messages.showMessageDialog(project, "An unrecoverable exception was thrown while performing the action - see IDEA log for details (stacktrace should be in idea.log):\n" + e.getMessage(), "Error", Messages.getErrorIcon());
+            Messages.showMessageDialog(project,
+                "An unrecoverable exception was thrown while performing the action - see IDEA log for details (stacktrace should be in idea.log):\n"
+                    + e.getMessage(), "Error", Messages.getErrorIcon());
             throw (RuntimeException) e; // throw to make IDEA alert user
         } else {
             // unknown error (such as NPE) - not recoverable
-            Messages.showMessageDialog(project, "An unrecoverable exception was thrown while performing the action - see IDEA log for details (stacktrace should be in idea.log):\n" + e.getMessage(), "Error", Messages.getErrorIcon());
+            Messages.showMessageDialog(project,
+                "An unrecoverable exception was thrown while performing the action - see IDEA log for details (stacktrace should be in idea.log):\n"
+                    + e.getMessage(), "Error", Messages.getErrorIcon());
             throw new RuntimeException(e); // rethrow as runtime to make IDEA alert user
         }
     }

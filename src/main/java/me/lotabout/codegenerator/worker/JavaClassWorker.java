@@ -1,5 +1,12 @@
 package me.lotabout.codegenerator.worker;
 
+import java.io.File;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
+
 import com.intellij.ide.highlighter.JavaFileType;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.WriteCommandAction;
@@ -13,27 +20,30 @@ import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
-import com.intellij.psi.*;
+import com.intellij.psi.PsiDirectory;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiFileFactory;
+import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.codeStyle.CodeStyleManager;
 import com.intellij.psi.codeStyle.JavaCodeStyleManager;
 import com.intellij.psi.impl.PsiManagerImpl;
 import com.intellij.psi.impl.file.PsiDirectoryFactory;
 import com.intellij.psi.impl.file.PsiDirectoryImpl;
+
 import me.lotabout.codegenerator.config.CodeTemplate;
 import me.lotabout.codegenerator.config.include.Include;
 import me.lotabout.codegenerator.util.GenerationUtil;
-import me.lotabout.codegenerator.util.PackageUtil;
-import org.apache.commons.lang3.StringUtils;
-import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
-import java.util.List;
-import java.util.Map;
+import static me.lotabout.codegenerator.util.PackageUtil.findOrCreateDirectoryForPackage;
+import static me.lotabout.codegenerator.util.PackageUtil.findSourceDirectoryByModuleName;
 
 public class JavaClassWorker {
     private static final Logger logger = Logger.getInstance(JavaClassWorker.class);
 
-    public static void execute(@NotNull final CodeTemplate codeTemplate, @NotNull final List<Include> includes, @NotNull final PsiJavaFile selectedFile, @NotNull final Map<String, Object> context) {
+    public static void execute(@NotNull final CodeTemplate codeTemplate,
+            @NotNull final List<Include> includes,
+            @NotNull final PsiJavaFile selectedFile,
+            @NotNull final Map<String, Object> context) {
         try {
             final Project project = selectedFile.getProject();
 
@@ -41,7 +51,8 @@ public class JavaClassWorker {
 
             final String className;
             final String packageName;
-            final String FQClass = GenerationUtil.velocityEvaluate(project, context, context, codeTemplate.classNameVm, includes);
+            final String FQClass = GenerationUtil.velocityEvaluate(project,
+                context, context, codeTemplate.classNameVm, includes);
             if (logger.isDebugEnabled()) logger.debug("FQClass generated\n" + FQClass);
 
             final int index = FQClass.lastIndexOf(".");
@@ -68,18 +79,25 @@ public class JavaClassWorker {
             final Module currentModule = ModuleUtilCore.findModuleForPsiElement(selectedFile);
             assert currentModule != null;
 
-            final VirtualFile moduleRoot = ProjectRootManager.getInstance(project).getFileIndex().getSourceRootForFile(selectedFile.getVirtualFile());
+            final VirtualFile moduleRoot = ProjectRootManager
+                .getInstance(project)
+                .getFileIndex()
+                .getSourceRootForFile(selectedFile.getVirtualFile());
             assert moduleRoot != null;
 
-            final PsiDirectory moduleRootDir = PsiDirectoryFactory.getInstance(project).createDirectory(moduleRoot);
+            final PsiDirectory moduleRootDir = PsiDirectoryFactory
+                .getInstance(project)
+                .createDirectory(moduleRoot);
             final VirtualFileManager manager = VirtualFileManager.getInstance();
 
             final PsiDirectory targetPackageDir;
             if (StringUtils.isNotBlank(codeTemplate.defaultTargetModule)) {
-                targetPackageDir = PackageUtil.findSourceDirectoryByModuleName(project, codeTemplate.defaultTargetModule);
+                targetPackageDir = findSourceDirectoryByModuleName(project,
+                    codeTemplate.defaultTargetModule);
             } else {
-                targetPackageDir = PackageUtil.findOrCreateDirectoryForPackage(
-                        project, currentModule, targetPackageName, moduleRootDir, codeTemplate.alwaysPromptForPackage);
+                targetPackageDir = findOrCreateDirectoryForPackage(project,
+                    currentModule, targetPackageName, moduleRootDir,
+                    codeTemplate.alwaysPromptForPackage);
             }
 
             if (targetPackageDir == null) {
@@ -105,9 +123,15 @@ public class JavaClassWorker {
             }
 
             final VirtualFile targetDirectoryVf = manager.refreshAndFindFileByUrl(VfsUtil.pathToUrl(targetDirectory));
+            if (targetDirectoryVf == null) {
+                Messages.showErrorDialog("Failed to create directory: " + targetDirectory, "Error");
+                return;
+            }
             final PsiDirectory targetPsiDirectory = new PsiDirectoryImpl(new PsiManagerImpl(project), targetDirectoryVf);
 
-            final PsiFile targetFile = PsiFileFactory.getInstance(project).createFileFromText(className + ".java", JavaFileType.INSTANCE, content);
+            final PsiFile targetFile = PsiFileFactory
+                .getInstance(project)
+                .createFileFromText(className + ".java", JavaFileType.INSTANCE, content);
             JavaCodeStyleManager.getInstance(project).shortenClassReferences(targetFile);
             CodeStyleManager.getInstance(project).reformat(targetFile);
 
@@ -123,18 +147,20 @@ public class JavaClassWorker {
 
                     // open the file in editor
                     ApplicationManager.getApplication()
-                            .invokeLater(() -> FileEditorManager.getInstance(project).openFile(addedFile.getVirtualFile(), true, true));
+                            .invokeLater(() -> FileEditorManager
+                                .getInstance(project)
+                                .openFile(addedFile.getVirtualFile(), true, true));
                 } catch (final Exception e) {
-                    e.printStackTrace();
+                    logger.error("Failed to create file: {}", e.getMessage());
                     GenerationUtil.handleException(project, e);
                 }
             });
-        }catch (final Exception e){
+        } catch (final Exception e){
             e.printStackTrace();
         }
     }
 
     private static boolean userConfirmedOverride() {
-        return Messages.showYesNoDialog("Overwrite?", "File Exists", null) == Messages.OK;
+        return Messages.showYesNoDialog("Overwrite?", "File Exists", null) == Messages.YES;
     }
 }

@@ -1,19 +1,20 @@
 package me.lotabout.codegenerator.ui;
 
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.components.ServiceManager;
-import com.intellij.openapi.options.ConfigurationException;
-import com.intellij.openapi.options.SearchableConfigurable;
-import me.lotabout.codegenerator.CodeGeneratorSettings;
-import me.lotabout.codegenerator.ui.include.IncludeConfig;
+import javax.swing.JComponent;
+
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.options.ConfigurationException;
+import com.intellij.openapi.options.SearchableConfigurable;
+
+import me.lotabout.codegenerator.CodeGeneratorSettings;
+import me.lotabout.codegenerator.ui.include.IncludeConfig;
 
 public class CodeGeneratorConfigurable implements SearchableConfigurable {
-    private CodeGeneratorSettings settings;
+    private final CodeGeneratorSettings settings;
     private CodeGeneratorConfig codeGeneratorConfig;
     private IncludeConfig includeConfig;
     private MainPaneConfig mainPaneConfig;

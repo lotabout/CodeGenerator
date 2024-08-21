@@ -1,14 +1,15 @@
 package me.lotabout.codegenerator.config;
 
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.xml.bind.JAXB;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.List;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 public class CodeTemplateList {
@@ -17,10 +18,12 @@ public class CodeTemplateList {
     private List<CodeTemplate> templates = new ArrayList<>();
 
     public CodeTemplateList() {}
-    public CodeTemplateList(List<CodeTemplate> templates) {
+
+    public CodeTemplateList(final List<CodeTemplate> templates) {
         this.templates.addAll(templates);
     }
-    public CodeTemplateList(CodeTemplate template) {
+
+    public CodeTemplateList(final CodeTemplate template) {
         this.templates.add(template);
     }
 
@@ -29,26 +32,25 @@ public class CodeTemplateList {
         return templates;
     }
 
-    public void setTemplates(List<CodeTemplate> templates) {
+    public void setTemplates(final List<CodeTemplate> templates) {
         this.templates = templates;
     }
 
-    public static List<CodeTemplate> fromXML(String xml) {
-        CodeTemplateList list = JAXB.unmarshal(new StringReader(xml), CodeTemplateList.class);
+    public static List<CodeTemplate> fromXML(final String xml) {
+        final CodeTemplateList list = JAXB.unmarshal(new StringReader(xml), CodeTemplateList.class);
         return list.getTemplates();
     }
 
-    public static String toXML(List<CodeTemplate> templates) {
-        CodeTemplateList templateList = new CodeTemplateList(templates);
-        StringWriter sw = new StringWriter();
+    public static String toXML(final List<CodeTemplate> templates) {
+        final CodeTemplateList templateList = new CodeTemplateList(templates);
+        final StringWriter sw = new StringWriter();
         JAXB.marshal(templateList, sw);
         return sw.toString();
     }
-    public static String toXML(CodeTemplate templates) {
-        CodeTemplateList templateList = new CodeTemplateList(templates);
-        StringWriter sw = new StringWriter();
+    public static String toXML(final CodeTemplate templates) {
+        final CodeTemplateList templateList = new CodeTemplateList(templates);
+        final StringWriter sw = new StringWriter();
         JAXB.marshal(templateList, sw);
         return sw.toString();
     }
 }
-

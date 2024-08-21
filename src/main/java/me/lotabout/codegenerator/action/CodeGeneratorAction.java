@@ -1,5 +1,22 @@
 package me.lotabout.codegenerator.action;
 
+import java.awt.BorderLayout;
+import java.io.File;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import javax.swing.JPanel;
+
+import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.java.generate.config.Config;
+import org.jetbrains.java.generate.config.FilterPattern;
+import org.jetbrains.java.generate.exception.GenerateCodeException;
+
 import com.intellij.codeInsight.generation.PsiElementClassMember;
 import com.intellij.codeInsight.generation.PsiFieldMember;
 import com.intellij.codeInsight.generation.PsiMethodMember;
@@ -20,11 +37,20 @@ import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.*;
+import com.intellij.psi.JavaPsiFacade;
+import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiField;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiFileFactory;
+import com.intellij.psi.PsiJavaFile;
+import com.intellij.psi.PsiMember;
+import com.intellij.psi.PsiMethod;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.psi.util.PsiUtil;
 import com.intellij.util.IncorrectOperationException;
+
 import me.lotabout.codegenerator.CodeGeneratorSettings;
 import me.lotabout.codegenerator.config.ClassSelectionConfig;
 import me.lotabout.codegenerator.config.CodeTemplate;
@@ -36,21 +62,8 @@ import me.lotabout.codegenerator.util.MemberEntry;
 import me.lotabout.codegenerator.worker.JavaBodyWorker;
 import me.lotabout.codegenerator.worker.JavaCaretWorker;
 import me.lotabout.codegenerator.worker.JavaClassWorker;
-import org.apache.commons.lang3.StringUtils;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.java.generate.config.Config;
-import org.jetbrains.java.generate.config.FilterPattern;
-import org.jetbrains.java.generate.exception.GenerateCodeException;
 
-import javax.swing.*;
-import java.awt.*;
-import java.io.File;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import static me.lotabout.codegenerator.util.GenerationUtil.velocityEvaluate;
 
 public class CodeGeneratorAction extends AnAction {
     private static final Logger logger = Logger.getInstance(CodeGeneratorAction.class);
@@ -75,7 +88,7 @@ public class CodeGeneratorAction extends AnAction {
         }
 
         final PsiFile file = e.getDataContext().getData(LangDataKeys.PSI_FILE);
-        if (file == null || !(file instanceof PsiJavaFile)) {
+        if (!(file instanceof PsiJavaFile)) {
             presentation.setEnabled(false);
         }
 
@@ -83,12 +96,13 @@ public class CodeGeneratorAction extends AnAction {
     }
 
     @Override public void actionPerformed(final AnActionEvent e) {
-        final CodeTemplate codeTemplate = settings.getCodeTemplate(templateKey).orElseThrow(IllegalStateException::new);
+        final CodeTemplate codeTemplate = settings.getCodeTemplate(templateKey)
+                                                  .orElseThrow(IllegalStateException::new);
         final Project project = e.getProject();
         assert project != null;
 
         final PsiFile file = e.getDataContext().getData(LangDataKeys.PSI_FILE);
-        assert file != null && file instanceof PsiJavaFile;
+        assert file instanceof PsiJavaFile;
 
         final PsiJavaFile javaFile = (PsiJavaFile)file;
 
@@ -123,7 +137,8 @@ public class CodeGeneratorAction extends AnAction {
         }
     }
 
-    private Map<String, Object> executePipeline(@NotNull final CodeTemplate codeTemplate, @NotNull final PsiJavaFile file, final Editor editor) {
+    private Map<String, Object> executePipeline(@NotNull final CodeTemplate codeTemplate,
+        @NotNull final PsiJavaFile file, final Editor editor) {
         final Project project = file.getProject();
         logger.debug("+++ executePipeline - START +++");
         if (logger.isDebugEnabled()) {
@@ -157,10 +172,10 @@ public class CodeGeneratorAction extends AnAction {
                     final List<PsiMember> selectedMembers = selectMember(file, (MemberSelectionConfig) step, contextMap);
                     if (selectedMembers == null) return null;
                     GenerationUtil.insertMembersToContext(selectedMembers,
-                            Collections.emptyList(),
-                            contextMap,
-                            step.postfix(),
-                            ((MemberSelectionConfig) step).sortElements);
+                        Collections.emptyList(),
+                        contextMap,
+                        step.postfix(),
+                        ((MemberSelectionConfig) step).sortElements);
                     break;
                 default:
                     throw new IllegalStateException("step type not recognized: " + step.type());
@@ -187,16 +202,19 @@ public class CodeGeneratorAction extends AnAction {
         return clazz;
     }
 
-    private PsiClass selectClass(@NotNull final PsiJavaFile file, final ClassSelectionConfig config, final Map<String, Object> contextMap) {
+    private PsiClass selectClass(@NotNull final PsiJavaFile file,
+            final ClassSelectionConfig config, final Map<String, Object> contextMap) {
         final String initialClassNameTemplate = config.initialClass;
         final Project project = file.getProject();
         try {
-            final String className = GenerationUtil.velocityEvaluate(project, contextMap, contextMap, initialClassNameTemplate, settings.getIncludes());
-            if (logger.isDebugEnabled()) logger.debug("Initial class name for class selection is" + className);
-
+            final String className = velocityEvaluate(project, contextMap,
+                contextMap, initialClassNameTemplate, settings.getIncludes());
+            logger.debug("Initial class name for class selection is ", className);
             PsiClass initialClass = null;
             if (!StringUtils.isEmpty(className)) {
-                initialClass = JavaPsiFacade.getInstance(project).findClass(className, GlobalSearchScope.allScope(project));
+                initialClass = JavaPsiFacade
+                    .getInstance(project)
+                    .findClass(className, GlobalSearchScope.allScope(project));
             }
 
             if (initialClass == null) {
@@ -204,8 +222,9 @@ public class CodeGeneratorAction extends AnAction {
                 initialClass = file.getClasses().length > 0 ? file.getClasses()[0] : null;
             }
 
-            final TreeClassChooser chooser = TreeClassChooserFactory.getInstance(project)
-                                                                    .createProjectScopeChooser("Select a class", initialClass);
+            final TreeClassChooser chooser = TreeClassChooserFactory
+                .getInstance(project)
+                .createProjectScopeChooser("Select a class", initialClass);
             chooser.showDialog();
 
             if (chooser.getSelected() == null) {
@@ -218,13 +237,14 @@ public class CodeGeneratorAction extends AnAction {
         return null;
     }
 
-    private List<PsiMember> selectMember(@NotNull final PsiJavaFile file, final MemberSelectionConfig config, final Map<String, Object> contextMap) {
+    private List<PsiMember> selectMember(@NotNull final PsiJavaFile file,
+            final MemberSelectionConfig config, final Map<String, Object> contextMap) {
         final String AVAILABLE_MEMBERS = "availableMembers";
         final String SELECTED_MEMBERS = "selectedMembers";
         final Project project = file.getProject();
 
-        if (logger.isDebugEnabled()) logger.debug("start to select members by template: ", config.providerTemplate);
-        GenerationUtil.velocityEvaluate(project, contextMap, contextMap, config.providerTemplate,settings.getIncludes());
+        logger.debug("start to select members by template: ", config.providerTemplate);
+        velocityEvaluate(project, contextMap, contextMap, config.providerTemplate,settings.getIncludes());
 
         // members should be MemberEntry[] or PsiMember[]
         List availableMembers = Collections.emptyList();
@@ -243,14 +263,18 @@ public class CodeGeneratorAction extends AnAction {
         final PsiElementClassMember[] membersSelected = buildClassMember(filterMembers(selectedMembers, config));
 
         if (!config.allowEmptySelection && dialogMembers.length <= 0) {
-            Messages.showMessageDialog(project, "No members are provided to select from.\nAnd template doesn't allow empty selection",
-                    "Warning", Messages.getWarningIcon());
+            Messages.showMessageDialog(project,
+                "No members are provided to select from.\nAnd template doesn't allow empty selection",
+                "Warning", Messages.getWarningIcon());
             return null;
         }
 
         final MemberChooser<PsiElementClassMember> chooser =
-                new MemberChooser<PsiElementClassMember>(dialogMembers, config.allowEmptySelection, config.allowMultiSelection, project, PsiUtil.isLanguageLevel5OrHigher(file), new JPanel(new BorderLayout())) {
-                    @Nullable
+                new MemberChooser<>(dialogMembers, config.allowEmptySelection,
+                        config.allowMultiSelection, project,
+                        PsiUtil.isLanguageLevel5OrHigher(file),
+                        new JPanel(new BorderLayout())) {
+                    @NotNull
                     @Override
                     protected String getHelpId() {
                         return "editing.altInsert.codegenerator";
@@ -268,7 +292,8 @@ public class CodeGeneratorAction extends AnAction {
         return GenerationUtil.convertClassMembersToPsiMembers(chooser.getSelectedElements());
     }
 
-    private static List<PsiMember> filterMembers(final List<Object> members, final MemberSelectionConfig config) {
+    private static List<PsiMember> filterMembers(final List<Object> members,
+            final MemberSelectionConfig config) {
         final FilterPattern pattern = generatorConfig2Config(config).getFilterPattern();
         return members.stream()
                 .map(member -> {
@@ -292,19 +317,17 @@ public class CodeGeneratorAction extends AnAction {
     }
 
     private static PsiElementClassMember[] buildClassMember(final List<PsiMember> members) {
-        final List<PsiElementClassMember> ret = members.stream()
-                                                       .filter(m -> (m instanceof PsiField) || (m instanceof PsiMethod))
-                                                       .map(m -> {
-                    if (m instanceof PsiField) {
-                        return new PsiFieldMember((PsiField) m);
-                    } else if (m instanceof PsiMethod) {
-                        return new PsiMethodMember((PsiMethod) m);
-                    } else {
-                        return null;
-                    }
-                }).collect(Collectors.toList());
 
-        return ret.toArray(new PsiElementClassMember[ret.size()]);
+      return members
+          .stream()
+          .filter(m -> (m instanceof PsiField) || (m instanceof PsiMethod))
+          .map(m -> {
+              if (m instanceof PsiField) {
+                  return new PsiFieldMember((PsiField) m);
+              } else {
+                  return new PsiMethodMember((PsiMethod) m);
+              }
+          }).toArray(PsiElementClassMember[]::new);
     }
 
     private static Config generatorConfig2Config(final MemberSelectionConfig selectionConfig) {
@@ -325,19 +348,24 @@ public class CodeGeneratorAction extends AnAction {
 
     private static PsiClass buildFakeClassForEmptyFile(@NotNull final PsiJavaFile file) {
         final Project project = file.getProject();
-        final VirtualFile moduleRoot = ProjectRootManager.getInstance(project).getFileIndex().getSourceRootForFile(file.getVirtualFile());
+        final VirtualFile moduleRoot = ProjectRootManager
+            .getInstance(project)
+            .getFileIndex()
+            .getSourceRootForFile(file.getVirtualFile());
         final String fileName = file.getName();
         final String className = fileName.replace(".java", "");
-        final String packageName = file.getVirtualFile().getPath()
-                .substring(moduleRoot.getPath().length() + 1)
-                .replace(File.separator + fileName, "")
-                .replace(File.separator, ".");
+        final String packageName = file
+            .getVirtualFile()
+            .getPath()
+            .substring(moduleRoot.getPath().length() + 1)
+            .replace(File.separator + fileName, "")
+            .replace(File.separator, ".");
 
         try {
-            final PsiFile element = PsiFileFactory.getInstance(project)
-                    .createFileFromText("filename", JavaFileType.INSTANCE,
-                            "package " + packageName + ";\n" +
-                                    "class " + className + "{}");
+            final PsiFile element = PsiFileFactory
+                .getInstance(project)
+                .createFileFromText("filename", JavaFileType.INSTANCE,
+                    "package " + packageName + ";\n" + "class " + className + "{}");
             return (PsiClass) element.getLastChild();
         } catch (final IncorrectOperationException ignore) {
         }

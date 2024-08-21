@@ -1,12 +1,16 @@
 package me.lotabout.codegenerator.util;
 
-import com.intellij.psi.*;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
+
 import org.jetbrains.java.generate.element.ClassElement;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiClassOwner;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiJavaFile;
 
 public class ClassEntry {
     private PsiClass raw;
@@ -22,9 +26,9 @@ public class ClassEntry {
     private List<MemberEntry> allMembers = new ArrayList<>();
     private List<String> typeParamList;
 
-    public static ClassEntry of(PsiClass clazz, ClassElement element) {
-        PsiFile psiFile = clazz.getContainingFile();
-        ClassEntry entry = new ClassEntry();
+    public static ClassEntry of(final PsiClass clazz, final ClassElement element) {
+        final PsiFile psiFile = clazz.getContainingFile();
+        final ClassEntry entry = new ClassEntry();
         entry.setRaw(clazz);
         entry.setElement(element);
         entry.setPackageName(((PsiClassOwner)psiFile).getPackageName());
@@ -41,27 +45,27 @@ public class ClassEntry {
         return fields;
     }
 
-    public void setFields(List<FieldEntry> fields) {
+    public void setFields(final List<FieldEntry> fields) {
         this.fields = fields;
     }
 
-    public void setAllFields(List<FieldEntry> allFields) {
+    public void setAllFields(final List<FieldEntry> allFields) {
         this.allFields = allFields;
     }
 
-    public void setMethods(List<MethodEntry> methods) {
+    public void setMethods(final List<MethodEntry> methods) {
         this.methods = methods;
     }
 
-    public void setAllMethods(List<MethodEntry> allMethods) {
+    public void setAllMethods(final List<MethodEntry> allMethods) {
         this.allMethods = allMethods;
     }
 
-    public void setMembers(List<MemberEntry> members) {
+    public void setMembers(final List<MemberEntry> members) {
         this.members = members;
     }
 
-    public void setAllMembers(List<MemberEntry> allMembers) {
+    public void setAllMembers(final List<MemberEntry> allMembers) {
         this.allMembers = allMembers;
     }
 
@@ -69,7 +73,7 @@ public class ClassEntry {
         return raw;
     }
 
-    public void setRaw(PsiClass raw) {
+    public void setRaw(final PsiClass raw) {
         this.raw = raw;
     }
 
@@ -77,7 +81,7 @@ public class ClassEntry {
         return element;
     }
 
-    public void setElement(ClassElement element) {
+    public void setElement(final ClassElement element) {
         this.element = element;
     }
 
@@ -85,7 +89,7 @@ public class ClassEntry {
         return packageName;
     }
 
-    public void setPackageName(String packageName) {
+    public void setPackageName(final String packageName) {
         this.packageName = packageName;
     }
 
@@ -93,11 +97,11 @@ public class ClassEntry {
         return importList;
     }
 
-    public void setImportList(List<String> importList) {
+    public void setImportList(final List<String> importList) {
         this.importList = importList;
     }
 
-    public void addFields(List<FieldEntry> fields) {
+    public void addFields(final List<FieldEntry> fields) {
         this.fields.addAll(fields);
         this.members.addAll(fields);
     }
@@ -106,7 +110,7 @@ public class ClassEntry {
         return allFields;
     }
 
-    public void addAllFields(List<FieldEntry> allFields) {
+    public void addAllFields(final List<FieldEntry> allFields) {
         this.allFields = allFields;
         this.allMembers.addAll(fields);
     }
@@ -115,7 +119,7 @@ public class ClassEntry {
         return methods;
     }
 
-    public void addMethod(List<MethodEntry> methods) {
+    public void addMethod(final List<MethodEntry> methods) {
         this.methods.addAll(methods);
         this.members.addAll(methods);
     }
@@ -124,7 +128,7 @@ public class ClassEntry {
         return allMethods;
     }
 
-    public void addAllMethods(List<MethodEntry> allMethods) {
+    public void addAllMethods(final List<MethodEntry> allMethods) {
         this.allMethods.addAll(allMethods);
         this.allMembers.addAll(allMethods);
     }
@@ -154,19 +158,19 @@ public class ClassEntry {
         return typeParamList;
     }
 
-    public void setTypeParamList(List<String> typeParamList) {
+    public void setTypeParamList(final List<String> typeParamList) {
         this.typeParamList = typeParamList;
     }
 
-    public boolean isImplements(String s) {
+    public boolean isImplements(final String s) {
         return element.isImplements(s);
     }
 
-    public boolean isExtends(String s) {
+    public boolean isExtends(final String s) {
         return element.isExtends(s);
     }
 
-    public boolean matchName(String s) throws IllegalArgumentException {
+    public boolean matchName(final String s) throws IllegalArgumentException {
         return element.matchName(s);
     }
 
@@ -174,7 +178,7 @@ public class ClassEntry {
         return element.getImplementNames();
     }
 
-    public void setImplementNames(String[] strings) {
+    public void setImplementNames(final String[] strings) {
         element.setImplementNames(strings);
     }
 
@@ -182,7 +186,7 @@ public class ClassEntry {
         return element.getSuperQualifiedName();
     }
 
-    public void setSuperQualifiedName(String s) {
+    public void setSuperQualifiedName(final String s) {
         element.setSuperQualifiedName(s);
     }
 
@@ -190,7 +194,7 @@ public class ClassEntry {
         return element.getSuperName();
     }
 
-    public void setSuperName(String s) {
+    public void setSuperName(final String s) {
         element.setSuperName(s);
     }
 
@@ -198,7 +202,7 @@ public class ClassEntry {
         return element.getName();
     }
 
-    public void setName(String s) {
+    public void setName(final String s) {
         element.setName(s);
     }
 
@@ -206,7 +210,7 @@ public class ClassEntry {
         return element.getQualifiedName();
     }
 
-    public void setQualifiedName(String s) {
+    public void setQualifiedName(final String s) {
         element.setQualifiedName(s);
     }
 
@@ -218,7 +222,7 @@ public class ClassEntry {
         return element.isDeprecated();
     }
 
-    public void setDeprecated(boolean b) {
+    public void setDeprecated(final boolean b) {
         element.setDeprecated(b);
     }
 
@@ -226,7 +230,7 @@ public class ClassEntry {
         return element.isEnum();
     }
 
-    public void setEnum(boolean b) {
+    public void setEnum(final boolean b) {
         element.setEnum(b);
     }
 
@@ -234,7 +238,7 @@ public class ClassEntry {
         return element.isException();
     }
 
-    public void setException(boolean b) {
+    public void setException(final boolean b) {
         element.setException(b);
     }
 
@@ -242,11 +246,11 @@ public class ClassEntry {
         return element.isAbstract();
     }
 
-    public void setAbstract(boolean b) {
+    public void setAbstract(final boolean b) {
         element.setAbstract(b);
     }
 
-    public void setTypeParams(int i) {
+    public void setTypeParams(final int i) {
         element.setTypeParams(i);
     }
 

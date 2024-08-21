@@ -1,15 +1,21 @@
 package me.lotabout.codegenerator.ui;
 
+import java.awt.Dimension;
+
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.uiDesigner.core.GridConstraints;
+
 import me.lotabout.codegenerator.config.MemberSelectionConfig;
 import me.lotabout.codegenerator.config.PipelineStep;
-
-import javax.swing.*;
-import java.awt.*;
 
 public class MemberSelectionPane implements PipelineStepConfig {
     private JPanel editorPane;
@@ -30,7 +36,7 @@ public class MemberSelectionPane implements PipelineStepConfig {
     private JCheckBox allowEmptySelectionCheckBox;
     private Editor editor;
 
-    MemberSelectionPane(MemberSelectionConfig config) {
+    MemberSelectionPane(final MemberSelectionConfig config) {
         excludeConstantFieldsCheckBox.setSelected(config.filterConstantField);
         excludeStaticFieldsCheckBox.setSelected(config.filterStaticModifier);
         excludeTransientFieldsCheckBox.setSelected(config.filterTransientModifier);
@@ -57,12 +63,12 @@ public class MemberSelectionPane implements PipelineStepConfig {
         return comboBoxSortElements.getSelectedIndex() + 1;
     }
 
-    private void addVmEditor(String template) {
-        EditorFactory factory = EditorFactory.getInstance();
-        Document velocityTemplate = factory.createDocument(template);
+    private void addVmEditor(final String template) {
+        final EditorFactory factory = EditorFactory.getInstance();
+        final Document velocityTemplate = factory.createDocument(template);
         editor = factory.createEditor(velocityTemplate, null, FileTypeManager.getInstance()
                 .getFileTypeByExtension("vm"), false);
-        GridConstraints constraints = new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST,
+        final GridConstraints constraints = new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST,
                 GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_WANT_GROW,
                 GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(0, 0), null, 0, true);
 
@@ -71,7 +77,7 @@ public class MemberSelectionPane implements PipelineStepConfig {
 
     @Override
     public PipelineStep getConfig() {
-        MemberSelectionConfig config = new MemberSelectionConfig();
+        final MemberSelectionConfig config = new MemberSelectionConfig();
         config.filterConstantField = excludeConstantFieldsCheckBox.isSelected();
         config.filterEnumField = excludeEnumFieldsCheckBox.isSelected();
         config.filterTransientModifier = excludeTransientFieldsCheckBox.isSelected();

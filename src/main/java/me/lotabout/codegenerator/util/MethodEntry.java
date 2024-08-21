@@ -1,13 +1,9 @@
 package me.lotabout.codegenerator.util;
 
-import com.intellij.psi.PsiMethod;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.java.generate.element.MethodElement;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
+import com.intellij.psi.PsiMethod;
 
 /**
  * Wrapper around MethodElement
@@ -16,7 +12,7 @@ public class MethodEntry implements MemberEntry<PsiMethod> {
     private final PsiMethod raw;
     private final MethodElement element;
 
-    public MethodEntry(PsiMethod field, MethodElement element) {
+    public MethodEntry(final PsiMethod field, final MethodElement element) {
         this.raw = field;
         this.element = element;
     }
@@ -25,6 +21,7 @@ public class MethodEntry implements MemberEntry<PsiMethod> {
         return element;
     }
 
+    @Override
     public PsiMethod getRaw() {
         return raw;
     }
@@ -33,7 +30,7 @@ public class MethodEntry implements MemberEntry<PsiMethod> {
         return element.getMethodName();
     }
 
-    public void setMethodName(String s) {
+    public void setMethodName(final String s) {
         element.setMethodName(s);
     }
 
@@ -41,7 +38,7 @@ public class MethodEntry implements MemberEntry<PsiMethod> {
         return element.getFieldName();
     }
 
-    public void setFieldName(String s) {
+    public void setFieldName(final String s) {
         element.setFieldName(s);
     }
 
@@ -53,7 +50,7 @@ public class MethodEntry implements MemberEntry<PsiMethod> {
         return element.isModifierAbstract();
     }
 
-    public void setModifierAbstract(boolean b) {
+    public void setModifierAbstract(final boolean b) {
         element.setModifierAbstract(b);
     }
 
@@ -65,7 +62,7 @@ public class MethodEntry implements MemberEntry<PsiMethod> {
         return element.isModifierSynchronized();
     }
 
-    public void setModifierSynchronized(boolean b) {
+    public void setModifierSynchronized(final boolean b) {
         element.setModifierSynchronized(b);
     }
 
@@ -73,7 +70,7 @@ public class MethodEntry implements MemberEntry<PsiMethod> {
         return element.isReturnTypeVoid();
     }
 
-    public void setReturnTypeVoid(boolean b) {
+    public void setReturnTypeVoid(final boolean b) {
         element.setReturnTypeVoid(b);
     }
 
@@ -81,7 +78,7 @@ public class MethodEntry implements MemberEntry<PsiMethod> {
         return element.isGetter();
     }
 
-    public void setGetter(boolean b) {
+    public void setGetter(final boolean b) {
         element.setGetter(b);
     }
 
@@ -89,11 +86,11 @@ public class MethodEntry implements MemberEntry<PsiMethod> {
         return element.isDeprecated();
     }
 
-    public void setDeprecated(boolean b) {
+    public void setDeprecated(final boolean b) {
         element.setDeprecated(b);
     }
 
-    public boolean matchName(String s) throws IllegalArgumentException {
+    public boolean matchName(final String s) throws IllegalArgumentException {
         return element.matchName(s);
     }
 
@@ -109,7 +106,7 @@ public class MethodEntry implements MemberEntry<PsiMethod> {
         return element.isNestedArray();
     }
 
-    public void setNestedArray(boolean b) {
+    public void setNestedArray(final boolean b) {
         element.setNestedArray(b);
     }
 
@@ -173,7 +170,7 @@ public class MethodEntry implements MemberEntry<PsiMethod> {
         return element.getTypeQualifiedName();
     }
 
-    public boolean isAnnotatedWith(@NotNull String qualifiedName) {
+    public boolean isAnnotatedWith(@NotNull final String qualifiedName) {
         return AnnotationUtil.isAnnotatedWith(raw, qualifiedName);
     }
 
@@ -181,7 +178,7 @@ public class MethodEntry implements MemberEntry<PsiMethod> {
         return element.getType();
     }
 
-    public void setType(String s) {
+    public void setType(final String s) {
         element.setType(s);
     }
 
@@ -193,7 +190,7 @@ public class MethodEntry implements MemberEntry<PsiMethod> {
         return element.isLong();
     }
 
-    public void setLong(boolean b) {
+    public void setLong(final boolean b) {
         element.setLong(b);
     }
 
@@ -201,7 +198,7 @@ public class MethodEntry implements MemberEntry<PsiMethod> {
         return element.isFloat();
     }
 
-    public void setFloat(boolean b) {
+    public void setFloat(final boolean b) {
         element.setFloat(b);
     }
 
@@ -209,7 +206,7 @@ public class MethodEntry implements MemberEntry<PsiMethod> {
         return element.isDouble();
     }
 
-    public void setDouble(boolean b) {
+    public void setDouble(final boolean b) {
         element.setDouble(b);
     }
 
@@ -221,11 +218,11 @@ public class MethodEntry implements MemberEntry<PsiMethod> {
         return element.isNotNull();
     }
 
-    public void setNotNull(boolean b) {
+    public void setNotNull(final boolean b) {
         element.setNotNull(b);
     }
 
-    public void setVoid(boolean b) {
+    public void setVoid(final boolean b) {
         element.setVoid(b);
     }
 
@@ -233,7 +230,7 @@ public class MethodEntry implements MemberEntry<PsiMethod> {
         return element.isChar();
     }
 
-    public void setChar(boolean b) {
+    public void setChar(final boolean b) {
         element.setChar(b);
     }
 
@@ -241,7 +238,7 @@ public class MethodEntry implements MemberEntry<PsiMethod> {
         return element.isByte();
     }
 
-    public void setByte(boolean b) {
+    public void setByte(final boolean b) {
         element.setByte(b);
     }
 
@@ -249,15 +246,15 @@ public class MethodEntry implements MemberEntry<PsiMethod> {
         return element.isShort();
     }
 
-    public void setShort(boolean b) {
+    public void setShort(final boolean b) {
         element.setShort(b);
     }
 
-    public void setBoolean(boolean b) {
+    public void setBoolean(final boolean b) {
         element.setBoolean(b);
     }
 
-    public void setName(String s) {
+    public void setName(final String s) {
         element.setName(s);
     }
 

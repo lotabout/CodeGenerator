@@ -1,20 +1,21 @@
 package me.lotabout.codegenerator.ui;
 
-import me.lotabout.codegenerator.config.ClassSelectionConfig;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 
-import javax.swing.*;
+import me.lotabout.codegenerator.config.ClassSelectionConfig;
 
 public class ClassSelectionPane implements PipelineStepConfig {
     private JPanel topPane;
     private JTextField initialClassText;
 
-    public ClassSelectionPane(ClassSelectionConfig config) {
+    public ClassSelectionPane(final ClassSelectionConfig config) {
         initialClassText.setText(config.initialClass);
     }
 
     @Override
     public ClassSelectionConfig getConfig() {
-        ClassSelectionConfig config = new ClassSelectionConfig();
+        final ClassSelectionConfig config = new ClassSelectionConfig();
         config.initialClass = initialClassText.getText();
         return config;
     }

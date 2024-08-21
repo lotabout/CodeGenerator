@@ -1,14 +1,15 @@
 package me.lotabout.codegenerator.config.include;
 
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.xml.bind.JAXB;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.List;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 public class IncludeList {
@@ -19,11 +20,11 @@ public class IncludeList {
     public IncludeList() {
     }
 
-    public IncludeList(List<Include> includes) {
+    public IncludeList(final List<Include> includes) {
         this.includes.addAll(includes);
     }
 
-    public IncludeList(Include template) {
+    public IncludeList(final Include template) {
         this.includes.add(template);
     }
 
@@ -32,27 +33,26 @@ public class IncludeList {
         return includes;
     }
 
-    public void setIncludes(List<Include> includes) {
+    public void setIncludes(final List<Include> includes) {
         this.includes = includes;
     }
 
-    public static List<Include> fromXML(String xml) {
-        var list = JAXB.unmarshal(new StringReader(xml), IncludeList.class);
+    public static List<Include> fromXML(final String xml) {
+        final var list = JAXB.unmarshal(new StringReader(xml), IncludeList.class);
         return list.getIncludes();
     }
 
-    public static String toXML(List<Include> templates) {
-        var templateList = new IncludeList(templates);
-        var sw = new StringWriter();
+    public static String toXML(final List<Include> templates) {
+        final var templateList = new IncludeList(templates);
+        final var sw = new StringWriter();
         JAXB.marshal(templateList, sw);
         return sw.toString();
     }
 
-    public static String toXML(Include templates) {
-        var templateList = new IncludeList(templates);
-        var sw = new StringWriter();
+    public static String toXML(final Include templates) {
+        final var templateList = new IncludeList(templates);
+        final var sw = new StringWriter();
         JAXB.marshal(templateList, sw);
         return sw.toString();
     }
 }
-

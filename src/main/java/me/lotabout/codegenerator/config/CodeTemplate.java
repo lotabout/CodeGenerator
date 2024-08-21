@@ -1,19 +1,26 @@
 package me.lotabout.codegenerator.config;
 
-import com.intellij.openapi.util.io.FileUtil;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
-import com.intellij.util.xmlb.annotations.XCollection;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlElements;
+import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.jetbrains.java.generate.config.DuplicationPolicy;
 import org.jetbrains.java.generate.config.InsertWhere;
 
-import javax.xml.bind.annotation.*;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import com.intellij.openapi.util.io.FileUtil;
+import com.intellij.util.xmlb.annotations.XCollection;
 
 @XmlRootElement(name = "codeTemplate")
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -74,7 +81,11 @@ public class CodeTemplate {
     static {
         String default_template;
         try {
-            default_template = FileUtil.loadTextAndClose(CodeTemplate.class.getResourceAsStream("/template/default.vm"));
+            final InputStream in = CodeTemplate.class.getResourceAsStream("/template/default.vm");
+            if (in == null) {
+               throw new IOException("Cannot find default template");
+            }
+            default_template = FileUtil.loadTextAndClose(in);
         } catch (final IOException e) {
             default_template = "";
             e.printStackTrace();

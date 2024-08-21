@@ -1,5 +1,7 @@
 package me.lotabout.codegenerator.config;
 
+import java.util.Objects;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -7,10 +9,15 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "classSelection")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ClassSelectionConfig implements PipelineStep {
+
     public String initialClass = "$class0.qualifiedName";
+
     public boolean enabled = true;
+
     public String postfix = "";
-    @Override public String type() {
+
+    @Override
+    public String type() {
         return "class-selection";
     }
 
@@ -20,7 +27,7 @@ public class ClassSelectionConfig implements PipelineStep {
     }
 
     @Override
-    public void postfix(String postfix) {
+    public void postfix(final String postfix) {
         this.postfix = postfix;
     }
 
@@ -30,20 +37,24 @@ public class ClassSelectionConfig implements PipelineStep {
     }
 
     @Override
-    public void enabled(boolean enabled) {
+    public void enabled(final boolean enabled) {
         this.enabled = enabled;
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        ClassSelectionConfig that = (ClassSelectionConfig) o;
+        final ClassSelectionConfig that = (ClassSelectionConfig) o;
 
-        if (enabled != that.enabled) return false;
-        if (initialClass != null ? !initialClass.equals(that.initialClass) : that.initialClass != null) return false;
-        return postfix != null ? postfix.equals(that.postfix) : that.postfix == null;
+        if (enabled != that.enabled) {
+            return false;
+        }
+        if (!Objects.equals(initialClass, that.initialClass)) {
+            return false;
+        }
+        return (postfix != null) ? postfix.equals(that.postfix) : (that.postfix == null);
     }
 
     @Override
