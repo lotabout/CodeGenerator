@@ -8,7 +8,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.apache.velocity.VelocityContext;
+import org.apache.velocity.app.VelocityEngine;
+import org.apache.velocity.context.Context;
+import org.apache.velocity.tools.ToolManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.generate.element.ElementComparator;
@@ -41,6 +43,9 @@ import com.intellij.psi.search.PsiShortNamesCache;
 import me.lotabout.codegenerator.config.include.Include;
 
 public class GenerationUtil {
+
+    public static final String VELOCITY_TOOLS_CONFIG = "/velocity-tools.xml";
+
     private static final Logger logger = Logger.getInstance(GenerationUtil.class);
 
     /**
@@ -108,42 +113,47 @@ public class GenerationUtil {
     public static String velocityEvaluate(
             @NotNull final Project project,
             @NotNull final Map<String, Object> contextMap,
-            final Map<String, Object> outputContext,
-            String template,
-            final List<Include> includes) throws GenerateCodeException {
+            @Nullable final Map<String, Object> outputContext,
+            @Nullable final String template,
+            @NotNull final List<Include> includes) throws GenerateCodeException {
+        contextMap.put("settings", CodeStyle.getSettings(project));
+        contextMap.put("project", project);
+        contextMap.put("helper", GenerationHelper.class);
+        contextMap.put("StringUtil", StringUtil.class);
+        contextMap.put("NameUtil", NameUtil.class);
+        contextMap.put("PsiShortNamesCache", PsiShortNamesCache.class);
+        contextMap.put("JavaPsiFacade", JavaPsiFacade.class);
+        contextMap.put("GlobalSearchScope", GlobalSearchScope.class);
+        contextMap.put("EntryFactory", EntryFactory.class);
+        return velocityEvaluate(contextMap, outputContext, template, includes);
+    }
+
+    // split this method to make unit testing easier
+    public static String velocityEvaluate(
+        @NotNull final Map<String, Object> contextMap,
+        @Nullable final Map<String, Object> outputContext,
+        @Nullable String template,
+        @NotNull final List<Include> includes) throws GenerateCodeException {
         if (template == null) {
             return null;
         }
-
-        final var sw = new StringWriter();
+        final StringWriter sw = new StringWriter();
         try {
-            final var vc = new VelocityContext();
-
-            vc.put("settings", CodeStyle.getSettings(project));
-            vc.put("project", project);
-            vc.put("helper", GenerationHelper.class);
-            vc.put("StringUtil", StringUtil.class);
-            vc.put("NameUtil", NameUtil.class);
-            vc.put("PsiShortNamesCache", PsiShortNamesCache.class);
-            vc.put("JavaPsiFacade", JavaPsiFacade.class);
-            vc.put("GlobalSearchScope", GlobalSearchScope.class);
-            vc.put("EntryFactory", EntryFactory.class);
-
+            final ToolManager toolManager = new ToolManager(false, true);
+            toolManager.configure(VELOCITY_TOOLS_CONFIG);
+            final Context vc = toolManager.createContext();
             for (final var paramName : contextMap.keySet()) {
                 vc.put(paramName, contextMap.get(paramName));
             }
-
             template = updateTemplateWithIncludes(template, includes);
             logger.debug("Velocity Template:\n", template);
-
             // velocity
-            final var velocity = VelocityFactory.getVelocityEngine();
+            final VelocityEngine velocity = VelocityFactory.getVelocityEngine();
             logger.debug("Executing velocity +++ START +++");
             velocity.evaluate(vc, sw, GenerationUtil.class.getName(), template);
             logger.debug("Executing velocity +++ END +++");
-
             if (outputContext != null) {
-                for (final var key : vc.getKeys()) {
+                for (final String key : vc.getKeys()) {
                     if (key != null) {
                         outputContext.put(key, vc.get(key));
                     }
@@ -154,8 +164,9 @@ public class GenerationUtil {
         } catch (final Exception e) {
             throw new GenerateCodeException("Error in Velocity code generator", e);
         }
-
-        return StringUtil.convertLineSeparators(sw.getBuffer().toString());
+        final String result = StringUtil.convertLineSeparators(sw.toString());
+        logger.debug("Velocity Result:\n", result);
+        return result;
     }
 
     @NotNull

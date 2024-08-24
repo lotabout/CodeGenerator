@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "me.lotabout"
-version = "1.7.0"
+version = "1.7.1"
 
 repositories {
   mavenCentral()
@@ -22,6 +22,12 @@ dependencies {
     instrumentationTools()
   }
   implementation("org.apache.commons:commons-lang3:3.12.0")
+  implementation("org.apache.velocity.tools:velocity-tools-generic:3.1")  {
+    exclude(group = "org.apache.velocity", module = "velocity-engine-core")
+    exclude(group = "org.slf4j", module = "slf4j-api")
+  }
+  testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.0")
+  testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.7.0")
 }
 
 tasks {
@@ -45,5 +51,9 @@ tasks {
 
   publishPlugin {
     token.set(System.getenv("PUBLISH_TOKEN"))
+  }
+
+  test {
+    useJUnitPlatform()
   }
 }
