@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>me.lotabout.codegenerator</id>
     <name>Code Generator</name>
-    <version>1.6.0</version>
+    <version>1.7.2</version>
     <vendor email="lotabout@gmail.com" url="https://lotabout.me">Jinzhou Zhang</vendor>
 
     <description><![CDATA[
@@ -23,23 +23,25 @@
 
     <change-notes><![CDATA[
   <ul>
-  <li>version 1.6.0 Intellij 2023.2 support</p></li>
+  <li>version 1.7.2 Intellij 2024.3 support</li>
+  <li>version 1.7.0 Refactor</li>
+  <li>version 1.6.0 Intellij 2023.2 support</li>
   <li>version 1.5.2 Default loaded include files - to add complex logic to use for className generation</li>
   <li>version 1.5.1 Sub include parsing</li>
-  <li>version 1.5.0 Intellij 2021.3 support</p></li>
-  <li>version 1.5.0 Adds isAnnotatedWith method for field and method entities</p></li>
-  <li>version 1.5.0 Adds default target module path and default target package name for class generation</p></li>
-  <li>version 1.5.0 Macro support - Adds include support to define common shared macros</p></li>
-  <li>version 1.5.0 Adds copy template functionality</p></li>
-  <li>version 1.4.1 <p>Fix "Replace existing" policy when no existing member is found</p></li>
-  <li>version 1.4.0 <p>compatible with 2020.1</p></li>
-  <li>version 1.3.3 <p>fix: pipeline settings could not be saved.</p></li>
-  <li>version 1.3.2 <p>support idea 2016.3 and after</p></li>
-  <li>version 1.3.1 <p>move Code Generator Menu to Generate menu</p></li>
-  <li>version 1.3 <p>support insert at caret. Fix bugs</p></li>
-  <li>version 1.2 <p>Able to import/export settings</p></li>
-  <li>version 1.1 <p>Able to define workflows for selecting members/classes</p></li>
-  <li>version 1.0 <p>First release</p></li>
+  <li>version 1.5.0 Intellij 2021.3 support</li>
+  <li>version 1.5.0 Adds isAnnotatedWith method for field and method entities</li>
+  <li>version 1.5.0 Adds default target module path and default target package name for class generation</li>
+  <li>version 1.5.0 Macro support - Adds include support to define common shared macros</li>
+  <li>version 1.5.0 Adds copy template functionality</li>
+  <li>version 1.4.1 Fix "Replace existing" policy when no existing member is found</li>
+  <li>version 1.4.0 compatible with 2020.1</li>
+  <li>version 1.3.3 fix: pipeline settings could not be saved.</li>
+  <li>version 1.3.2 support idea 2016.3 and after</li>
+  <li>version 1.3.1 move Code Generator Menu to Generate menu</li>
+  <li>version 1.3 Support insert at caret. Fix bugs</li>
+  <li>version 1.2 Able to import/export settings</li>
+  <li>version 1.1 Able to define workflows for selecting members/classes</li>
+  <li>version 1.0 First release</li>
   </ul>
     ]]>
     </change-notes>

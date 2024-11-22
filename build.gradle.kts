@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "me.lotabout"
-version = "1.7.1"
+version = "1.7.2"
 
 repositories {
   mavenCentral()
@@ -40,7 +40,7 @@ tasks {
 
   patchPluginXml {
     sinceBuild.set("232")
-    untilBuild.set("242.*")
+    untilBuild.set("243.*")
   }
 
   signPlugin {
