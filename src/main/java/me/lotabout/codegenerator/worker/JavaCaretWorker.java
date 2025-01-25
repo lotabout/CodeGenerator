@@ -15,6 +15,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.codeStyle.JavaCodeStyleManager;
 import com.intellij.psi.util.PsiTreeUtil;
@@ -28,7 +29,7 @@ public class JavaCaretWorker {
     private static final Logger logger = Logger.getInstance(JavaCaretWorker.class);
 
     public static void execute(@NotNull final CodeTemplate codeTemplate,
-            final List<Include> includes, @NotNull final PsiJavaFile file,
+            final List<Include> includes, @NotNull final PsiFile file,
             @NotNull final Editor editor, @NotNull final Map<String, Object> context) {
         final Project project = file.getProject();
         final String content = velocityEvaluate(project, context, null, codeTemplate.template, includes);
@@ -42,17 +43,20 @@ public class JavaCaretWorker {
         WriteCommandAction.runWriteCommandAction(project, () -> {
             document.replaceString(start, end, content);
             PsiDocumentManager.getInstance(project).commitDocument(document);
-            final PsiElement element = file.findElementAt(editor.getCaretModel().getOffset());
-            final PsiClass clazz = PsiTreeUtil.getParentOfType(element, PsiClass.class, false);
-            if (clazz == null) {
-                logger.error("Cannot find PsiClass from the current caret position");
-                HintManager.getInstance().showErrorHint(editor,
-                    "Cannot find PsiClass from the current caret position");
-                return;
+            if (file instanceof PsiJavaFile) {
+                final PsiElement element = file.findElementAt(editor.getCaretModel().getOffset());
+                final PsiClass clazz = PsiTreeUtil.getParentOfType(element, PsiClass.class, false);
+                if (clazz == null) {
+                    logger.error("Cannot find PsiClass from the current caret position");
+                    HintManager
+                        .getInstance()
+                        .showErrorHint(editor, "Cannot find PsiClass from the current caret position");
+                    return;
+                }
+                JavaCodeStyleManager
+                    .getInstance(project)
+                    .shortenClassReferences(clazz.getContainingFile());
             }
-            JavaCodeStyleManager
-                .getInstance(project)
-                .shortenClassReferences(clazz.getContainingFile());
         });
         selectionModel.removeSelection();
     }

@@ -120,7 +120,9 @@ public class GenerationUtil {
         contextMap.put("project", project);
         contextMap.put("helper", GenerationHelper.class);
         contextMap.put("StringUtil", StringUtil.class);
+        contextMap.put("StringUtilEx", StringUtilEx.class);
         contextMap.put("NameUtil", NameUtil.class);
+        contextMap.put("NameUtilEx", NameUtilEx.class);
         contextMap.put("PsiShortNamesCache", PsiShortNamesCache.class);
         contextMap.put("JavaPsiFacade", JavaPsiFacade.class);
         contextMap.put("GlobalSearchScope", GlobalSearchScope.class);
@@ -160,8 +162,10 @@ public class GenerationUtil {
                 }
             }
         } catch (final ProcessCanceledException e) {
+            logger.error("Error in Velocity code generator: " + e.getMessage(), e);
             throw e;
         } catch (final Exception e) {
+            logger.error("Error in Velocity code generator: " + e.getMessage(), e);
             throw new GenerateCodeException("Error in Velocity code generator", e);
         }
         final String result = StringUtil.convertLineSeparators(sw.toString());

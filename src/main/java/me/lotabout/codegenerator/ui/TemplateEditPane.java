@@ -29,10 +29,11 @@ import me.lotabout.codegenerator.config.ClassSelectionConfig;
 import me.lotabout.codegenerator.config.CodeTemplate;
 import me.lotabout.codegenerator.config.MemberSelectionConfig;
 import me.lotabout.codegenerator.config.PipelineStep;
+import me.lotabout.codegenerator.config.TemplateType;
 
 public class TemplateEditPane {
     private JPanel templateEdit;
-    private JComboBox templateTypeCombo;
+    private JComboBox<String> templateTypeCombo;
     private JTextField templateIdText;
     private JTextField templateNameText;
     private JPanel editorPane;
@@ -62,7 +63,7 @@ public class TemplateEditPane {
         templateNameText.setText(codeTemplate.name);
         templateEnabledCheckBox.setSelected(codeTemplate.enabled);
         fileEncodingText.setText(StringUtil.notNullize(codeTemplate.fileEncoding, CodeTemplate.DEFAULT_ENCODING));
-        templateTypeCombo.setSelectedItem(codeTemplate.type);
+        templateTypeCombo.setSelectedItem(codeTemplate.type.getValue());
         jumpToMethodCheckBox.setSelected(codeTemplate.jumpToMethod);
         classNameVmText.setText(codeTemplate.classNameVm);
         defaultTargetPackageText.setText(codeTemplate.defaultTargetPackage);
@@ -228,7 +229,7 @@ public class TemplateEditPane {
     public CodeTemplate getCodeTemplate() {
         final CodeTemplate template = new CodeTemplate(this.id());
         template.name = this.name();
-        template.type = this.type();
+        template.type = TemplateType.ofValue(this.type());
         template.enabled = this.enabled();
         template.fileEncoding = this.fileEncoding();
         template.template = this.template();

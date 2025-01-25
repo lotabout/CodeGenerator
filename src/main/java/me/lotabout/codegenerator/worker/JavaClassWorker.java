@@ -46,9 +46,7 @@ public class JavaClassWorker {
             @NotNull final Map<String, Object> context) {
         try {
             final Project project = selectedFile.getProject();
-
             // fetch necessary parameters
-
             final String className;
             final String packageName;
             final String FQClass = GenerationUtil.velocityEvaluate(project,
@@ -144,7 +142,9 @@ public class JavaClassWorker {
 
                     targetPsiDirectory.add(targetFile);
                     final PsiFile addedFile = targetPsiDirectory.findFile(targetFile.getName());
-
+                    if (addedFile == null) {
+                        throw new RuntimeException("Failed to create file: " + targetFile.getName());
+                    }
                     // open the file in editor
                     ApplicationManager.getApplication()
                             .invokeLater(() -> FileEditorManager
@@ -156,7 +156,7 @@ public class JavaClassWorker {
                 }
             });
         } catch (final Exception e){
-            e.printStackTrace();
+            logger.error("Failed to generate code: " + e.getMessage(), e);
         }
     }
 

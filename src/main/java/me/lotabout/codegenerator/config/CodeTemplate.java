@@ -30,8 +30,8 @@ public class CodeTemplate {
 
     private UUID id;
     public String name = "Untitled";
-    public String fileNamePattern = ".*\\.java$";
-    public String type = "body";
+    // public String fileNamePattern = ".*\\.java$";
+    public TemplateType type = TemplateType.BODY;
     public boolean enabled = true;
     public String template = DEFAULT_TEMPLATE;
     public String fileEncoding = DEFAULT_ENCODING;
@@ -108,7 +108,7 @@ public class CodeTemplate {
                 .append(alwaysPromptForPackage, template1.alwaysPromptForPackage)
                 .append(id, template1.id)
                 .append(name, template1.name)
-                .append(fileNamePattern, template1.fileNamePattern)
+                // .append(fileNamePattern, template1.fileNamePattern)
                 .append(type, template1.type)
                 .append(template, template1.template)
                 .append(fileEncoding, template1.fileEncoding)
@@ -125,7 +125,7 @@ public class CodeTemplate {
         return new HashCodeBuilder(17, 37)
                 .append(id)
                 .append(name)
-                .append(fileNamePattern)
+                // .append(fileNamePattern)
                 .append(type)
                 .append(enabled)
                 .append(template)

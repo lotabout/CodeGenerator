@@ -1,3 +1,5 @@
+package me.lotabout.codegenerator.util;
+
 import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -9,8 +11,6 @@ import org.apache.velocity.context.Context;
 import org.apache.velocity.tools.ToolManager;
 import org.jetbrains.java.generate.velocity.VelocityFactory;
 import org.junit.jupiter.api.Test;
-
-import me.lotabout.codegenerator.util.GenerationUtil;
 
 import static java.util.Collections.emptyList;
 

@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>me.lotabout.codegenerator</id>
     <name>Code Generator</name>
-    <version>1.7.2</version>
+    <version>1.8.1</version>
     <vendor email="lotabout@gmail.com" url="https://lotabout.me">Jinzhou Zhang</vendor>
 
     <description><![CDATA[
@@ -23,6 +23,11 @@
 
     <change-notes><![CDATA[
   <ul>
+  <li>version 1.8.1 Add the utility module `NameUtilEx`, which is an extension of `com.intellij.psi.codeStyle.NameUtil`;
+    Add the utility module `StringUtilEx`, which is an extension of `com.intellij.openapi.util.text.StringUtil`;
+    Add some utility methods to `MemberEntry`</li>
+  </li>
+  <li>version 1.8.0 Support generating code in non-Java files</li>
   <li>version 1.7.2 Intellij 2024.3 support</li>
   <li>version 1.7.0 Refactor</li>
   <li>version 1.6.0 Intellij 2023.2 support</li>
@@ -66,11 +71,16 @@
     <actions>
         <!-- Add your actions here -->
         <group id="me.lotabout.codegenerator.action.CodeGeneratorMenu"
-               class="me.lotabout.codegenerator.action.CodeGeneratorGroup" text="CodeGenerator"
-               description="Code Generator" popup="true">
+               class="me.lotabout.codegenerator.action.CodeGeneratorGroup"
+               text="CodeGenerator"
+               description="Code Generator"
+               popup="true">
             <add-to-group group-id="ProjectViewPopupMenu" anchor="after"
                           relative-to-action="ProjectViewPopupMenuRefactoringGroup"/>
-            <add-to-group group-id="GenerateGroup" anchor="after" relative-to-action="JavaGenerateGroup2"/>
+<!--            <add-to-group group-id="GenerateGroup"-->
+<!--                anchor="after" relative-to-action="JavaGenerateGroup2"/>-->
+<!--            <add-to-group group-id="GenerateGroup"/>-->
+            <add-to-group group-id="EditorPopupMenu"/>
         </group>
     </actions>
 

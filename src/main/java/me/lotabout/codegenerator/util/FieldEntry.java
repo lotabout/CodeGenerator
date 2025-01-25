@@ -1,13 +1,9 @@
 package me.lotabout.codegenerator.util;
 
-import com.intellij.psi.PsiField;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.java.generate.element.FieldElement;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
+import com.intellij.psi.PsiField;
 
 /**
  * Wrapper around FieldElement
@@ -30,6 +26,7 @@ public class FieldEntry implements MemberEntry<PsiField> {
         return element;
     }
 
+    @Override
     public String getAccessor() {
         return element.getAccessor();
     }
@@ -38,28 +35,12 @@ public class FieldEntry implements MemberEntry<PsiField> {
         return element.isConstant();
     }
 
-    public boolean isModifierTransient() {
-        return element.isModifierTransient();
-    }
-
-    public boolean isModifierVolatile() {
-        return element.isModifierVolatile();
-    }
-
     public boolean isEnum() {
         return element.isEnum();
     }
 
-    public void setEnum(final boolean b) {
-        element.setEnum(b);
-    }
-
     public boolean matchName(final String s) throws IllegalArgumentException {
         return element.matchName(s);
-    }
-
-    public void setAccessor(final String s) {
-        element.setAccessor(s);
     }
 
     public String getName() {
@@ -74,10 +55,6 @@ public class FieldEntry implements MemberEntry<PsiField> {
         return element.isNestedArray();
     }
 
-    public void setNestedArray(final boolean b) {
-        element.setNestedArray(b);
-    }
-
     public boolean isCollection() {
         return element.isCollection();
     }
@@ -90,28 +67,52 @@ public class FieldEntry implements MemberEntry<PsiField> {
         return element.isPrimitive();
     }
 
-    public boolean isString() {
-        return element.isString();
-    }
-
     public boolean isPrimitiveArray() {
         return element.isPrimitiveArray();
-    }
-
-    public boolean isObjectArray() {
-        return element.isObjectArray();
-    }
-
-    public boolean isNumeric() {
-        return element.isNumeric();
     }
 
     public boolean isObject() {
         return element.isObject();
     }
 
+    public boolean isObjectArray() {
+        return element.isObjectArray();
+    }
+
+    public boolean isString() {
+        return element.isString();
+    }
+
+    public boolean isStringArray() {
+        return element.isStringArray();
+    }
+
+    public boolean isNumeric() {
+        return element.isNumeric();
+    }
+
     public boolean isDate() {
         return element.isDate();
+    }
+
+    public boolean isInstant() {
+        final String type = element.getType();
+        return type.equals("java.time.Instant");
+    }
+
+    public boolean isLocalDate() {
+        final String type = element.getType();
+        return type.equals("java.time.LocalDate");
+    }
+
+    public boolean isLocalTime() {
+        final String type = element.getType();
+        return type.equals("java.time.LocalTime");
+    }
+
+    public boolean isLocalDateTime() {
+        final String type = element.getType();
+        return type.equals("java.time.LocalDateTime");
     }
 
     public boolean isSet() {
@@ -120,10 +121,6 @@ public class FieldEntry implements MemberEntry<PsiField> {
 
     public boolean isList() {
         return element.isList();
-    }
-
-    public boolean isStringArray() {
-        return element.isStringArray();
     }
 
     public boolean isCalendar() {
@@ -146,36 +143,60 @@ public class FieldEntry implements MemberEntry<PsiField> {
         return element.getType();
     }
 
-    public void setType(final String s) {
-        element.setType(s);
-    }
-
     public boolean isBoolean() {
         return element.isBoolean();
     }
 
-    public boolean isLong() {
-        return element.isLong();
+    public boolean isChar() {
+        return element.isChar();
     }
 
-    public void setLong(final boolean b) {
-        element.setLong(b);
+    public boolean isByte() {
+        return element.isByte();
+    }
+
+    public boolean isShort() {
+        return element.isShort();
+    }
+
+    /**
+     * Check if the field is an integer type.
+     * <p>
+     * This method will return {@code true} if the field is of type {@code int} or
+     * {@code java.lang.Integer}.
+     *
+     * @return
+     *     {@code true} if the field is an integer type, {@code false} otherwise.
+     * @author Haixing Hu
+     */
+    public boolean isInt() {
+        // NOTE: there is no Element.isInt() function
+        final String type = element.getType();
+        return type.equals("int") || type.equals("java.lang.Integer");
+    }
+
+    /**
+     * Check if the field is a long type.
+     * <p>
+     * This method will return {@code true} if the field is of type {@code long} or
+     * {@code java.lang.Long}.
+     *
+     * @return
+     *     {@code true} if the field is a long type, {@code false} otherwise.
+     * @author Haixing Hu
+     */
+    public boolean isLong() {
+        // NOTE: Element.isLong() CANNOT detect Long object, which may be a bug
+        final String type = element.getType();
+        return type.equals("long") || type.equals("java.lang.Long");
     }
 
     public boolean isFloat() {
         return element.isFloat();
     }
 
-    public void setFloat(final boolean b) {
-        element.setFloat(b);
-    }
-
     public boolean isDouble() {
         return element.isDouble();
-    }
-
-    public void setDouble(final boolean b) {
-        element.setDouble(b);
     }
 
     public boolean isVoid() {
@@ -188,42 +209,6 @@ public class FieldEntry implements MemberEntry<PsiField> {
 
     public void setNotNull(final boolean b) {
         element.setNotNull(b);
-    }
-
-    public void setVoid(final boolean b) {
-        element.setVoid(b);
-    }
-
-    public boolean isChar() {
-        return element.isChar();
-    }
-
-    public void setChar(final boolean b) {
-        element.setChar(b);
-    }
-
-    public boolean isByte() {
-        return element.isByte();
-    }
-
-    public void setByte(final boolean b) {
-        element.setByte(b);
-    }
-
-    public boolean isShort() {
-        return element.isShort();
-    }
-
-    public void setShort(final boolean b) {
-        element.setShort(b);
-    }
-
-    public void setBoolean(final boolean b) {
-        element.setBoolean(b);
-    }
-
-    public void setName(final String s) {
-        element.setName(s);
     }
 
     public boolean isModifierStatic() {
@@ -249,6 +234,15 @@ public class FieldEntry implements MemberEntry<PsiField> {
     public boolean isModifierFinal() {
         return element.isModifierFinal();
     }
+
+    public boolean isModifierTransient() {
+        return element.isModifierTransient();
+    }
+
+    public boolean isModifierVolatile() {
+        return element.isModifierVolatile();
+    }
+
 
     @Override
     public String toString() {

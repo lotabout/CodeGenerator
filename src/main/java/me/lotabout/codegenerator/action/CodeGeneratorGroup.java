@@ -9,16 +9,15 @@ import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.LangDataKeys;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
-import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
-import com.intellij.psi.util.PsiTreeUtil;
+import com.intellij.psi.PsiJavaFile;
 
 import me.lotabout.codegenerator.CodeGeneratorSettings;
 import me.lotabout.codegenerator.config.CodeTemplate;
@@ -31,40 +30,34 @@ public class CodeGeneratorGroup extends ActionGroup implements DumbAware {
         settings = ApplicationManager.getApplication().getService(CodeGeneratorSettings.class);
     }
 
-    @NotNull @Override public AnAction[] getChildren(@Nullable final AnActionEvent anActionEvent) {
+    @Override
+    @NotNull
+    public AnAction[] getChildren(@Nullable final AnActionEvent anActionEvent) {
         if (anActionEvent == null) {
             return EMPTY_ARRAY;
         }
-
-        final Project project = PlatformDataKeys.PROJECT.getData(anActionEvent.getDataContext());
+        final DataContext context = anActionEvent.getDataContext();
+        final Project project = PlatformDataKeys.PROJECT.getData(context);
         if (project == null) {
             return EMPTY_ARRAY;
         }
-
-        final PsiFile file = anActionEvent.getDataContext().getData(LangDataKeys.PSI_FILE);
+        final PsiFile file = context.getData(LangDataKeys.PSI_FILE);
         if (file == null) {
             return EMPTY_ARRAY;
         }
+        final Caret caret = context.getData(LangDataKeys.CARET);
+        final boolean isProjectView = (caret == null);
 
-        final Caret caret = anActionEvent.getDataContext().getData(LangDataKeys.CARET);
-        final boolean isProjectView = caret == null;
-
-        if (!isProjectView) {
-            // EditorPopup menu
-            final PsiElement element = file.findElementAt(caret.getOffset());
-            final PsiClass clazz = PsiTreeUtil.getParentOfType(element, PsiClass.class, false);
-            if (clazz == null) {
-                // not inside a class
-                return EMPTY_ARRAY;
-            }
-        }
-
-        final String fileName = file.getName();
-        final List<AnAction> children = settings.getCodeTemplates().stream()
-                .filter(t -> !isProjectView || (t.type.equals("class") && isProjectView))
-                .filter(t -> t.enabled && fileName.matches(t.fileNamePattern))
-                .map(CodeGeneratorGroup::getOrCreateAction)
-                .toList();
+        final boolean isJavaFile = (file instanceof PsiJavaFile);
+        final List<AnAction> children = settings
+            .getCodeTemplates()
+            .stream()
+            .filter(t -> t.enabled)
+            .filter(t -> !isProjectView || !t.type.isNeedEditor())
+            .filter(t -> isJavaFile || t.type.isSupportNonJavaFile())
+            // .filter(t -> file.getName().matches(t.fileNamePattern))
+            .map(CodeGeneratorGroup::getOrCreateAction)
+            .toList();
         return children.toArray(new AnAction[0]);
     }
 
