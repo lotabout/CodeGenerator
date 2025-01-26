@@ -1,16 +1,23 @@
 package me.lotabout.codegenerator.config;
 
+import javax.xml.bind.annotation.XmlEnum;
+import javax.xml.bind.annotation.XmlEnumValue;
+
 /**
  * The enumeration of types of code templates.
  *
  * @author Haixing Hu
  */
+@XmlEnum
 public enum TemplateType {
 
+  @XmlEnumValue("body")
   BODY("body", false, true),
 
+  @XmlEnumValue("class")
   CLASS("class", false, false),
 
+  @XmlEnumValue("caret")
   CARET("caret", true, true);
 
   private final String value;
