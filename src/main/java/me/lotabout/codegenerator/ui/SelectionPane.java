@@ -53,12 +53,12 @@ public class SelectionPane implements PipelineStepConfig {
 
     @Override public PipelineStep getConfig() {
         if (selectionPane instanceof MemberSelectionPane) {
-            final PipelineStep step = ((MemberSelectionPane)selectionPane).getConfig();
+            final PipelineStep step = ((MemberSelectionPane) selectionPane).getConfig();
             step.postfix(this.postfix());
             step.enabled(this.enabled());
             return step;
         } else if (selectionPane instanceof ClassSelectionPane) {
-            final PipelineStep step = ((ClassSelectionPane)selectionPane).getConfig();
+            final PipelineStep step = ((ClassSelectionPane) selectionPane).getConfig();
             step.postfix(this.postfix());
             step.enabled(this.enabled());
             return step;

@@ -87,17 +87,19 @@ public class Include {
 
     @Override
     public boolean equals(final Object o) {
-        if (this == o) return true;
-
-        if (o == null || getClass() != o.getClass()) return false;
-
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         final var include1 = (Include) o;
-
-        return new EqualsBuilder().append(id, include1.id)//
-                .append(name, include1.name)//
-                .append(content, include1.content)//
-                .append(defaultInclude, include1.defaultInclude)
-                .isEquals();
+        return new EqualsBuilder()
+            .append(id, include1.id)//
+            .append(name, include1.name)//
+            .append(content, include1.content)//
+            .append(defaultInclude, include1.defaultInclude)
+            .isEquals();
     }
 
     @Override
