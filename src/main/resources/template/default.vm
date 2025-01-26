@@ -43,42 +43,85 @@
 ##   ...
 ##
 ## - MemberEntry (FieldEntry/MethodEntry common properties)
-##    - raw: PsiField(for field), PsiMethod(for method)
+##    - raw: PsiField (for field), PsiMethod (for method)
+##    - element: FieldElement (for field), MethodElement (for method)
 ##    - name: String
 ##    - accessor: String
 ##    - array: boolean
 ##    - nestedArray: boolean
+##    - primitiveArray: boolean
+##    - stringArray: boolean
+##    - objectArray: boolean
 ##    - collection: boolean
+##    - list: boolean
+##    - set: boolean
 ##    - map: boolean
 ##    - primitive: boolean
-##    - string: boolean
-##    - primitiveArray: boolean
-##    - objectArray: boolean
 ##    - numeric: boolean
-##    - object: boolean
-##    - date: boolean
-##    - set: boolean
-##    - list: boolean
-##    - stringArray: boolean
-##    - calendar: boolean
-##    - typeName: String
-##    - typeQualifiedName: String
-##    - type: String
 ##    - boolean: boolean
-##    - long: boolean
-##    - float: boolean
-##    - double: boolean
-##    - void: boolean
-##    - notNull: boolean
 ##    - char: boolean
 ##    - byte: boolean
 ##    - short: boolean
+##    - int: boolean
+##         Check whether the field is a primitive int type or a Integer type. This
+##         property is abscent in the Element interface. We have add this property
+##         in the MemberEntry interface.
+##    - long: boolean
+##         Check whether the field is a primitive long type or a Long type. This
+##         property has a BUG in the default implementation of AbstractElement class.
+##         We have fixed this bug in the MemberEntry interface.
+##    - float: boolean
+##    - double: boolean
+##    - void: boolean
+##    - string: boolean
+##    - object: boolean
+##    - date: boolean
+##    - calendar: boolean
+##    - instant: boolean
+##          Check whether the field is a java.time.Instant type. This property is
+##          abscent in the Element interface. We have add this property in the
+##          MemberEntry interface.
+##    - localDate: boolean
+##          Check whether the field is a java.time.LocalDate type. This property is
+##          abscent in the Element interface. We have add this property in the
+##          MemberEntry interface.
+##    - localTime: boolean
+##          Check whether the field is a java.time.LocalTime type. This property is
+##          abscent in the Element interface. We have add this property in the
+##          MemberEntry interface.
+##    - localDateTime: boolean
+##          Check whether the field is a java.time.LocalDateTime type. This property is
+##          abscent in the Element interface. We have add this property in the
+##          MemberEntry interface.
+##    - type: String
+##    - typeName: String
+##    - typeQualifiedName: String
+##    - notNull: boolean
 ##    - modifierStatic: boolean
 ##    - modifierPublic: boolean
 ##    - modifierProtected: boolean
 ##    - modifierPackageLocal: boolean
 ##    - modifierPrivate: boolean
 ##    - modifierFinal: boolean
+##    - hasAnnotation(String fullyQualifiedName): bool
+##          Check if the member has the annotation with the fully qualified name.
+##          If the member does has the annotation with the fully qualified name,
+##          this method will also check the simple name of the annotation.
+##    - getAnnotation(String fullyQualifiedName): PsiAnnotation
+##          Get the annotation with the fully qualified name.
+##          If the annotation with the fully qualified name does not exist, this method
+##          will try to get the annotation with the simple name of the fully qualified name.
+##    - getAnnotationAttribute(String fullyQualifiedName, String attributeName): String
+##          Get the value of the attribute of the annotation with the fully qualified name.
+##          If the attribute does not exist, this method will try to get the attribute of the
+##          annotation with the simple name of the fully qualified name.
+##    - getAnnotationAttributes(final String fullyQualifiedName, final String attributeName): String[]
+##          Get the values of the attribute of the annotation with the fully qualified name.
+##          If the attribute does not exist, this method will try to get the attribute of the
+##          annotation with the simple name of the fully qualified name.
+##          If the attribute has a single value, this method will return an array with the
+##          text representation of the single value; if the attribute has multiple values, this
+##          method will return an array with the text representation of the multiple values.
 ##
 ## - FieldEntry
 ##   - constant: boolean
@@ -111,8 +154,12 @@
 ## - settings: CodeStyleSettings settings of code style
 ## - project: Project            The project instance, normally used by Psi related utilities
 ## - helper: GenerationHelper
-## - StringUtil: Class
-## - NameUtil: Class
+## - StringUtil: Class           The class com.intellij.openapi.util.text.StringUtil
+## - StringUtilEx: Class         Extension of StringUtil, including all static functions in StrinUtil, with additional
+##                               functions: parseArrayInitializerText(text), unquoteStringArray(array)
+## - NameUtil: Class             The class com.intellij.psi.codeStyle.NameUtil
+## - NameUtilEx: Class           Extension of NameUtil, including all static funtions in NameUtil, with additional
+##                               functions: lowercaseAndUnderscore(name), getGetterName(field), getSetterName(field)
 ## - PsiShortNamesCache: Class   utility to search classes
 ## - PsiJavaPsiFacade: Class     Java specific utility to search classes
 ## - GlobalSearchScope: Class    class to create search scopes, used by above utilities
@@ -127,4 +174,3 @@
 ## References
 ## ----------
 ## - Velocity syntax: http://velocity.apache.org/engine/1.7/user-guide.html
-

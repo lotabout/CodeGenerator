@@ -17,6 +17,7 @@ public class MethodEntry implements MemberEntry<PsiMethod> {
         this.element = element;
     }
 
+    @Override
     public MethodElement getElement() {
         return element;
     }
@@ -40,10 +41,6 @@ public class MethodEntry implements MemberEntry<PsiMethod> {
 
     public void setFieldName(final String s) {
         element.setFieldName(s);
-    }
-
-    public String getAccessor() {
-        return element.getAccessor();
     }
 
     public boolean isModifierAbstract() {
@@ -90,196 +87,14 @@ public class MethodEntry implements MemberEntry<PsiMethod> {
         element.setDeprecated(b);
     }
 
-    public boolean matchName(final String s) throws IllegalArgumentException {
-        return element.matchName(s);
-    }
-
-    public String getName() {
-        return element.getName();
-    }
-
-    public boolean isArray() {
-        return element.isArray();
-    }
-
-    public boolean isNestedArray() {
-        return element.isNestedArray();
-    }
-
-    public void setNestedArray(final boolean b) {
-        element.setNestedArray(b);
-    }
-
-    public boolean isCollection() {
-        return element.isCollection();
-    }
-
-    public boolean isMap() {
-        return element.isMap();
-    }
-
-    public boolean isPrimitive() {
-        return element.isPrimitive();
-    }
-
-    public boolean isString() {
-        return element.isString();
-    }
-
-    public boolean isPrimitiveArray() {
-        return element.isPrimitiveArray();
-    }
-
-    public boolean isObjectArray() {
-        return element.isObjectArray();
-    }
-
-    public boolean isNumeric() {
-        return element.isNumeric();
-    }
-
-    public boolean isObject() {
-        return element.isObject();
-    }
-
-    public boolean isDate() {
-        return element.isDate();
-    }
-
-    public boolean isSet() {
-        return element.isSet();
-    }
-
-    public boolean isList() {
-        return element.isList();
-    }
-
-    public boolean isStringArray() {
-        return element.isStringArray();
-    }
-
-    public boolean isCalendar() {
-        return element.isCalendar();
-    }
-
-    public String getTypeName() {
-        return element.getTypeName();
-    }
-
-    public String getTypeQualifiedName() {
-        return element.getTypeQualifiedName();
-    }
-
+    @Override
     public boolean isAnnotatedWith(@NotNull final String qualifiedName) {
         return AnnotationUtil.isAnnotatedWith(raw, qualifiedName);
     }
 
-    public String getType() {
-        return element.getType();
-    }
-
-    public void setType(final String s) {
-        element.setType(s);
-    }
-
-    public boolean isBoolean() {
-        return element.isBoolean();
-    }
-
-    public boolean isLong() {
-        return element.isLong();
-    }
-
-    public void setLong(final boolean b) {
-        element.setLong(b);
-    }
-
-    public boolean isFloat() {
-        return element.isFloat();
-    }
-
-    public void setFloat(final boolean b) {
-        element.setFloat(b);
-    }
-
-    public boolean isDouble() {
-        return element.isDouble();
-    }
-
-    public void setDouble(final boolean b) {
-        element.setDouble(b);
-    }
-
-    public boolean isVoid() {
-        return element.isVoid();
-    }
-
-    public boolean isNotNull() {
-        return element.isNotNull();
-    }
-
+    @Override
     public void setNotNull(final boolean b) {
         element.setNotNull(b);
-    }
-
-    public void setVoid(final boolean b) {
-        element.setVoid(b);
-    }
-
-    public boolean isChar() {
-        return element.isChar();
-    }
-
-    public void setChar(final boolean b) {
-        element.setChar(b);
-    }
-
-    public boolean isByte() {
-        return element.isByte();
-    }
-
-    public void setByte(final boolean b) {
-        element.setByte(b);
-    }
-
-    public boolean isShort() {
-        return element.isShort();
-    }
-
-    public void setShort(final boolean b) {
-        element.setShort(b);
-    }
-
-    public void setBoolean(final boolean b) {
-        element.setBoolean(b);
-    }
-
-    public void setName(final String s) {
-        element.setName(s);
-    }
-
-    public boolean isModifierStatic() {
-        return element.isModifierStatic();
-    }
-
-    public boolean isModifierPublic() {
-        return element.isModifierPublic();
-    }
-
-    public boolean isModifierProtected() {
-        return element.isModifierProtected();
-    }
-
-    public boolean isModifierPackageLocal() {
-        return element.isModifierPackageLocal();
-    }
-
-    public boolean isModifierPrivate() {
-        return element.isModifierPrivate();
-    }
-
-    public boolean isModifierFinal() {
-        return element.isModifierFinal();
     }
 
     @Override
