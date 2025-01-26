@@ -75,23 +75,24 @@ public class CodeGeneratorConfig {
         });
 
         deleteTemplateButton.addActionListener(e -> {
-            final var index = templateList.getSelectedIndex();
+            final var selectedIndices = templateList.getSelectedIndices(); // Get all selected indices
             final var size = templateListModel.getSize();
-            if (index >= 0 && index < size) {
-                final var result = Messages.showYesNoDialog("Delete this template?", "Delete", null);
+            if (selectedIndices.length > 0) {
+                final var result = Messages.showYesNoDialog("Delete selected templates?", "Delete", null);
                 if (result == Messages.OK) {
-                    final var lastIndex = templateList.getAnchorSelectionIndex();
-                    templateListModel.remove(index);
-
-                    var nextIndex = -1;
-                    if (lastIndex >= 0 && lastIndex < index || lastIndex == index && index < size - 1) {
-                        nextIndex = lastIndex;
-                    } else if (lastIndex == index || lastIndex > index && lastIndex < size - 1) {
-                        nextIndex = lastIndex - 1;
-                    } else if (lastIndex >= index) {
-                        nextIndex = size - 2; // should not be here
+                    // Remove selected items in reverse order to avoid index shifting
+                    for (int i = selectedIndices.length - 1; i >= 0; i--) {
+                        templateListModel.remove(selectedIndices[i]);
                     }
-                    templateList.setSelectedIndex(nextIndex);
+                    // Update selection logic
+                    final var newSize = templateListModel.getSize();
+                    if (newSize > 0) {
+                        // Attempt to select the first remaining item (if any)
+                        templateList.setSelectedIndex(Math.min(selectedIndices[0], newSize - 1));
+                    } else {
+                        // Clear selection if the list is empty
+                        templateList.clearSelection();
+                    }
                 }
             }
         });
