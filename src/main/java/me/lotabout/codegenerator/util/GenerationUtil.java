@@ -4,8 +4,10 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.velocity.app.VelocityEngine;
@@ -13,7 +15,6 @@ import org.apache.velocity.context.Context;
 import org.apache.velocity.tools.ToolManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.java.generate.element.ElementComparator;
 import org.jetbrains.java.generate.element.GenerationHelper;
 import org.jetbrains.java.generate.exception.GenerateCodeException;
 import org.jetbrains.java.generate.exception.PluginException;
@@ -82,11 +83,11 @@ public class GenerationUtil {
     }
 
     public static void insertMembersToContext(final List<PsiMember> members,
-            final List<PsiMember> notNullMembers, final Map<String, Object> context,
+            final Map<String, Object> context,
             final String postfix, final int sortElements) {
         logger.debug("insertMembersToContext - adding fields");
         // field information
-        final List<FieldEntry> fieldElements = EntryUtils.getOnlyAsFieldEntries(members, notNullMembers, false);
+        final List<FieldEntry> fieldElements = EntryUtils.getOnlyAsFieldEntries(members, false);
         context.put("fields" + postfix, fieldElements);
         context.put("fields", fieldElements);
         if (fieldElements.size() == 1) {
@@ -101,10 +102,10 @@ public class GenerationUtil {
 
         // element information (both fields and methods)
         logger.debug("Velocity Context - adding members (fields and methods)");
-        final var elements = EntryUtils.getOnlyAsFieldAndMethodElements(members, notNullMembers, false);
+        final List<MemberEntry<?>> elements = EntryUtils.getOnlyAsFieldAndMethodElements(members, false);
         // sort elements if enabled and not using chooser dialog
         if (sortElements != 0) {
-            elements.sort(new ElementComparator(sortElements));
+            elements.sort(new MemberEntryComparator(sortElements));
         }
         context.put("members" + postfix, elements);
         context.put("members", elements);
@@ -290,9 +291,48 @@ public class GenerationUtil {
                 .collect(Collectors.toList());
     }
 
+    static List<TypeEntry> getInnerClasses(final PsiClass clazz) {
+        return Arrays
+            .stream((clazz).getInnerClasses())
+            .map(TypeEntry::of)
+            .collect(Collectors.toList());
+    }
+
+    static List<TypeEntry> getAllInnerClasses(final PsiClass clazz) {
+        return Arrays
+            .stream((clazz).getAllInnerClasses())
+            .map(TypeEntry::of)
+            .collect(Collectors.toList());
+    }
+
     static List<String> getClassTypeParameters(final PsiClass psiClass) {
         return Arrays.stream(psiClass.getTypeParameters()).map(PsiNamedElement::getName).collect(Collectors.toList());
     }
+
+    static Set<PsiClass> getAllInterfaces(final PsiClass clazz) {
+        final Set<PsiClass> result = new HashSet<>();
+        // 1. Check direct interfaces
+        for (final PsiClass iface : clazz.getInterfaces()) {
+            result.add(iface);
+            result.addAll(getAllInterfaces(iface)); // recursive
+        }
+        // 2. check super class
+        final PsiClass superClass = clazz.getSuperClass();
+        if (superClass != null) {
+            result.addAll(getAllInterfaces(superClass)); // recursive
+        }
+        return result;
+    }
+
+    static String getPackageName(final String qualifiedName) {
+        final int pos = qualifiedName.lastIndexOf('.');
+        if (pos == -1) {
+            return "";
+        } else {
+            return qualifiedName.substring(0, pos);
+        }
+    }
+
 
     static final class IncludeLookupItem {
         @NotNull

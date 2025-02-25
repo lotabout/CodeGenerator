@@ -10,25 +10,16 @@ import com.intellij.psi.PsiMethod;
 
 public class EntryUtils {
 
-    public static List<MemberEntry> getOnlyAsFieldAndMethodElements(
+    public static List<MemberEntry<?>> getOnlyAsFieldAndMethodElements(
             final Collection<? extends PsiMember> members,
-            final Collection<? extends PsiMember> selectedNotNullMembers,
             final boolean useAccessors) {
-        final List<MemberEntry> entryList = new ArrayList<>();
+        final List<MemberEntry<?>> entryList = new ArrayList<>();
         for (final PsiMember member : members) {
-            MemberEntry entry = null;
+            MemberEntry<?> entry = null;
             if (member instanceof PsiField) {
-                final FieldEntry fieldEntry= EntryFactory.of((PsiField) member, useAccessors);
-                if (selectedNotNullMembers.contains(member)) {
-                    fieldEntry.setNotNull(true);
-                }
-                entry = fieldEntry;
+                entry = EntryFactory.of((PsiField) member, useAccessors);
             } else if (member instanceof PsiMethod) {
-                final MethodEntry methodEntry = EntryFactory.of((PsiMethod) member);
-                if (selectedNotNullMembers.contains(member)) {
-                    methodEntry.setNotNull(true);
-                }
-                entry = methodEntry;
+                entry = EntryFactory.of((PsiMethod) member);
             }
 
             if (entry != null) {
@@ -40,16 +31,12 @@ public class EntryUtils {
 
     public static List<FieldEntry> getOnlyAsFieldEntries(
             final Collection<? extends PsiMember> members,
-            final Collection<? extends PsiMember> selectedNotNullMembers,
             final boolean useAccessors) {
         final List<FieldEntry> fieldEntryList = new ArrayList<>();
 
         for (final PsiMember member : members) {
             if (member instanceof final PsiField field) {
-              final FieldEntry fe = EntryFactory.of(field, useAccessors);
-                if (selectedNotNullMembers.contains(member)) {
-                    fe.setNotNull(true);
-                }
+                final FieldEntry fe = EntryFactory.of(field, useAccessors);
                 fieldEntryList.add(fe);
             }
         }

@@ -58,6 +58,7 @@ import me.lotabout.codegenerator.config.ClassSelectionConfig;
 import me.lotabout.codegenerator.config.CodeTemplate;
 import me.lotabout.codegenerator.config.MemberSelectionConfig;
 import me.lotabout.codegenerator.config.PipelineStep;
+import me.lotabout.codegenerator.util.TypeEntry;
 import me.lotabout.codegenerator.util.EntryFactory;
 import me.lotabout.codegenerator.util.GenerationUtil;
 import me.lotabout.codegenerator.util.MemberEntry;
@@ -172,7 +173,7 @@ public class CodeGeneratorAction extends AnAction {
         if (clazz == null) {
             clazz = buildFakeClassForEmptyFile(file);
         }
-        contextMap.put("class0", EntryFactory.of(clazz));
+        contextMap.put("class0", TypeEntry.of(clazz));
 
         if (editor != null) {
             final int offset = editor.getCaretModel().getOffset();
@@ -188,13 +189,12 @@ public class CodeGeneratorAction extends AnAction {
                 case "class-selection":
                     final PsiClass selectedClass = selectClass(file, (ClassSelectionConfig) step, contextMap);
                     if (selectedClass == null) return null;
-                    contextMap.put("class" + step.postfix(), EntryFactory.of(selectedClass));
+                    contextMap.put("class" + step.postfix(), TypeEntry.of(selectedClass));
                     break;
                 case "member-selection":
                     final List<PsiMember> selectedMembers = selectMember(file, (MemberSelectionConfig) step, contextMap);
                     if (selectedMembers == null) return null;
                     GenerationUtil.insertMembersToContext(selectedMembers,
-                        Collections.emptyList(),
                         contextMap,
                         step.postfix(),
                         ((MemberSelectionConfig) step).sortElements);

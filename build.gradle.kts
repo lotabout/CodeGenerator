@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "me.lotabout"
-version = "1.8.1"
+version = "2.0.0"
 
 repositories {
   mavenCentral()
@@ -27,6 +27,8 @@ dependencies {
     exclude(group = "org.slf4j", module = "slf4j-api")
   }
   testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.0")
+  testImplementation("org.mockito:mockito-core:5.10.0")
+  testImplementation("org.mockito:mockito-junit-jupiter:5.10.0")
   testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.7.0")
 }
 

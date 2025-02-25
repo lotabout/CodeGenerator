@@ -14,7 +14,15 @@
 ## - PackageName: String   The package name specified by `Target Class Name`
 ## - class0: ClassEntry    The class that the action is triggered upon
 ##   - raw: PsiClass
-##   - String packageName
+##   - type: PsiClassType
+##   - elementType: ClassEntry  The type of the element of the collection/array if the class is a collection/array
+##   - keyType: ClassEntry  The type of the key of the map if the class is a map
+##   - valueType: ClassEntry  The type of the value of the map if the class is a map
+##   - array: boolean
+##   - colleciton: boolean
+##   - set: boolean
+##   - map: boolean
+##   - packageName: String
 ##   - importList: List<String>
 ##   - fields: List<FieldEntry>
 ##   - allFields: List<FieldEntry>
@@ -23,20 +31,21 @@
 ##   - innerClasses: List<ClassEntry>
 ##   - allInnerClasses: List<ClassEntry>
 ##   - typeParamList:  List<String>
-##   - name: String
-##   - superName: String
-##   - superQualifiedName: String
-##   - qualifiedName: String
-##   - typeParams: int
+##   - name: String    The simple name of this class.
+##   - qualifiedName: String   The qualified name of this class.
+##   - superClass: ClassEntry   The superclass of this class
+##   - superName: String    The simple name of the superclass of this class
+##   - superQualifiedName: String  The qualified name of the superclass of this class
+##   - typeParams: int   The number of parameters of this type
 ##   - hasSuper: boolean
 ##   - deprecated: boolean
 ##   - enum: boolean
 ##   - exception: boolean
 ##   - abstract: boolean
 ##   - implementNames: String[]
-##   - isImplements(String): bool
+##   - isImplements(String): bool  Whether this class implements the specified interface, include directly implements, or indirectly implements.
 ##   - isExtends(String): bool
-##   - matchName(String): bool
+##   - matchName(String): bool Whether the class name matches the specified name.
 ##
 ## - class1: ClassEntry    The first selected class, where `1` is the postfix
 ##                         you specify in pipeline
