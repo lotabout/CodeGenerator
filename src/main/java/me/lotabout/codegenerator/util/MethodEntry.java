@@ -3,6 +3,9 @@ package me.lotabout.codegenerator.util;
 import java.lang.ref.WeakReference;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.java.generate.element.ElementFactory;
 import org.jetbrains.java.generate.element.MethodElement;
@@ -129,30 +132,31 @@ public class MethodEntry implements MemberEntry<PsiMethod> {
 
     @Override
     public boolean equals(final Object o) {
-        if (this == o) return true;
-        if (!(o instanceof MethodEntry)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         final MethodEntry that = (MethodEntry) o;
-        return raw.equals(that.raw)
-            && element.equals(that.element)
-            && (type == null ? that.type == null : type.equals(that.type));
+        return new EqualsBuilder()
+            .append(raw, that.raw)
+            .isEquals();
     }
 
     @Override
     public int hashCode() {
-        int result = raw.hashCode();
-        result = 31 * result + element.hashCode();
-        result = 31 * result + (type != null ? type.hashCode() : 0);
-        return result;
+        return new HashCodeBuilder(17, 37)
+            .append(raw)
+            .toHashCode();
     }
 
     @Override
     public String toString() {
-        return "MethodEntry{" +
-                "raw=" + raw +
-                ", element=" + element +
-                ", type=" + type +
-                ", name='" + getMethodName() + '\'' +
-                ", returnType='" + (type != null ? type.getName() : "void") + '\'' +
-                '}';
+        return new ToStringBuilder(this)
+            .append("raw", raw)
+            .append("element", element)
+            .append("type", type)
+            .toString();
     }
 }

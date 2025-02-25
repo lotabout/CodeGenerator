@@ -8,6 +8,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.java.generate.psi.PsiAdapter;
 
@@ -82,7 +85,7 @@ public class TypeEntry {
         return CACHE.computeIfAbsent(type, (t) -> new TypeEntry(t, facade));
     }
 
-    private final Map<String, Boolean> implementsCache = new ConcurrentHashMap<>();
+    private transient final Map<String, Boolean> implementsCache = new ConcurrentHashMap<>();
     private final PsiType type;             // Store the actual type information including generics
     private final JavaPsiFacade facade;
     @Nullable
@@ -926,4 +929,60 @@ public class TypeEntry {
         return abstractType;
     }
 
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        final TypeEntry typeEntry = (TypeEntry) o;
+        return new EqualsBuilder().append(type, typeEntry.type).isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37).append(type).toHashCode();
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+            .append("type", type)
+            .append("facade", facade)
+            .append("psiClass", psiClass)
+            .append("primitiveArray", primitiveArray)
+            .append("objectArray", objectArray)
+            .append("stringArray", stringArray)
+            .append("array", array)
+            .append("collection", collection)
+            .append("set", set)
+            .append("map", map)
+            .append("primitive", primitive)
+            .append("voidType", voidType)
+            .append("enumType", enumType)
+            .append("exceptionType", exceptionType)
+            .append("abstractType", abstractType)
+            .append("deprecated", deprecated)
+            .append("interfaceType", interfaceType)
+            .append("recordType", recordType)
+            .append("simpleName", simpleName)
+            .append("qualifiedName", qualifiedName)
+            .append("packageName", packageName)
+            .append("superClass", superClass)
+            .append("elementType", elementType)
+            .append("keyType", keyType)
+            .append("valueType", valueType)
+            .append("fields", fields)
+            .append("allFields", allFields)
+            .append("methods", methods)
+            .append("allMethods", allMethods)
+            .append("members", members)
+            .append("allMembers", allMembers)
+            .append("interfaces", interfaces)
+            .append("superClasses", superClasses)
+            .append("typeParameters", typeParameters)
+            .toString();
+    }
 }

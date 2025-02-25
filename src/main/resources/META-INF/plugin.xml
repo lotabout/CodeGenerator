@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>me.lotabout.codegenerator</id>
     <name>Code Generator</name>
-    <version>2.0.0</version>
+    <version>2.0.1</version>
     <vendor email="lotabout@gmail.com" url="https://lotabout.me">Jinzhou Zhang</vendor>
 
     <description><![CDATA[
@@ -23,6 +23,7 @@
 
     <change-notes><![CDATA[
   <ul>
+  <li>version 2.0.1 Minor refactor.</li>
   <li>version 2.0.0 Refactor a lot of codes.</li>
   <li>version 1.8.1 Add the utility module `NameUtilEx`, which is an extension of `com.intellij.psi.codeStyle.NameUtil`;
     Add the utility module `StringUtilEx`, which is an extension of `com.intellij.openapi.util.text.StringUtil`;
