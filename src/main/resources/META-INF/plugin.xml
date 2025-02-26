@@ -1,8 +1,8 @@
 <idea-plugin>
     <id>me.lotabout.codegenerator</id>
     <name>Code Generator</name>
-    <version>2.0.1</version>
-    <vendor email="lotabout@gmail.com" url="https://lotabout.me">Jinzhou Zhang</vendor>
+    <version>2.0.2</version>
+    <vendor email="starfish.hu@gmail.com">Haixing Hu</vendor>
 
     <description><![CDATA[
 
@@ -23,6 +23,7 @@
 
     <change-notes><![CDATA[
   <ul>
+  <li>version 2.0.2 Fix the potential bugs that comparing two `PsiClassType` may cause `PsiInvalidElementAccessException`.</li>
   <li>version 2.0.1 Minor refactor.</li>
   <li>version 2.0.0 Refactor a lot of codes.</li>
   <li>version 1.8.1 Add the utility module `NameUtilEx`, which is an extension of `com.intellij.psi.codeStyle.NameUtil`;

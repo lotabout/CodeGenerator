@@ -35,7 +35,7 @@ import com.intellij.psi.PsiTypeParameter;
 public class TypeEntry {
 
     // Use ConcurrentHashMap as cache to ensure thread safety
-    private static final Map<PsiType, TypeEntry> CACHE = new ConcurrentHashMap<>();
+    // private static final Map<PsiType, TypeEntry> CACHE = new ConcurrentHashMap<>();
 
     /**
      * Factory method to create or retrieve a {@link TypeEntry} instance.
@@ -47,7 +47,8 @@ public class TypeEntry {
         if (type == null) {
             return null;
         }
-        return CACHE.computeIfAbsent(type, (t) -> new TypeEntry(t, facade));
+        // return CACHE.computeIfAbsent(type, (t) -> new TypeEntry(t, facade));
+        return new TypeEntry(type, facade);
     }
 
     /**
@@ -65,7 +66,8 @@ public class TypeEntry {
         final JavaPsiFacade facade = JavaPsiFacade.getInstance(psiClass.getProject());
         final PsiElementFactory factory = facade.getElementFactory();
         final PsiType type = factory.createType(psiClass);
-        return CACHE.computeIfAbsent(type, (t) -> new TypeEntry(t, facade));
+        // return CACHE.computeIfAbsent(type, (t) -> new TypeEntry(t, facade));
+        return new TypeEntry(type, facade);
     }
 
     /**
@@ -82,7 +84,8 @@ public class TypeEntry {
         }
         final PsiType type = psiTypeElement.getType();
         final JavaPsiFacade facade = JavaPsiFacade.getInstance(psiTypeElement.getProject());
-        return CACHE.computeIfAbsent(type, (t) -> new TypeEntry(t, facade));
+        // return CACHE.computeIfAbsent(type, (t) -> new TypeEntry(t, facade));
+        return new TypeEntry(type, facade);
     }
 
     private transient final Map<String, Boolean> implementsCache = new ConcurrentHashMap<>();
