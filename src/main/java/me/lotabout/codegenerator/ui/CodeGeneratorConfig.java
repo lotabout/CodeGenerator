@@ -158,7 +158,7 @@ public class CodeGeneratorConfig {
     }
 
     private void saveToFile(final String content) {
-        final var descriptor = FileChooserDescriptorFactory.createSingleLocalFileDescriptor();
+        final var descriptor = FileChooserDescriptorFactory.createSingleFileOrFolderDescriptor();
         descriptor.setTitle("Choose Directory to Export");
         descriptor.setDescription("save to directory/" + DEFAULT_EXPORT_PATH + " or the file to overwrite");
         FileChooser.chooseFile(descriptor, null, mainPane, null, virtualFile -> {

@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>me.lotabout.codegenerator</id>
     <name>Code Generator</name>
-    <version>2.0.3</version>
+    <version>2.0.4</version>
     <vendor email="starfish.hu@gmail.com">Haixing Hu</vendor>
 
     <description><![CDATA[
@@ -23,6 +23,7 @@
 
     <change-notes><![CDATA[
   <ul>
+  <li>Fix the bug that the plugin configuration panel cannot be opened in Intellij IDEA 251.*.</li>
   <li>version 2.0.3 Support Intellij IDEA 253.*.</li>
   <li>version 2.0.2 Fix the potential bugs that comparing two `PsiClassType` may cause `PsiInvalidElementAccessException`.</li>
   <li>version 2.0.1 Minor refactor.</li>

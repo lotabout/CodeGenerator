@@ -9,6 +9,7 @@ import org.jetbrains.annotations.Nullable;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.SearchableConfigurable;
+import com.intellij.openapi.util.Disposer;
 
 import me.lotabout.codegenerator.CodeGeneratorSettings;
 import me.lotabout.codegenerator.ui.include.IncludeConfig;
@@ -106,6 +107,10 @@ public class CodeGeneratorConfigurable implements SearchableConfigurable {
 
     @Override
     public void apply() throws ConfigurationException {
+        if (codeGeneratorConfig == null) {
+            return;
+        }
+        
         final var templates = codeGeneratorConfig.getTabTemplates();
         for (final var template : templates) {
             if (!template.isValid()) {
@@ -115,14 +120,30 @@ public class CodeGeneratorConfigurable implements SearchableConfigurable {
         }
 
         settings.setCodeTemplates(templates);
-        settings.setIncludes(includeConfig.getIncludes());
+        
+        if (includeConfig != null) {
+            settings.setIncludes(includeConfig.getIncludes());
+            includeConfig.refresh(includeConfig.getIncludes());
+        }
 
         codeGeneratorConfig.refresh(templates);
-        includeConfig.refresh(includeConfig.getIncludes());
     }
 
     @Override
     public void reset() {
-
+        if (codeGeneratorConfig != null) {
+            codeGeneratorConfig.refresh(settings.getCodeTemplates());
+        }
+        
+        if (includeConfig != null) {
+            includeConfig.refresh(settings.getIncludes());
+        }
+    }
+    
+    @Override
+    public void disposeUIResources() {
+        codeGeneratorConfig = null;
+        includeConfig = null;
+        mainPaneConfig = null;
     }
 }

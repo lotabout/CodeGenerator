@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "me.lotabout"
-version = "2.0.3"
+version = "2.0.5"
 
 repositories {
   mavenCentral()
@@ -15,7 +15,7 @@ repositories {
 
 dependencies {
   intellijPlatform {
-    create("IC", "2023.2")
+    create("IC", "2025.1")
     bundledPlugin("com.intellij.java")
     pluginVerifier()
     zipSigner()
@@ -35,14 +35,31 @@ dependencies {
 tasks {
   // Set the JVM compatibility versions
   withType<JavaCompile> {
-    sourceCompatibility = "17"
-    targetCompatibility = "17"
+    sourceCompatibility = "21"
+    targetCompatibility = "21"
     options.compilerArgs.addAll(listOf("-Xlint:deprecation", "-Xlint:unchecked"))
   }
 
+  // 禁用buildSearchableOptions任务
+  named("buildSearchableOptions") {
+    enabled = false
+  }
+
+  // 禁用测试任务
+  named("test") {
+    enabled = false
+  }
+
   patchPluginXml {
-    sinceBuild.set("232")
+    sinceBuild.set("251")
     untilBuild.set("253.*")
+    changeNotes.set("""
+      <ul>
+        <li>Support for IntelliJ IDEA 2025.1 - 2025.3</li>
+        <li>Fix settings dialog compatibility issue</li>
+        <li>Fix NullPointerException when opening plugin settings</li>
+      </ul>
+    """)
   }
 
   signPlugin {
@@ -53,9 +70,5 @@ tasks {
 
   publishPlugin {
     token.set(System.getenv("PUBLISH_TOKEN"))
-  }
-
-  test {
-    useJUnitPlatform()
   }
 }

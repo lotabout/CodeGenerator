@@ -73,29 +73,40 @@ public class TemplateEditPane {
         askRadioButton.setSelected(false);
         replaceExistingRadioButton.setSelected(false);
         generateDuplicateMemberRadioButton.setSelected(false);
-        switch (codeTemplate.whenDuplicatesOption) {
-            case ASK:
-                askRadioButton.setSelected(true);
-                break;
-            case REPLACE:
-                replaceExistingRadioButton.setSelected(true);
-                break;
-            case DUPLICATE:
-                generateDuplicateMemberRadioButton.setSelected(true);
-                break;
+        
+        if (codeTemplate.whenDuplicatesOption == null) {
+            askRadioButton.setSelected(true);
+        } else {
+            switch (codeTemplate.whenDuplicatesOption) {
+                case ASK:
+                    askRadioButton.setSelected(true);
+                    break;
+                case REPLACE:
+                    replaceExistingRadioButton.setSelected(true);
+                    break;
+                case DUPLICATE:
+                    generateDuplicateMemberRadioButton.setSelected(true);
+                    break;
+            }
         }
 
         atCaretRadioButton.setSelected(false);
         atEndOfClassRadioButton.setSelected(false);
-        switch (codeTemplate.insertNewMethodOption) {
-            case AT_CARET:
-                atCaretRadioButton.setSelected(true);
-                break;
-            case AT_THE_END_OF_A_CLASS:
-                atEndOfClassRadioButton.setSelected(true);
-                break;
-            default:
-                break;
+        
+        if (codeTemplate.insertNewMethodOption == null) {
+            atCaretRadioButton.setSelected(true);
+        } else {
+            switch (codeTemplate.insertNewMethodOption) {
+                case AT_CARET:
+                    atCaretRadioButton.setSelected(true);
+                    break;
+                case AT_THE_END_OF_A_CLASS:
+                    atEndOfClassRadioButton.setSelected(true);
+                    break;
+                default:
+                    atCaretRadioButton.setSelected(true);
+                    break;
+            }
         }
 
         codeTemplate.pipeline.forEach(this::addMemberSelection);

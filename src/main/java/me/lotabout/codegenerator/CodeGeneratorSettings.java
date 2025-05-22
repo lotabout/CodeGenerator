@@ -59,19 +59,59 @@ public class CodeGeneratorSettings implements PersistentStateComponent<CodeGener
     @Override
     public void loadState(final CodeGeneratorSettings codeGeneratorSettings) {
         XmlSerializerUtil.copyBean(codeGeneratorSettings, this);
+        
+        // 修复可能的null字段问题
+        if (this.codeTemplates != null) {
+            for (CodeTemplate template : this.codeTemplates) {
+                if (template != null) {
+                    // 确保这些字段不为null，避免NPE
+                    if (template.whenDuplicatesOption == null) {
+                        template.whenDuplicatesOption = org.jetbrains.java.generate.config.DuplicationPolicy.ASK;
+                    }
+                    if (template.insertNewMethodOption == null) {
+                        template.insertNewMethodOption = org.jetbrains.java.generate.config.InsertWhere.AT_CARET;
+                    }
+                }
+            }
+        }
     }
 
     public List<CodeTemplate> getCodeTemplates() {
         if (codeTemplates == null) {
             codeTemplates = loadDefaultTemplates();
         }
+        
+        // 确保所有模板的字段不为null
+        for (CodeTemplate template : codeTemplates) {
+            if (template != null) {
+                if (template.whenDuplicatesOption == null) {
+                    template.whenDuplicatesOption = org.jetbrains.java.generate.config.DuplicationPolicy.ASK;
+                }
+                if (template.insertNewMethodOption == null) {
+                    template.insertNewMethodOption = org.jetbrains.java.generate.config.InsertWhere.AT_CARET;
+                }
+            }
+        }
+        
         return codeTemplates;
     }
 
     public Optional<CodeTemplate> getCodeTemplate(final String templateId) {
-        return codeTemplates.stream()
+        Optional<CodeTemplate> template = codeTemplates.stream()
                 .filter(t -> t != null && t.getId().equals(templateId))
                 .findFirst();
+        
+        // 确保返回的模板字段不为null
+        template.ifPresent(t -> {
+            if (t.whenDuplicatesOption == null) {
+                t.whenDuplicatesOption = org.jetbrains.java.generate.config.DuplicationPolicy.ASK;
+            }
+            if (t.insertNewMethodOption == null) {
+                t.insertNewMethodOption = org.jetbrains.java.generate.config.InsertWhere.AT_CARET;
+            }
+        });
+        
+        return template;
     }
 
     public Optional<Include> getInclude(final String includeId) {
