@@ -86,7 +86,6 @@ public class CodeGeneratorSettings implements PersistentStateComponent<CodeGener
         try {
             templates.addAll(loadTemplates("getters-and-setters.xml"));
             templates.addAll(loadTemplates("to-string.xml"));
-            templates.addAll(loadTemplates("HUE-Serialization.xml"));
         } catch (Exception e) {
             LOGGER.error("loadDefaultTemplates failed", e);
         }
